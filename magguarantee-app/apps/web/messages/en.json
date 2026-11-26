@@ -1,0 +1,2389 @@
+{
+  "app": {
+    "name": "MAGGuarantee"
+  },
+  "common": {
+    "loading": "Loading...",
+    "networkError": "No connection. Please try again.",
+    "logout": "Log out",
+    "save": "Save",
+    "cancel": "Cancel",
+    "delete": "Delete",
+    "edit": "Edit",
+    "new": "New",
+    "search": "Search",
+    "all": "All",
+    "active": "Active",
+    "inactive": "Inactive",
+    "yes": "Yes",
+    "no": "No",
+    "actions": "Actions",
+    "saving": "Saving...",
+    "saved": "Saved",
+    "errorGeneric": "Something went wrong. Please try again.",
+    "deleteConfirmTitle": "Are you sure?",
+    "deleteConfirmBody": "This action cannot be undone.",
+    "deactivate": "Deactivate",
+    "reactivate": "Reactivate",
+    "clear": "Clear",
+    "validationFailedToast": "Please fill in the highlighted fields",
+    "inactiveSuffix": "(inactive)",
+    "pcsShort": "pcs.",
+    "adrClassOption": "Class {n}",
+    "copy": "Copy",
+    "copied": "Copied",
+    "close": "Close",
+    "pagination": "Pagination",
+    "prevPage": "Previous page",
+    "nextPage": "Next page",
+    "clearFilters": "Clear filters",
+    "showPassword": "Show password",
+    "hidePassword": "Hide password",
+    "refreshHint": "Click to refresh data"
+  },
+  "formActive": {
+    "vehicleConsequence": "An inactive vehicle disappears from selection lists and can't be used in new departures or claims.",
+    "trailerConsequence": "An inactive trailer disappears from selection lists and can't be used in new departures.",
+    "driverConsequence": "An inactive driver disappears from selection lists and can't be assigned to new departures.",
+    "carrierConsequence": "An inactive carrier loses panel access, and its vehicles and drivers disappear from selection lists."
+  },
+  "confirmDelete": {
+    "title": "Permanently delete — {entityLabel}",
+    "body": "This action cannot be undone. {entityName} will be permanently removed. Please provide a reason.",
+    "reasonLabel": "Reason for deletion",
+    "reasonPlaceholder": "Enter reason — minimum 3 characters",
+    "cancel": "Cancel",
+    "confirm": "Delete permanently",
+    "deleting": "Deleting…",
+    "deletedToast": "Permanently deleted",
+    "errorToast": "Failed to delete",
+    "softTitle": "Delete — {entityLabel}",
+    "softBody": "{entityName} will be removed. It can be restored later.",
+    "vehicleSoftBody": "{entityName} will be removed. The same plate number can no longer be added to the system again.",
+    "softConfirm": "Delete",
+    "entityLabel": {
+      "carrier": "carrier",
+      "vehicle": "vehicle",
+      "driver": "driver",
+      "trailer": "trailer",
+      "trailerType": "trailer type",
+      "team": "leading team"
+    }
+  },
+  "users": {
+    "title": "Users",
+    "newUser": "New user",
+    "editUser": "Edit user",
+    "emptyTitle": "No users yet",
+    "emptyMessage": "No users have been added yet.",
+    "emptyFiltered": {
+      "title": "No results",
+      "message": "No users match the selected filters."
+    },
+    "filters": {
+      "searchPlaceholder": "Search login / name",
+      "role": "Role",
+      "allRoles": "All roles",
+      "activeLabel": "Filter by active status",
+      "allActive": "All",
+      "onlyActive": "Active only",
+      "onlyInactive": "Inactive only"
+    },
+    "fields": {
+      "login": "Login",
+      "name": "Full name",
+      "email": "E-mail",
+      "role": "Role",
+      "password": "Temporary password",
+      "passwordHint": "≥10 chars, ≥1 letter, ≥1 digit. Leave empty to auto-generate.",
+      "liderEmail": "Leader e-mail",
+      "liderEmailHint": "Only for the planista role — supervisor's address.",
+      "active": "Active",
+      "createdAt": "Created"
+    },
+    "actions": {
+      "resetPassword": "Reset password…",
+      "deactivate": "Deactivate",
+      "reactivate": "Reactivate",
+      "delete": "Delete permanently"
+    },
+    "resetDialog": {
+      "title": "Reset user password",
+      "description": "You're setting a new password for <strong>{login}</strong>.",
+      "optionAuto": "Generate automatically",
+      "optionCustom": "Set a custom password",
+      "forceNote": "The user will be required to change this password on next login.",
+      "confirm": "Reset password"
+    },
+    "resetPassword": {
+      "title": "New temporary password",
+      "description": "Share this password with the user. They should change it after first login.",
+      "loginLabel": "Login:",
+      "passwordLabel": "Password:",
+      "copyAria": "Copy temporary password to clipboard"
+    },
+    "confirmActivate": {
+      "deactivateTitle": "Deactivate user?",
+      "deactivateBody": "{login} will not be able to log in, but their data stays in the system.",
+      "reactivateTitle": "Reactivate user?",
+      "reactivateBody": "{login} will regain access to the system."
+    },
+    "tempPasswordToast": "Temporary password: {password}",
+    "deactivatedToast": "User deactivated",
+    "reactivatedToast": "User reactivated"
+  },
+  "forms": {
+    "country": {
+      "placeholder": "Select country",
+      "driverLabel": "Kraj / Country",
+      "driverDescription": "Drives the format hint for phone and ID document (optional, not saved)."
+    },
+    "postal": {
+      "placeholderNoCountry": "Select a country first",
+      "expectedFormat": "Format: {example}",
+      "invalidFormat": "Invalid format. Expected e.g. {example}"
+    },
+    "phone": {
+      "placeholderNoCountry": "Phone number",
+      "expectedFormat": "Expected: {callingCode} · ~{digits} digits",
+      "invalidFormat": "Unusual format. Expected e.g. {example}"
+    },
+    "document": {
+      "placeholderNoCountry": "Document number",
+      "expectedFormat": "Format: e.g. {example}",
+      "invalidFormat": "Unusual format. Expected e.g. {example}"
+    }
+  },
+  "theme": {
+    "toggle": "Toggle theme",
+    "light": "Light mode",
+    "dark": "Dark mode"
+  },
+  "hoursReadout": {
+    "label": "Time",
+    "raw": "raw",
+    "counted": "counted",
+    "unit": "h",
+    "missing": "—",
+    "hint": {
+      "identical": "No exclusions",
+      "adjusted": "After exclusions and overrides",
+      "override": "After manual verifier override"
+    }
+  },
+  "lang": {
+    "toggle": "Change language",
+    "pl": "Polish",
+    "en": "English"
+  },
+  "login": {
+    "title": "MAGGuarantee",
+    "subtitle": "Sign in to continue",
+    "loginLabel": "Login",
+    "loginPlaceholder": "Enter login",
+    "passwordLabel": "Password",
+    "passwordPlaceholder": "Enter password",
+    "passwordShow": "Show password",
+    "passwordHide": "Hide password",
+    "submit": "Continue →",
+    "submitting": "Signing in...",
+    "forgotPassword": "Forgot password",
+    "errorWrong": "Invalid login or password",
+    "errorNetwork": "No connection. Please try again."
+  },
+  "verify": {
+    "title": "MAGGuarantee",
+    "subtitle": "Two-step verification",
+    "sentTo": "We sent a 6-digit code to",
+    "codeLifetime": "Code valid for 10 minutes",
+    "codeLabel": "Verification code",
+    "submit": "Verify",
+    "submitting": "Checking...",
+    "resend": "Resend code",
+    "resendIn": "Resend in {seconds}s",
+    "resending": "Sending...",
+    "back": "← Back",
+    "errorWrong": "Wrong code ({attemptsLeft, plural, one {# attempt remaining} other {# attempts remaining}})",
+    "errorExpired": "Code expired. Go back to login to receive a new one.",
+    "errorLocked": "Account temporarily locked. Try again in {time}.",
+    "errorNetwork": "No connection. Please try again.",
+    "resendSuccess": "New code sent.",
+    "resendCooldown": "Wait {seconds}s before resending."
+  },
+  "forgotPassword": {
+    "subtitle": "Reset password",
+    "submit": "Send code",
+    "backToLogin": "Back to login",
+    "sentTitle": "If the account exists, we've sent a code",
+    "sentBody": "A verification code was sent to <strong>{email}</strong>.",
+    "enterCode": "Enter code",
+    "resetSubtitle": "Set a new password",
+    "codeTtl": "Code valid for 10 minutes",
+    "newPasswordLabel": "New password",
+    "confirmPasswordLabel": "Repeat password",
+    "setPassword": "Set password",
+    "successToast": "Password changed. Please sign in.",
+    "errorExpired": "Code expired. Request a new one.",
+    "errorWrongCode": "Invalid code"
+  },
+  "changePassword": {
+    "subtitle": "Set your own password",
+    "explainer": "This is a temporary password — set your own to continue.",
+    "newPasswordLabel": "New password",
+    "confirmPasswordLabel": "Repeat password",
+    "submit": "Save and continue",
+    "logout": "Log out",
+    "successToast": "Password set.",
+    "menuItem": "Change password",
+    "dialogTitle": "Change password",
+    "dialogDescription": "Set a new password for your account. You will stay signed in.",
+    "dialogSubmit": "Change password",
+    "dialogSuccessToast": "Password changed.",
+    "dialogErrorToast": "Could not change the password. Please try again."
+  },
+  "passwordPolicy": {
+    "label": "Password requirements",
+    "minLen": "at least 10 characters",
+    "letter": "at least 1 letter",
+    "digit": "at least 1 digit",
+    "mismatch": "Passwords don't match"
+  },
+  "roles": {
+    "admin": "Administrator",
+    "pracownik": "Employee",
+    "opiekun": "Carrier-success manager",
+    "planista": "Planner",
+    "dyspozytor": "Dispatcher",
+    "przewoznik": "Carrier",
+    "eksport": "Export",
+    "weryfikator": "Verifier"
+  },
+  "landing": {
+    "welcome": "Welcome, {name}",
+    "yourRole": "Role: {role}",
+    "phasePlaceholder": "Phase 1 — placeholder. The full panel will appear in later phases.",
+    "logout": "Log out"
+  },
+  "nav": {
+    "dashboard": "Dashboard",
+    "claims": "Claims",
+    "opieka": "My carriers",
+    "carriers": "Carriers",
+    "vehicles": "Vehicles",
+    "drivers": "Drivers",
+    "trailers": "Trailers",
+    "trailerTypes": "Trailer types",
+    "teams": "Leading teams",
+    "delegations": "Trips",
+    "limits": "Limits",
+    "users": "Users",
+    "audit": "Audit log",
+    "diagnostics": "Diagnostics",
+    "openMenu": "Open menu",
+    "closeMenu": "Close menu",
+    "sectionLabel": "Panel sections",
+    "opiekaAttentionBadge": "{count, plural, one {# carrier requires attention} other {# carriers require attention}}",
+    "alerts": "Alerts",
+    "alertsBadge": "{count, plural, one {# document needs attention} other {# documents need attention}}"
+  },
+  "forbidden": {
+    "title": "Access denied",
+    "message": "You don't have permission to view this section. Contact your administrator if you believe this is a mistake.",
+    "backToDashboard": "Back to dashboard"
+  },
+  "wizard": {
+    "ariaLabel": "Carrier onboarding progress",
+    "header": {
+      "title": "Add carrier — step {n} of 4"
+    },
+    "step": {
+      "carrier": "Carrier",
+      "vehicle": "Vehicle",
+      "trailer": "Trailer",
+      "driver": "Driver"
+    },
+    "state": {
+      "completed": "completed",
+      "active": "in progress",
+      "skipped": "skipped",
+      "future": "pending"
+    },
+    "aria": {
+      "stepPrefix": "Step {n}:"
+    },
+    "action": {
+      "saveAndContinue": "Save and continue",
+      "skip": "Skip",
+      "exit": "Exit"
+    },
+    "entityAlreadyExists": {
+      "vehicle": "This carrier already has a vehicle — you can add another or skip this step.",
+      "trailer": "This carrier already has a trailer — you can add another or skip this step.",
+      "driver": "This carrier already has a driver — you can add another or skip this step."
+    }
+  },
+  "tempPwd": {
+    "regionLabel": "Temporary password to share with carrier",
+    "title": "Temporary password",
+    "reveal": "Show",
+    "hide": "Hide",
+    "copy": "Copy",
+    "copied": "Copied",
+    "revealAria": "Show temporary password",
+    "hideAria": "Hide temporary password",
+    "copyAria": "Copy temporary password to clipboard",
+    "maskedAria": "Temporary password, hidden. Click Show to reveal."
+  },
+  "onboardingStatus": {
+    "resumeAction": "Finish onboarding"
+  },
+  "onboardingMissing": {
+    "groupLabel": "Missing onboarding items",
+    "vehicle": "Missing: Vehicle",
+    "trailer": "Missing: Trailer",
+    "driver": "Missing: Driver"
+  },
+  "carriers": {
+    "title": "Carriers",
+    "newCarrier": "New carrier",
+    "editCarrier": "Edit carrier",
+    "emptyTitle": "No carriers yet",
+    "emptyMessage": "No carriers have been added yet.",
+    "emptyFiltered": {
+      "title": "No results",
+      "message": "No carriers match the selected filters."
+    },
+    "filters": {
+      "searchPlaceholder": "Search login / name / NIP",
+      "opiekun": "Account manager",
+      "allOpiekun": "All managers",
+      "allActive": "All",
+      "onlyActive": "Active only",
+      "onlyInactive": "Inactive only",
+      "onboardingLabel": "Filter by onboarding status",
+      "allOnboarding": "Onboarding: all",
+      "onlyIncomplete": "Incomplete only",
+      "onlyCompleteOnboarding": "Complete only"
+    },
+    "fields": {
+      "login": "Login",
+      "name": "Name",
+      "company": "Company",
+      "email": "E-mail",
+      "password": "Temporary password (optional)",
+      "phone": "Phone",
+      "contactPerson": "Contact person",
+      "ordersEmail": "Orders e-mail",
+      "nip": "NIP / Tax ID",
+      "nipHint": "10 digits for PL NIP, or 5–20 alphanumeric for foreign tax IDs",
+      "vatId": "VAT-ID",
+      "vatHint": "Select country and enter the number",
+      "vatCountry": "VAT country",
+      "vatNumber": "VAT number",
+      "accountEur": "EUR account (IBAN)",
+      "accountPln": "PLN account",
+      "paymentTerms": "Payment terms (days)",
+      "insuranceValue": "Insurance value OCP",
+      "insuranceMinHint": "Min. 250,000 EUR",
+      "insuranceExpiry": "Insurance expiry",
+      "licenseExpiry": "License expiry",
+      "numberOfVehicle": "Vehicle count",
+      "companyAddress": "Company address",
+      "opiekun": "Account manager",
+      "active": "Active"
+    },
+    "sections": {
+      "account": "Account & contact",
+      "company": "Company data",
+      "finance": "Finance",
+      "permits": "Permits",
+      "assignment": "Assignment"
+    },
+    "accountSelector": {
+      "label": "Multiple accounts found in the MF registry. Choose the EUR account:",
+      "placeholder": "Choose EUR account"
+    },
+    "paymentTermsValue": "{n} days",
+    "tempPasswordToast": "Temporary password: {password}",
+    "resetPassword": {
+      "action": "Reset password",
+      "confirmTitle": "Reset the carrier password?",
+      "confirmDescription": "Carrier: {carrier}",
+      "confirmNote": "The current password stops working. A new temporary password is emailed to the carrier login address and shown here once.",
+      "confirmAction": "Reset password",
+      "resultTitle": "Password reset",
+      "resultDescription": "Save or hand over the password now — it will not be shown again. The carrier sets their own on first sign-in.",
+      "loginLabel": "Login",
+      "passwordLabel": "Temporary password",
+      "copyAria": "Copy temporary password",
+      "errorToast": "Could not reset the password."
+    }
+  },
+  "entityDetail": {
+    "edit": "Edit",
+    "close": "Close",
+    "createdAt": "Created",
+    "updatedAt": "Updated",
+    "gpsDeviceId": "GPS device ID"
+  },
+  "fileUpload": {
+    "prompt": "Drag files here or click to choose",
+    "promptCompact": "Add a file or drop",
+    "constraints": "JPG, PNG, PDF · max. 10 MB",
+    "constraintsPdf": "PDF only · max. 10 MB",
+    "change": "Change",
+    "errTooLarge": "File exceeds 10 MB",
+    "errWrongType": "Unsupported file type",
+    "errUploadFailed": "Upload failed",
+    "retry": "Retry",
+    "dropzoneAria": "Choose files to upload",
+    "removeAria": "Remove file {name}",
+    "fields": {
+      "gps": "GPS contract",
+      "agreement": "Agreement scan",
+      "cabotageDeInsurance": "Cabotage insurance",
+      "certXl": "XL certificate (PDF)",
+      "adr": "ADR certificate",
+      "adrHint": "Attach a scan or photo of the driver's ADR certificate."
+    },
+    "required": {
+      "gps": "GPS contract scan required when a GPS number is set.",
+      "cabotage_de_insurance": "DE cabotage insurance required.",
+      "cert_xl": "XL certificate scan (PDF) required.",
+      "adr": "ADR certificate scan required when ADR is checked."
+    }
+  },
+  "multiSelect": {
+    "placeholder": "Choose countries…",
+    "searchPlaceholder": "Search…",
+    "noResults": "No results",
+    "removeAria": "Remove {name}",
+    "selectionSummary": "Destination countries, {count} selected",
+    "wastePlaceholder": "Choose waste countries…",
+    "adrPlaceholder": "Choose ADR classes…",
+    "langPlaceholder": "Choose languages…"
+  },
+  "countries": {
+    "AT": "Austria",
+    "BE": "Belgium",
+    "BG": "Bulgaria",
+    "CH": "Switzerland",
+    "CY": "Cyprus",
+    "CZ": "Czechia",
+    "DE": "Germany",
+    "DK": "Denmark",
+    "EE": "Estonia",
+    "ES": "Spain",
+    "FI": "Finland",
+    "FR": "France",
+    "GB": "United Kingdom",
+    "GR": "Greece",
+    "HR": "Croatia",
+    "HU": "Hungary",
+    "IE": "Ireland",
+    "IT": "Italy",
+    "LT": "Lithuania",
+    "LU": "Luxembourg",
+    "LV": "Latvia",
+    "MT": "Malta",
+    "NL": "Netherlands",
+    "NO": "Norway",
+    "PL": "Poland",
+    "PT": "Portugal",
+    "RO": "Romania",
+    "SE": "Sweden",
+    "SI": "Slovenia",
+    "SK": "Slovakia"
+  },
+  "vehicles": {
+    "title": "Vehicles",
+    "newVehicle": "New vehicle",
+    "editVehicle": "Edit vehicle",
+    "emptyTitle": "No vehicles yet",
+    "emptyMessage": "No vehicles have been added yet.",
+    "emptyFiltered": {
+      "title": "No results",
+      "message": "No vehicles match the selected filters."
+    },
+    "filters": {
+      "searchPlaceholder": "Search by plate number",
+      "carrier": "Carrier",
+      "carrierLabel": "Filter by carrier",
+      "allCarriers": "All carriers",
+      "statusLabel": "Filter by status",
+      "allStatuses": "All statuses"
+    },
+    "fields": {
+      "carrier": "Carrier",
+      "plateNumber": "Plate number",
+      "sideNumber": "Side number",
+      "type": "Type",
+      "euro": "EURO norm",
+      "certificateL": "Certificate L",
+      "opiekun": "Caretaker",
+      "planner": "Planner",
+      "dispatchTeam": "Leading team",
+      "gpsMobilePhone": "GPS number",
+      "fuelCard": "Fuel card",
+      "fuelCardNumber": "Card number",
+      "fuelCardExpiry": "Expiry date",
+      "fuelCardPin": "PIN",
+      "agreement": "Agreement",
+      "rateDe": "Rate DE",
+      "rateUe": "Rate UE",
+      "rateExport": "Rate export",
+      "rateImport": "Rate import",
+      "wasteAllowed": "Waste allowed",
+      "wasteCountries": "Waste countries",
+      "cabotageDe": "Cabotage DE",
+      "cabotageFr": "Cabotage FR",
+      "adr": "ADR",
+      "adrClasses": "ADR classes",
+      "gb": "GB",
+      "it": "IT",
+      "fr": "FR",
+      "lastDroveAt": "Last drove",
+      "notes": "Notes",
+      "active": "Active"
+    },
+    "euroBadge": "EURO VI",
+    "fuelCardAgreementRequired": "A fuel card requires the porozumienie (agreement) to be checked",
+    "fuelCardStatus": {
+      "label": "Card status",
+      "active": "Card active",
+      "blocked": "Card blocked",
+      "blockedReason": "Requires an active agreement and an uploaded scan"
+    },
+    "agreementScanMissing": "Agreement scan missing",
+    "wasteCountryOptions": {
+      "DE": "Germany",
+      "NL": "Netherlands",
+      "AT": "Austria",
+      "BE": "Belgium",
+      "LUX": "Luxembourg",
+      "FR": "France",
+      "GB": "United Kingdom",
+      "IT": "Italy",
+      "CZ": "Czechia",
+      "PL": "Poland"
+    },
+    "sections": {
+      "identification": "Identification",
+      "basic": "Basic details",
+      "people": "People assigned",
+      "equipment": "Equipment",
+      "rates": "Rates",
+      "gps": "GPS",
+      "fuelCard": "Fuel card",
+      "agreement": "Agreement",
+      "waste": "Waste",
+      "cabotage": "Cabotage",
+      "adr": "ADR",
+      "permissions": "Permissions",
+      "specialCountries": "Special countries",
+      "specialCountriesHint": "Countries the vehicle holds all entry permits for.",
+      "gbHint": "United Kingdom — ECMT permit (post-Brexit)",
+      "itHint": "Italy — transit / weekend restrictions",
+      "frHint": "France — Loi Macron / SIPSI",
+      "other": "Other",
+      "attachments": "Attachments"
+    },
+    "attachmentCategory": {
+      "gps": "GPS contract",
+      "agreement": "Agreement",
+      "cabotage_de_insurance": "DE cabotage insurance"
+    },
+    "attachmentOpen": "Open",
+    "attachmentOpenError": "Could not open the file. Please try again.",
+    "attachmentPopupBlocked": "Could not open a new tab. Please allow pop-ups for this site and try again."
+  },
+  "drivers": {
+    "title": "Drivers",
+    "newDriver": "New driver",
+    "editDriver": "Edit driver",
+    "emptyTitle": "No drivers yet",
+    "emptyMessage": "No drivers have been added yet.",
+    "emptyFiltered": {
+      "title": "No results",
+      "message": "No drivers match the selected filters."
+    },
+    "filters": {
+      "searchPlaceholder": "Search by first / last name",
+      "carrier": "Carrier",
+      "carrierLabel": "Filter by carrier",
+      "allCarriers": "All carriers"
+    },
+    "fields": {
+      "carrier": "Carrier",
+      "firstName": "First name",
+      "lastName": "Last name",
+      "phone": "Phone",
+      "phone2": "Phone (secondary)",
+      "email": "E-mail",
+      "idDocumentNumber": "Driver's license number",
+      "licenseExpiry": "License expiry",
+      "nationality": "Nationality",
+      "languages": "Spoken languages",
+      "adr": "ADR",
+      "adrClasses": "ADR classes",
+      "notes": "Notes",
+      "active": "Active"
+    },
+    "phonePrefixLabel": "Phone prefix",
+    "nationalityOptions": {
+      "BY": "Belarus",
+      "RUS": "Russia",
+      "UA": "Ukraine",
+      "PL": "Poland",
+      "UZB": "Uzbekistan",
+      "KRG": "Kyrgyzstan",
+      "KZ": "Kazakhstan",
+      "OTHER": "Other"
+    },
+    "languageOptions": {
+      "PL": "Polish",
+      "RU": "Russian",
+      "EN": "English",
+      "UA": "Ukrainian",
+      "DE": "German",
+      "OTHER": "Other"
+    },
+    "sections": {
+      "personal": "Personal details & contact",
+      "personalData": "Personal details",
+      "contact": "Contact",
+      "nationalityLangs": "Nationality & languages",
+      "adr": "ADR",
+      "notesSection": "Notes",
+      "license": "License",
+      "assignment": "Assignment",
+      "attachments": "Attachments"
+    },
+    "attachmentCategory": {
+      "adr": "ADR certificate"
+    },
+    "attachmentOpen": "Open"
+  },
+  "trailers": {
+    "title": "Trailers",
+    "newTrailer": "New trailer",
+    "editTrailer": "Edit trailer",
+    "emptyTitle": "No trailers yet",
+    "emptyMessage": "No trailers have been added yet.",
+    "emptyFiltered": {
+      "title": "No results",
+      "message": "No trailers match the selected filters."
+    },
+    "filters": {
+      "searchPlaceholder": "Search by plate number",
+      "carrier": "Carrier",
+      "carrierLabel": "Filter by carrier",
+      "type": "Type",
+      "typeLabel": "Filter by trailer type",
+      "allCarriers": "All carriers",
+      "allTypes": "All types"
+    },
+    "fields": {
+      "carrier": "Carrier",
+      "plateNumber": "Plate number",
+      "trailerType": "Trailer type",
+      "innerLength": "Inner length (m)",
+      "innerWidth": "Inner width (m)",
+      "innerHeight": "Inner height (m)",
+      "capacity": "Capacity (t)",
+      "sideClearanceCm": "Side load clearance (cm)",
+      "belts": "Belts",
+      "beltsCount": "Belts count",
+      "mats": "Mats",
+      "matsCount": "Mats count",
+      "beams": "Securing beams",
+      "beamsCount": "Beams count",
+      "liftingRoof": "Lifting roof",
+      "slidingRoof": "Sliding roof",
+      "edscha": "Edscha",
+      "palletBox": "Pallet box",
+      "certXl": "XL Certificate",
+      "multilock": "Multilock",
+      "notes": "Notes",
+      "active": "Active"
+    },
+    "sections": {
+      "identification": "Identification",
+      "basic": "Basic details",
+      "dimensions": "Dimensions",
+      "roof": "Roof",
+      "equipment": "Equipment",
+      "certXl": "XL certificate",
+      "notesSection": "Notes",
+      "attachments": "Attachments"
+    },
+    "attachmentCategory": {
+      "cert_xl": "XL certificate"
+    },
+    "attachmentOpen": "Open"
+  },
+  "trailerTypes": {
+    "title": "Trailer types",
+    "newType": "New type",
+    "editType": "Edit type",
+    "emptyTitle": "No trailer types yet",
+    "emptyMessage": "No trailer types have been defined yet.",
+    "emptyFiltered": {
+      "title": "No results",
+      "message": "No trailer types match your search."
+    },
+    "fields": {
+      "name": "Name",
+      "shortCode": "Short code",
+      "description": "Description",
+      "active": "Active"
+    }
+  },
+  "team": {
+    "emptyMembers": "No dispatchers in this team",
+    "noTeam": "No leading team assigned",
+    "inactiveBadge": "Inactive",
+    "leadingTeamHeader": "LEADING TEAM",
+    "planista": "Planner",
+    "eksport": "Export",
+    "codeAria": "Team code: {code}",
+    "membersAria": "Dispatchers of team {code}"
+  },
+  "teams": {
+    "title": "Leading teams",
+    "subtitle": "Numbered dispatcher teams that vehicles are assigned to.",
+    "newTeam": "New team",
+    "editTeam": "Edit team",
+    "emptyTitle": "No teams yet",
+    "emptyMessage": "No leading teams have been defined yet.",
+    "emptyFiltered": {
+      "title": "No results",
+      "message": "No teams match your search."
+    },
+    "filters": {
+      "searchPlaceholder": "Search by code or name"
+    },
+    "fields": {
+      "code": "Code",
+      "codeHint": "Format N.N.N, e.g. 1.1.13",
+      "name": "Name",
+      "dispatchers": "Dispatchers",
+      "dispatchersHint": "Dispatchers see vehicles assigned to this team.",
+      "dispatchersPlaceholder": "Select dispatchers…",
+      "dispatchersEmpty": "No dispatcher found",
+      "dispatchersSelected": "Dispatchers, {count} selected",
+      "vehicleCount": "Vehicles",
+      "active": "Active"
+    },
+    "actions": {
+      "deactivate": "Deactivate",
+      "reactivate": "Activate"
+    },
+    "confirmToggle": {
+      "deactivateTitle": "Deactivate team?",
+      "deactivateBody": "Team {code} will no longer be available for assignment, but its data stays in the system.",
+      "reactivateTitle": "Activate team?",
+      "reactivateBody": "Team {code} will be available for assignment again."
+    }
+  },
+  "validation": {
+    "loading": "Checking...",
+    "valid": "Verified",
+    "invalid": "Not found",
+    "error": "Service unavailable — try again later",
+    "zod": {
+      "required": "Please fill in this field",
+      "selectFromList": "Select a value from the list",
+      "invalidType": "Invalid value type",
+      "stringMin": "Enter at least {min} characters",
+      "stringMax": "Maximum {max} characters",
+      "numberMin": "Value must be at least {min}",
+      "numberMax": "Value must be at most {max}",
+      "arrayMin": "Select at least {min}",
+      "arrayMax": "Maximum {max} items",
+      "dateMin": "Date is too early",
+      "dateMax": "Date is too late",
+      "email": "Invalid email address",
+      "url": "Invalid URL",
+      "enum": "Invalid value",
+      "date": "Invalid date",
+      "format": "Invalid format",
+      "generic": "Invalid value"
+    }
+  },
+  "dashboard": {
+    "title": "Dashboard",
+    "subtitle": "Activity overview and claim status",
+    "kpi": {
+      "total": "Total claims",
+      "naWeryfikacji": "In verification",
+      "zaakceptowano": "Accepted",
+      "odrzucono": "Rejected",
+      "oczekujeNaAutoryzacje": "Awaiting authorization"
+    },
+    "empty": {
+      "title": "No claims yet",
+      "message": "Charts and KPIs will appear here once carriers start submitting claims."
+    },
+    "charts": {
+      "monthlyTitle": "Monthly trend (12 mo.)",
+      "count": "Claim count",
+      "sumEur": "Total payout (EUR)",
+      "statusTitle": "Status distribution",
+      "statusEmpty": "No data to display",
+      "naWeryfikacji": "Verifying",
+      "zaakceptowano": "Accepted",
+      "odrzucono": "Rejected",
+      "oczekujeNaAutoryzacje": "Awaiting authorization"
+    },
+    "sidebar": {
+      "recent": "Recent activity",
+      "recentEmpty": "No activity yet",
+      "topCarriers": "Top carriers",
+      "topCarriersEmpty": "No data",
+      "reklamacje": "Reclamations",
+      "reklamacjeUnit": "open"
+    },
+    "sla": {
+      "overdueTitle": "Overdue",
+      "dueSoonTitle": "Deadline approaching",
+      "allClear": "No claims need attention",
+      "rowAria": "Claim {nrZgl} — {status}, open verification",
+      "countdown": {
+        "overdue": "{days, plural, one {# day overdue} other {# days overdue}}",
+        "lastDay": "last day today",
+        "dueSoon": "{days, plural, one {# working day} other {# working days}}"
+      }
+    }
+  },
+  "guarantee": {
+    "countdown": {
+      "overdue": "{days, plural, one {# working day overdue} other {# working days overdue}}",
+      "today": "last day today",
+      "dueSoon": "{days, plural, one {# working day} other {# working days}}",
+      "remaining": "{days, plural, one {# working day} other {# working days}}"
+    },
+    "banner": {
+      "title": "Report a departure — {count, plural, one {# vehicle needs action} other {# vehicles need action}}",
+      "cta": "Report departure",
+      "deadline": "Due: {date}",
+      "more": "+ {count} more",
+      "ariaRow": "Vehicle {plate}, due {date}, {status}"
+    },
+    "strip": {
+      "title": "{count, plural, one {# vehicle needs} other {# vehicles need}} an urgent wyjazd report",
+      "cta": "Go to Agreement"
+    },
+    "tab": {
+      "badgeAria": "Agreement, {count} urgent"
+    },
+    "porozumienie": {
+      "title": "Guarantee agreement",
+      "allClear": "All vehicles in order — nothing to report",
+      "reportCta": "Report wyjazd",
+      "deadline": "deadline: {date}",
+      "onRoad": "on the road",
+      "group": {
+        "violated": "Overdue",
+        "dueSoon": "Due soon",
+        "watched": "Watched",
+        "okActive": "On the road / reported"
+      },
+      "anchor": {
+        "zjechal": "last return: {date}",
+        "agreement": "since guarantee start: {date}"
+      },
+      "explainer": {
+        "title": "How the guarantee agreement works",
+        "obligation": "After each return, report the next wyjazd within 10 Polish working days.",
+        "reminders": "Reminders are sent 3 days and 1 day before the deadline.",
+        "silence": "An active wyjazd pauses the counter — nothing to do on the road.",
+        "restart": "A vehicle's return restarts the counter (10 working days)."
+      }
+    },
+    "episodes": {
+      "title": "History",
+      "loadMore": "Load more",
+      "empty": "No history yet — no deadline has been missed",
+      "resolvedAt": "resolved {date} · {reason}",
+      "reminders": "reminders: D-3 {d3} · D-1 {d1}",
+      "state": {
+        "warning": "Warning",
+        "violated": "Overdue",
+        "resolved": "Resolved"
+      },
+      "reason": {
+        "wyjazd": "Wyjazd reported",
+        "agreement_off": "Guarantee switched off",
+        "vehicle_inactive": "Vehicle inactive"
+      }
+    },
+    "fleet": {
+      "column": "Guarantee",
+      "inactive": "No departure yet",
+      "active": "On the road"
+    },
+    "vehicleModal": {
+      "statusLabel": "Guarantee — status",
+      "deadlineLabel": "Reporting deadline"
+    },
+    "board": {
+      "title": "Agreements — departure reporting",
+      "subtitle": "Guaranteed vehicles that need a departure reported",
+      "tabCarriers": "Carriers",
+      "tabAgreements": "Agreements",
+      "tabsAriaLabel": "Care view",
+      "sectionViolated": "Overdue",
+      "sectionDueSoon": "Due soon",
+      "sectionWatched": "Under watch",
+      "showAllWatched": "Show all watched",
+      "allClear": "All carriers are on time",
+      "searchPlaceholder": "Search by plate or carrier",
+      "filterState": "Filter by state",
+      "stateAll": "All states",
+      "deadline": "due: {date}",
+      "anchor": {
+        "zjechal": "last return: {date}",
+        "agreement": "since guarantee start: {date}"
+      },
+      "kpi": {
+        "violated": "Overdue",
+        "dueSoon": "Due soon",
+        "watched": "Under watch"
+      },
+      "emptyFilteredTitle": "No results",
+      "emptyFilteredMessage": "Adjust your search criteria or clear the filters."
+    },
+    "history": {
+      "tab": "Agreements",
+      "liveHeading": "Guaranteed vehicles — current state",
+      "episodesHeading": "Episode history",
+      "emptyLive": "No guaranteed vehicles",
+      "emptyEpisodes": "This carrier has had no late departure reports",
+      "showAllVehicles": "Show all vehicles",
+      "columns": {
+        "vehicle": "Vehicle",
+        "anchor": "Anchor",
+        "deadline": "Due",
+        "state": "State",
+        "outcome": "Outcome",
+        "resolvedAt": "Closed"
+      },
+      "source": {
+        "zjechal": "return",
+        "agreement": "guarantee"
+      },
+      "state": {
+        "warning": "Warning",
+        "violated": "Overdue",
+        "resolved": "Closed"
+      },
+      "reason": {
+        "wyjazd": "Departure reported",
+        "agreement_off": "Guarantee removed",
+        "vehicle_inactive": "Vehicle deactivated"
+      },
+      "outcome": {
+        "onTime": "on time",
+        "late": "{days, plural, one {# working day late} other {# working days late}}"
+      }
+    }
+  },
+  "limits": {
+    "title": "KM guarantee limits",
+    "subtitle": "km/day and €/km rates for every month of the year",
+    "prevYear": "Previous year",
+    "nextYear": "Next year",
+    "saveError": "Failed to save",
+    "columns": {
+      "month": "Month",
+      "kmPerDay": "Km / day",
+      "kmPerSaturday": "Km / Saturday",
+      "ratePerKm": "Rate € / km",
+      "updatedAt": "Updated"
+    },
+    "months": {
+      "1": "January",
+      "2": "February",
+      "3": "March",
+      "4": "April",
+      "5": "May",
+      "6": "June",
+      "7": "July",
+      "8": "August",
+      "9": "September",
+      "10": "October",
+      "11": "November",
+      "12": "December"
+    }
+  },
+  "audit": {
+    "title": "Audit log",
+    "subtitle": "Activity history for actions performed by system users",
+    "emptyTitle": "No entries",
+    "emptyMessage": "No audit events have been recorded yet.",
+    "emptyFiltered": {
+      "title": "No results",
+      "message": "No audit entries match the selected filters."
+    },
+    "filters": {
+      "targetType": "Target type",
+      "allTargetTypes": "All target types",
+      "userPlaceholder": "Filter by user",
+      "userSearchPlaceholder": "Search login / name",
+      "userNoResults": "No users",
+      "actionPlaceholder": "Filter by action…",
+      "dateFrom": "Date from",
+      "dateTo": "Date to"
+    },
+    "targetTypes": {
+      "Claim": "Claim",
+      "Delegation": "Trip",
+      "Carrier": "Carrier",
+      "CarrierAttachment": "Carrier attachment",
+      "User": "User",
+      "Team": "Leading team",
+      "Vehicle": "Vehicle",
+      "VehicleAttachment": "Vehicle attachment",
+      "Trailer": "Trailer",
+      "TrailerAttachment": "Trailer attachment",
+      "TrailerType": "Trailer type",
+      "Driver": "Driver",
+      "DriverAttachment": "Driver attachment",
+      "MonthlyLimit": "Monthly limit",
+      "MailJob": "Email message"
+    },
+    "columns": {
+      "createdAt": "When",
+      "actor": "User",
+      "action": "Action",
+      "target": "Target",
+      "reason": "Reason"
+    },
+    "detail": {
+      "title": "Event detail",
+      "actor": "User",
+      "target": "Target",
+      "action": "Action",
+      "createdAt": "When",
+      "reason": "Reason",
+      "ip": "IP address",
+      "before": "Before",
+      "after": "After",
+      "metadata": "Metadata"
+    }
+  },
+  "diagnostics": {
+    "title": "Diagnostics",
+    "subtitle": "Mail queue state, data health and infrastructure status",
+    "tabs": {
+      "mails": "Mails",
+      "claims": "Claims",
+      "db": "Database"
+    },
+    "mails": {
+      "emptyTitle": "No mail jobs",
+      "emptyMessage": "The mail queue is empty.",
+      "resend": "Resend",
+      "resentToast": "Mail re-enqueued",
+      "resendError": "Failed to send",
+      "confirmTitle": "Resend mail?",
+      "confirmBody": "Mail \"{subject}\" will be re-enqueued for delivery.",
+      "columns": {
+        "id": "ID",
+        "state": "Status",
+        "attempts": "Attempts",
+        "subject": "Subject",
+        "to": "To",
+        "createdAt": "Created"
+      }
+    },
+    "claims": {
+      "emptyTitle": "No alerts",
+      "emptyMessage": "All claim health metrics look good.",
+      "samples": "Sample IDs"
+    },
+    "db": {
+      "postgres": "PostgreSQL",
+      "redis": "Redis",
+      "tablesTitle": "Table sizes",
+      "tableName": "Name",
+      "tableSize": "Size",
+      "tablesEmpty": "No table data available"
+    }
+  },
+  "employee": {
+    "claims": {
+      "title": "Claims",
+      "emptyTitle": "No claims",
+      "emptyMessage": "No kilometre-guarantee claims have been submitted yet.",
+      "emptyFiltered": {
+        "title": "No results",
+        "message": "No claims match the selected filters."
+      },
+      "filters": {
+        "searchPlaceholder": "Search claim number / NIP / plate",
+        "status": "Status",
+        "allStatuses": "All statuses",
+        "dateFrom": "Period from",
+        "dateTo": "Period to",
+        "carrierId": "Carrier ID",
+        "carrierIdPlaceholder": "Carrier UUID"
+      },
+      "columns": {
+        "nrZgl": "Claim no.",
+        "carrier": "Carrier",
+        "vehicle": "Vehicle",
+        "period": "Period",
+        "mileage": "Mileage",
+        "amountRequested": "Requested",
+        "amountApproved": "Approved",
+        "status": "Status",
+        "updatedAt": "Updated"
+      },
+      "relative": {
+        "now": "just now",
+        "minutes": "{n} min ago",
+        "hours": "{n}h ago",
+        "days": "{n}d ago"
+      },
+      "modal": {
+        "title": "Claim {nrZgl}",
+        "carrierAndPlate": "{carrier} · {plate}",
+        "submittedAt": "Submitted {date}",
+        "unified": {
+          "edycja": "Edit",
+          "declaredHeader": "Claim data",
+          "verifiedHeader": "Verified data",
+          "verifiedHint": "(fill in after checking the carrier's data)",
+          "declaredCaption": "Value declared by the carrier",
+          "notVerified": "—",
+          "dateStart": "Loading date",
+          "dateEnd": "Unloading date",
+          "timeFrom": "Departure time (loading)",
+          "timeTo": "Arrival time (unloading)",
+          "mileage": "Mileage / km driven",
+          "hoursAdjusted": "Hours adjustment — stoppage",
+          "doplataSection": "Guarantee payout",
+          "decyzjaSection": "Decision",
+          "decyzjaSubtitle": "Final step — choose what happens to this claim.",
+          "decyzjaSubtitleReklamacja": "Final step — decide whether the reclamation is upheld.",
+          "secondaryHistory": "History",
+          "decisionRequired": "Pick a decision to save the claim.",
+          "terminalState": "The claim is in a terminal state — no decisions available.",
+          "guaranteeMetHint": "Guarantee met — the claim can only be rejected.",
+          "progExceededHint": "Payout will exceed the authorization threshold ({prog} for {days, plural, one {# day} other {# days}} on the road) — once you save the verification the claim will automatically move to \"Awaiting authorization\".",
+          "verifiedBadge": "Verified {date} by {name}",
+          "weryfikatorHeader": "Verifier data",
+          "weryfikatorHint": "From the outing and the km board — for comparison.",
+          "weryfikatorCaption": "Figures recorded by the weryfikator"
+        },
+        "approverGate": {
+          "bannerTitle": "Awaiting authorization",
+          "bannerBody": "The claim exceeds the authorization threshold — a confirmation request was sent to the approver. Upload the confirmation screenshot to unblock the decision.",
+          "notifiedAt": "The approver notified: {date}",
+          "notifiedPending": "The notification to the approver is being sent…",
+          "uploadHeading": "Approver confirmation screenshot",
+          "uploadHint": "JPG, PNG, WebP or PDF · max. 10 MB",
+          "uploading": "Uploading…",
+          "uploadedToast": "Authorization confirmation uploaded — decision unblocked",
+          "uploadErrorToast": "Could not upload the confirmation",
+          "clearedTitle": "Authorization confirmed",
+          "clearedAt": "Unblocked {date}",
+          "confirmationFile": "Approver confirmation",
+          "openConfirmation": "Open confirmation",
+          "downloading": "Downloading…",
+          "downloadError": "Could not download the confirmation",
+          "decisionBlockedHint": "First upload the approver's authorization confirmation.",
+          "decisionBlockedToast": "Upload the approver's authorization confirmation to take a decision."
+        },
+        "inTransitGate": {
+          "bannerTitle": "Trip still in transit",
+          "bannerBody": "The linked trip has not returned yet — the vehicle is still on the road. The claim is view-only. Wait until the trip is marked as returned (zjechał) — only then can the claim be verified and decided.",
+          "actionsBlockedHint": "Actions are blocked while the trip is in transit. Wait for the return.",
+          "blockedToast": "The trip is still in transit — wait for the return to verify or decide."
+        },
+        "linkedDelegation": {
+          "heading": "Linked trip",
+          "vehicle": "Vehicle",
+          "planned": "Planned return",
+          "actual": "Actual return"
+        },
+        "tabs": {
+          "edit": "Edit",
+          "history": "History"
+        },
+        "recalc": {
+          "loading": "Recalculating…",
+          "current": "Up to date",
+          "error": "Could not recalculate",
+          "diff": "Guarantee payout: {before} → {after}",
+          "noChange": "No change"
+        },
+        "edit": {
+          "targetStatus": "Decision",
+          "targetStatusPlaceholder": "Pick a decision",
+          "kmGuaranteed": "Guaranteed km",
+          "mileage": "Mileage",
+          "hoursAdjusted": "Hours adjustment",
+          "hoursAdjustedOrigHint": "Originally submitted by carrier: {orig}h",
+          "dateStart": "Period from",
+          "dateEnd": "Period to",
+          "timeFrom": "Time from",
+          "timeTo": "Time to",
+          "orderNumber": "Order number",
+          "orderDate": "Order date",
+          "amountApproved": "Amount approved (EUR)",
+          "amountApprovedAuto": "calculated automatically",
+          "amountApprovedLocked": "Locked field — calculated automatically from the preview",
+          "doplata": "Guarantee payout",
+          "comment": "Comment",
+          "commentRejected": "Rejection reason",
+          "reklamacjaOrderNumber": "Order number",
+          "reklamacjaOrderNumberHint": "It can be a corrected number of the previous order or an entirely new one — enter the order number the reclamation amount will be paid against.",
+          "reklamacjaPayoutAmount": "Amount to pay (from the reclamation)",
+          "reklamacjaCommentPlaceholder": "Optional note about the decision",
+          "reklamacjaResponse": "Reason for rejecting the reclamation",
+          "reklamacjaResponsePlaceholder": "Explain to the carrier why the reclamation was not upheld",
+          "reklamacjaStatusReturnHint": "After saving, the claim returns to the \"{status}\" status — the reclamation outcome is shown separately.",
+          "submit": "Confirm",
+          "submitDecision": "Save decision",
+          "submitting": "Saving…",
+          "savedToast": "Saved",
+          "errorToast": "Failed to save",
+          "verifyButton": "Save verification",
+          "verifyButtonHint": "Saves the corrected verification data. Does not make a decision.",
+          "verifyAdminOnlyToast": "The claim is awaiting the approver's authorisation — only an administrator can save the verification.",
+          "verifiedToast": "Verification saved",
+          "verifyRequiredHint": "Save the verification to take a decision",
+          "verifyDirtyHint": "You have unsaved corrections — save the verification",
+          "boardSumHint": "Per mileage board: {km} km",
+          "boardSumApply": "Apply"
+        },
+        "locked": {
+          "factsPendingAuthorization": "Verification data is locked — the claim is awaiting the approver's authorisation. Only an administrator can make changes.",
+          "factsPendingAuthorizationAdmin": "The claim is awaiting the approver's authorisation. As an administrator you can still correct the verification data."
+        },
+        "reklamacja": {
+          "title": "Reclamation",
+          "amount": "Reclamation amount",
+          "maxAtSubmit": "Maximum (requested − paid)",
+          "maxAtSubmitValue": "{max} = {requested} − {paid}",
+          "maxAtSubmitRejectedClause": "(claim rejected)",
+          "submittedAt": "Filed",
+          "text": "Reclamation text",
+          "orderNumber": "Order number",
+          "decidedAt": "Decided",
+          "response": "Response",
+          "alreadyResolved": "This reclamation has already been decided."
+        },
+        "history": {
+          "empty": "No edit history.",
+          "origData": "Original data (before reclamation)",
+          "origDateStart": "Period from",
+          "origDateEnd": "Period to",
+          "origMileage": "Mileage",
+          "origPaymentEur": "Payout",
+          "origHoursAdjusted": "Hours adjustment (original)",
+          "current": "Current",
+          "decidedBy": "Decided by: {actor}",
+          "decidedAt": "Decided on: {date}",
+          "reklamacjaRecord": "Reclamation record",
+          "reklamacjaAmount": "Reclamation amount",
+          "reklamacjaOrderNumber": "Order number (reclamation)",
+          "reklamacjaSubmittedAt": "Reclamation filed",
+          "reklamacjaDecidedAt": "Reclamation decided",
+          "reklamacjaText": "Reclamation text",
+          "reklamacjaResponse": "Reclamation response"
+        },
+        "targetStatus": {
+          "ZAAKCEPTOWANO": "Accept",
+          "ODRZUCONO": "Reject",
+          "REKLAMACJA_ZAAKCEPTOWANO": "Uphold reclamation",
+          "REKLAMACJA_ODRZUCONO": "Reject reclamation"
+        }
+      }
+    }
+  },
+  "opieka": {
+    "title": "My carriers",
+    "subtitle": "Overview of assigned carriers and their fleet",
+    "emptyTitle": "No carriers assigned",
+    "emptyMessage": "Once an administrator assigns carriers to you, they will appear here.",
+    "totals": {
+      "carriers": "Carriers",
+      "vehicles": "Vehicles",
+      "openCarriersAria": "Carriers: {count} — open the carrier list",
+      "openVehiclesAria": "Vehicles: {count} — open the vehicle list",
+      "openStatusAria": "{label}: {count} — open the vehicle list with this status"
+    },
+    "table": {
+      "firma": "Company",
+      "nip": "Tax ID",
+      "active": "Active",
+      "jezdzace": "Driving",
+      "stojace": "Standing",
+      "nieaktywne": "Inactive",
+      "potencjalne": "Potential",
+      "actions": "Actions",
+      "openDetail": "Open",
+      "openDetailAria": "Open details for carrier {firma}"
+    },
+    "card": {
+      "aktywne": "Active",
+      "stojace": "Parked",
+      "nieaktywne": "Long idle",
+      "doUsuniecia": "To remove",
+      "statAria": "{label}: {count} — open {firma}'s vehicles with this status"
+    },
+    "attention": {
+      "title": "Requires attention",
+      "reason": {
+        "incompleteFleet": "Incomplete fleet (missing vehicle / trailer / driver)"
+      }
+    },
+    "detail": {
+      "backToList": "← Back to list",
+      "loadingTitle": "Loading carrier…",
+      "notFoundTitle": "Carrier not found",
+      "notFoundMessage": "You don't have access to this carrier, or it has been removed.",
+      "errorTitle": "Failed to load carrier",
+      "errorMessage": "Try again or go back to the list.",
+      "retry": "Try again",
+      "opiekunLabel": "Account manager",
+      "nipLabel": "Tax ID",
+      "loginLabel": "Login"
+    },
+    "tabs": {
+      "ariaLabel": "Carrier sections",
+      "vehicles": "Vehicles",
+      "drivers": "Drivers",
+      "trailers": "Trailers",
+      "delegations": "Trips",
+      "documents": "Documents"
+    },
+    "vehicles": {
+      "emptyTitle": "No vehicles",
+      "emptyMessage": "This carrier has no vehicles registered yet.",
+      "columns": {
+        "plate": "Plate number",
+        "side": "Side number",
+        "type": "Type",
+        "euro": "EURO",
+        "adr": "ADR",
+        "gb": "GB",
+        "it": "IT",
+        "fr": "FR",
+        "lastDroveAt": "Last drove",
+        "active": "Status"
+      }
+    },
+    "drivers": {
+      "emptyTitle": "No drivers",
+      "emptyMessage": "This carrier has no drivers registered yet.",
+      "columns": {
+        "name": "Full name",
+        "phone": "Phone",
+        "idDocument": "Driver's license number",
+        "active": "Status"
+      }
+    },
+    "trailers": {
+      "emptyTitle": "No trailers",
+      "emptyMessage": "This carrier has no trailers registered yet.",
+      "columns": {
+        "plate": "Plate number",
+        "type": "Type",
+        "active": "Status"
+      }
+    },
+    "delegations": {
+      "emptyTitle": "No trips",
+      "emptyMessage": "This carrier has not reported any trips yet.",
+      "emptyFiltered": {
+        "title": "No results",
+        "message": "No trips match the selected filters."
+      },
+      "columns": {
+        "vehicle": "Vehicle",
+        "driver": "Driver",
+        "route": "Route",
+        "period": "Period",
+        "status": "Status"
+      }
+    },
+    "documents": {
+      "uploadButton": "Upload",
+      "uploadedToast": "Document uploaded",
+      "downloadError": "Could not download the file. Please try again.",
+      "download": "Download",
+      "deleteTitle": "Delete document?",
+      "deleteBody": "Are you sure you want to delete \"{fileName}\"? This action cannot be undone.",
+      "deletedToast": "Document deleted",
+      "category": {
+        "insurance": "Insurance/OCP",
+        "license": "License",
+        "kreptd": "KREPTD",
+        "other": "Other"
+      },
+      "group": {
+        "company": "Company documents",
+        "vehicles": "Vehicle documents",
+        "adrVehicles": "Vehicle ADR",
+        "trailers": "Trailer documents",
+        "drivers": "Driver documents"
+      },
+      "type": {
+        "gps": "GPS agreement",
+        "agreement": "Guarantee agreement",
+        "cabotage_de_insurance": "Cabotage insurance DE",
+        "cert_xl": "XL certificate",
+        "driverAdr": "Driver ADR certificate"
+      },
+      "count": {
+        "files": "{count, plural, one {# file} other {# files}}",
+        "vehicles": "{count, plural, one {# vehicle} other {# vehicles}}",
+        "trailers": "{count, plural, one {# trailer} other {# trailers}}",
+        "drivers": "{count, plural, one {# driver} other {# drivers}}",
+        "summary": "{files} · {entities}",
+        "noFiles": "No files",
+        "adrVehiclesCount": "{count, plural, one {# vehicle with ADR} other {# vehicles with ADR}}",
+        "noAdrVehicles": "No ADR vehicles"
+      },
+      "columns": {
+        "fileName": "File name",
+        "size": "Size",
+        "uploadedAt": "Uploaded at",
+        "actions": "Actions",
+        "entityVehicle": "Vehicle",
+        "entityTrailer": "Trailer",
+        "entityDriver": "Driver"
+      },
+      "sheet": {
+        "manageInVehicle": "Managed in the vehicle window.",
+        "manageInTrailer": "Managed in the trailer window.",
+        "manageInDriver": "Managed in the driver window.",
+        "uploadHint": "Upload a document for this category.",
+        "openAria": "Open list: {type}"
+      },
+      "empty": {
+        "title": "No documents",
+        "message": "No documents of this type have been uploaded yet."
+      }
+    }
+  },
+  "planista": {
+    "title": "Planner panel",
+    "subtitle": "Overview of the planned fleet — vehicles, drivers and trailers",
+    "readOnlyBanner": "Data is read-only — managed by an administrator.",
+    "tabs": {
+      "ariaLabel": "Planner fleet sections",
+      "vehicles": "Vehicles",
+      "drivers": "Drivers",
+      "trailers": "Trailers",
+      "delegations": "Trips"
+    },
+    "vehicles": {
+      "emptyTitle": "No vehicles",
+      "emptyMessage": "No vehicles assigned to this planner.",
+      "columns": {
+        "plate": "Plate",
+        "side": "Side no.",
+        "type": "Type",
+        "euro": "EURO",
+        "adr": "ADR",
+        "gb": "GB",
+        "it": "IT",
+        "fr": "FR",
+        "lastDroveAt": "Last drove",
+        "active": "Status"
+      }
+    },
+    "drivers": {
+      "emptyTitle": "No drivers",
+      "emptyMessage": "No drivers assigned to this planner.",
+      "columns": {
+        "name": "Driver",
+        "phone": "Phone",
+        "active": "Status"
+      }
+    },
+    "trailers": {
+      "emptyTitle": "No trailers",
+      "emptyMessage": "No trailers assigned to this planner.",
+      "columns": {
+        "plate": "Plate",
+        "type": "Type",
+        "active": "Status"
+      }
+    },
+    "kpi": {
+      "vehicles": "Vehicles"
+    },
+    "resources": "{drivers, plural, one {# driver} other {# drivers}} · {trailers, plural, one {# trailer} other {# trailers}}",
+    "needsAttention": {
+      "removeTitle": "Vehicles to remove (idle ≥ 29 days):",
+      "longIdleTitle": "Long-idle vehicles (15–28 days):",
+      "days": "{days, plural, one {# day} other {# days}}"
+    },
+    "delegations": {
+      "emptyTitle": "No trips",
+      "emptyMessage": "No active trips to display.",
+      "columns": {
+        "vehicle": "Vehicle",
+        "driver": "Driver",
+        "route": "Route",
+        "period": "Period",
+        "status": "Status"
+      }
+    }
+  },
+  "dyspozytor": {
+    "title": "Dispatcher panel",
+    "subtitle": "Overview of the operated fleet, trips and vehicle status",
+    "readOnlyBanner": "Data is read-only — managed by an administrator.",
+    "kpi": {
+      "vehicles": "Vehicles"
+    },
+    "resources": "{drivers, plural, one {# driver} other {# drivers}} · {trailers, plural, one {# trailer} other {# trailers}}",
+    "needsAttention": {
+      "removeTitle": "Vehicles to remove (idle ≥ 29 days):",
+      "longIdleTitle": "Long-idle vehicles (15–28 days):",
+      "days": "{days, plural, one {# day} other {# days}}"
+    },
+    "tabs": {
+      "ariaLabel": "Dispatcher fleet sections",
+      "vehicles": "Vehicles",
+      "delegations": "Trips",
+      "drivers": "Drivers",
+      "trailers": "Trailers"
+    },
+    "vehicles": {
+      "emptyTitle": "No vehicles",
+      "emptyMessage": "No vehicles assigned to this dispatcher.",
+      "columns": {
+        "plate": "Plate",
+        "side": "Side no.",
+        "type": "Type",
+        "euro": "EURO",
+        "adr": "ADR",
+        "gb": "GB",
+        "it": "IT",
+        "fr": "FR",
+        "lastDroveAt": "Last drove",
+        "active": "Status"
+      }
+    },
+    "delegations": {
+      "emptyTitle": "No trips",
+      "emptyMessage": "No active trips to display.",
+      "columns": {
+        "vehicle": "Vehicle",
+        "driver": "Driver",
+        "route": "Route",
+        "period": "Period",
+        "status": "Status"
+      }
+    },
+    "drivers": {
+      "emptyTitle": "No drivers",
+      "emptyMessage": "No drivers assigned to this dispatcher.",
+      "columns": {
+        "name": "Driver",
+        "phone": "Phone",
+        "active": "Status"
+      }
+    },
+    "trailers": {
+      "emptyTitle": "No trailers",
+      "emptyMessage": "No trailers assigned to this dispatcher.",
+      "columns": {
+        "plate": "Plate",
+        "type": "Type",
+        "active": "Status"
+      }
+    }
+  },
+  "carrier": {
+    "tabs": {
+      "ariaLabel": "Carrier sections",
+      "claims": "Claims",
+      "newClaim": "New",
+      "fleet": "Fleet",
+      "delegations": "Trips",
+      "porozumienie": "Agreement"
+    },
+    "fleetTabs": {
+      "ariaLabel": "Fleet sections",
+      "vehicles": "Vehicles",
+      "drivers": "Drivers",
+      "trailers": "Trailers"
+    },
+    "claims": {
+      "title": "Claims",
+      "newClaim": "New claim",
+      "submit": "Submit claim",
+      "submitting": "Submitting…",
+      "backToList": "Back to list",
+      "searchPlaceholder": "Search claim number",
+      "filterByStatus": "Filter by status",
+      "filterByVehicle": "Filter by vehicle",
+      "allStatuses": "All statuses",
+      "allVehicles": "All vehicles",
+      "emptyTitle": "No claims",
+      "emptyMessage": "Submit your first kilometer-guarantee claim.",
+      "emptyFiltered": {
+        "title": "No results",
+        "message": "No claims match the selected filters."
+      },
+      "notFoundTitle": "Claim not found",
+      "notFoundMessage": "Check the claim number or go back to the list.",
+      "vehicleLabel": "Vehicle",
+      "kmLabel": "Km",
+      "reklamacjaIndicator": "Reclamation submitted",
+      "wniosekAria": "Claim {nrZgl}",
+      "submittedToast": "Claim {nrZgl} submitted",
+      "submitErrorToast": "Failed to submit claim",
+      "violationsToast": "Claim was not saved — see the list above.",
+      "violationsHeadingOne": "Claim cannot be saved:",
+      "violationsHeadingMany": "Claim cannot be saved — {count} issues found:",
+      "detail": {
+        "mileage": "Mileage",
+        "kmGuaranteed": "Guaranteed km",
+        "payment": "Guarantee payout",
+        "submitReklamacja": "Submit reclamation",
+        "monthlyBreakdown": "Monthly breakdown",
+        "details": "Details",
+        "amountRequested": "Amount requested",
+        "amountApproved": "Amount approved",
+        "totalPaid": "Total paid",
+        "orderNumber": "Order number",
+        "orderDate": "Order date",
+        "comment": "Comment",
+        "moneyLabelApproved": "amount approved",
+        "moneyLabelCalc": "calculation",
+        "moneyLabelTotalPaid": "total paid",
+        "totalBreakdown": "including decision: {approved} € · reclamation: {reklamacja} €",
+        "moneyRequested": "Requested",
+        "moneyAfterVerification": "After verification",
+        "vehiclePlate": "Vehicle",
+        "submittedAt": "Submitted",
+        "decidedAt": "Decision date",
+        "reklamacjaOutcome": {
+          "title": "Reclamation",
+          "bannerPending": "The reclamation has been filed and is awaiting a decision.",
+          "bannerUznana": "Reclamation upheld — {amount} € will be paid.",
+          "bannerOdrzucona": "Reclamation rejected.",
+          "amount": "Reclamation amount",
+          "submittedAt": "Filed on",
+          "text": "Reclamation text",
+          "orderNumber": "Order number",
+          "decidedAt": "Decided on",
+          "response": "MAGTRANS response"
+        }
+      },
+      "form": {
+        "sectionVehicleAndDriver": "Vehicle and driver",
+        "vehicle": "Vehicle",
+        "driver": "Driver",
+        "trailer": "Trailer",
+        "vehicleReadOnlyPlaceholder": "Select a trip first — the vehicle, trailer and driver are taken from the trip.",
+        "sectionPeriod": "Period",
+        "dateStart": "Date from",
+        "dateEnd": "Date to",
+        "timeFrom": "Time from",
+        "timeTo": "Time to",
+        "sectionValues": "Values",
+        "mileage": "Mileage (km)",
+        "addComment": "Add comment",
+        "comment": "Comment",
+        "violationDateEndInFuture": "Unload date ({date}) is in the future. The claim can be submitted only after the vehicle is back.",
+        "violationDateStartInFuture": "Load date ({date}) is in the future.",
+        "violationDateOrder": "Unload date must be on or after the load date.",
+        "violationDeadline": "Submission deadline has passed. Per the contract you have {maxDays} days after the unload date (already elapsed: {elapsed} days).",
+        "violationPeriodTooLong": "The claim period cannot exceed {maxDays} days (given: {periodDays} days).",
+        "dateStartHint": "Not earlier than the reported departure date ({date}).",
+        "mileageHint": "Mileage as recorded in SpedTrans.",
+        "violationDateStartBeforeDeparture": "The loading date cannot be earlier than the reported departure date ({date})."
+      },
+      "status": {
+        "NA_WERYFIKACJI": "Verifying",
+        "ZAAKCEPTOWANO": "Accepted",
+        "ODRZUCONO": "Rejected",
+        "REKLAMACJA": "Reclamation",
+        "OCZEKUJE_NA_AUTORYZACJE": "Awaiting authorization"
+      },
+      "wyjazdPicker": {
+        "section": "Trip",
+        "label": "Select a trip",
+        "help": "A claim can only be filed against a finished trip (marked “returned”) that doesn't have a claim yet.",
+        "placeholder": "— select a trip —",
+        "loading": "Loading trips…",
+        "empty": "No trips available to file a claim against. A claim can be filed once a vehicle is marked “returned”.",
+        "selectedStatus": "Selected trip status:",
+        "noGuaranteeMarker": "(no guarantee)"
+      },
+      "noGuarantee": {
+        "title": "This vehicle is not covered by the guarantee",
+        "message": "You cannot file a claim for this vehicle. To have it covered by the guarantee, contact your account manager.",
+        "toast": "This vehicle is not covered by the guarantee — the claim was not submitted."
+      }
+    },
+    "preview": {
+      "empty": {
+        "incomplete": "Fill in required fields to see the calculation",
+        "dateOrder": "Start date is after end date — fix dates to see the calculation",
+        "mileageZero": "Enter mileage greater than 0 to see the calculation"
+      },
+      "errorTitle": "Could not compute preview",
+      "errorMessage": "Check the inputs and try again.",
+      "updating": "Refreshing preview…",
+      "kmGuaranteed": "Guaranteed km",
+      "kmDifference": "Km difference",
+      "ratePerKm": "Rate €/km",
+      "paymentEur": "Guarantee payout (EUR)"
+    },
+    "breakdown": {
+      "month": "Month",
+      "workingDays": "Work days",
+      "kmPerDay": "Km/day",
+      "ratePerKm": "€/km",
+      "kmInMonth": "Km/mo",
+      "saturdays": "Saturdays",
+      "saturdaysDetail": "{count} × {perSaturday} = {total} km",
+      "empty": "No data to break down",
+      "totalKmGuaranteed": "Total (guaranteed km)",
+      "excludedDays": "Excluded days (holidays / EU ban)",
+      "excludedDaysCount": "{count, plural, =0 {none} one {# day} other {# days}}",
+      "excludedDaysHint": "Sundays are always excluded; Saturdays too, unless covered by the Saturday guarantee. Only national holidays and EU truck bans are listed above, since those are why a workday didn't pay out.",
+      "showDetails": "Show details",
+      "hideDetails": "Hide details",
+      "noExclusions": "No excluded days",
+      "boundaryTitle": "First / last day of the period",
+      "boundaryFirst": "First day",
+      "boundaryLast": "Last day",
+      "boundarySingle": "Single day",
+      "boundaryCounted": "{value} days",
+      "boundaryExcluded": "{value} days · not counted",
+      "boundaryHint": "Boundary days are credited in proportion to the departure and arrival times."
+    },
+    "reklamacja": {
+      "sheetTitle": "Submit reclamation",
+      "sheetSubtitle": "Claim {nrZgl}",
+      "expiredTitle": "Reclamation window expired",
+      "expiredMessage": "Reclamation can be submitted within 48 hours of the decision.",
+      "alreadyTitle": "Reclamation already filed",
+      "alreadyMessage": "A reclamation for this claim has already been filed.",
+      "noDeltaTitleSheet": "Nothing left to reclaim",
+      "notDecidedTitle": "This claim has not been decided yet",
+      "notDecidedMessage": "A reclamation can only be filed once the claim has been decided.",
+      "fieldText": "Reclamation text",
+      "fieldTextHint": "Describe the reason for the reclamation — up to 4000 characters.",
+      "fieldAmount": "Reclamation amount (EUR)",
+      "maxHint": "Maximum: {max} € — amount requested ({requested} €) minus amount paid ({paid} €).",
+      "maxHintRejected": "Maximum: {max} € — the entire amount requested (the claim was rejected, nothing was paid).",
+      "deadlinePassed": "The reclamation window has closed (48 hours from the decision).",
+      "noDelta": "A reclamation is not possible — the amount paid covers the entire amount requested.",
+      "noDeltaZero": "A reclamation is not possible — this claim contained no amount to pay out.",
+      "noDeltaTitle": "A reclamation concerns the unpaid remainder; this claim has none (requested {requested} €, paid {paid} €).",
+      "submit": "Send reclamation",
+      "submitting": "Sending…",
+      "submittedToast": "Reclamation sent",
+      "submitErrorToast": "Failed to send reclamation",
+      "errorAlreadySubmitted": "A reclamation for this claim has already been filed.",
+      "errorNotDecided": "This claim has not been decided yet — a reclamation can be filed after the decision.",
+      "errorWindowExpired": "The reclamation window has closed (48 hours from the decision).",
+      "errorNoDelta": "A reclamation is not possible — the amount paid covers the entire amount requested.",
+      "errorExceedsCap": "The reclamation amount cannot exceed {max} €.",
+      "countdownExpired": "Reclamation window expired",
+      "countdownRemainingLabel": "Remaining:"
+    },
+    "delegations": {
+      "title": "Trips",
+      "newDelegation": "New trip",
+      "registerSubmit": "Register trip",
+      "saving": "Saving…",
+      "backToList": "Back to list",
+      "filterByStatus": "Filter by status",
+      "allStatuses": "All statuses",
+      "emptyTitle": "No trips",
+      "emptyMessage": "Register your first trip.",
+      "emptyFiltered": {
+        "title": "No results",
+        "message": "No trips with the selected status."
+      },
+      "columns": {
+        "vehicle": "Vehicle",
+        "driver": "Driver",
+        "departure": "Departure",
+        "plannedReturn": "Planned return",
+        "status": "Status",
+        "actions": "Actions"
+      },
+      "cancel": "Cancel",
+      "cancelAriaLabel": "Cancel trip",
+      "cancelDialogTitle": "Cancel trip?",
+      "cancelDialogBody": "This action cannot be undone. The trip will be marked cancelled.",
+      "cancelBack": "Back",
+      "cancelConfirm": "Cancel trip",
+      "cancelling": "Cancelling…",
+      "cancelledToast": "Trip cancelled",
+      "cancelErrorToast": "Failed to cancel trip",
+      "registeredToast": "Trip registered",
+      "registerErrorToast": "Failed to save trip",
+      "form": {
+        "sectionVehicleAndDriver": "Vehicle and driver",
+        "vehicle": "Vehicle",
+        "driver": "Driver",
+        "driverPhone": "Driver phone",
+        "trailer": "Trailer",
+        "sectionDeparture": "Departure",
+        "departureAt": "Departure date and time",
+        "departureCountry": "Departure country",
+        "departurePostalCode": "Departure postal code",
+        "departureInPast": "Departure date cannot be in the past.",
+        "sectionReturn": "Return",
+        "plannedReturnAt": "Planned return",
+        "returnCountry": "Return country",
+        "returnPostalCode": "Return postal code",
+        "actualReturnAt": "Actual return",
+        "reportedBy": "Reported by",
+        "reportedAt": "Reported at",
+        "verifiedBy": "Verified by",
+        "verifiedAt": "Verified at",
+        "notes": "Notes",
+        "comment": "Comment"
+      },
+      "sections": {
+        "vehicleAndDriver": "Vehicle and driver",
+        "departure": "Departure",
+        "return": "Return",
+        "audit": "Status history",
+        "notes": "Notes",
+        "route": "Route"
+      },
+      "audit": {
+        "registeredBy": "Registered by",
+        "readiedBy": "Accepted (export)",
+        "readiedCaption": "load accepted",
+        "confirmedInTransit": "Confirmed in transit",
+        "spedOrderNumber": "Sped order number",
+        "pending": "— pending"
+      },
+      "status": {
+        "zgloszony": "Reported",
+        "gotowy": "Loaded",
+        "w_trasie": "In transit",
+        "zjechal": "Returned",
+        "anulowany": "Cancelled"
+      },
+      "blocked": {
+        "title": "Trip cannot be registered",
+        "message": "Registering a trip is not possible because not all required data is filled in the system. Please contact your account manager to complete the missing information.",
+        "toast": "Trip cannot be registered — please contact your account manager."
+      },
+      "routeCard": {
+        "aria": "Trip route from {from} to {to}",
+        "durationDays": "{days, plural, one {# day · plan.} other {# days · plan.}}",
+        "durationUnknown": "— · plan.",
+        "departure": "Departure",
+        "return": "Return",
+        "reportedPrefix": "rep.",
+        "plannedPrefix": "plan.",
+        "actualPrefix": "act.",
+        "postalPrefix": "postal:"
+      },
+      "strip": {
+        "trailer": "Trailer {plate}"
+      }
+    },
+    "fleet": {
+      "vehicles": {
+        "title": "Vehicles",
+        "contactOpiekun": "Contact your manager",
+        "contactOpiekunSubject": "Vehicle data change",
+        "emptyTitle": "No vehicles",
+        "emptyMessage": "Contact your manager to add a vehicle.",
+        "columns": {
+          "plate": "Plate number",
+          "side": "Side number",
+          "type": "Type",
+          "status": "Status",
+          "euro": "EURO",
+          "adr": "ADR",
+          "gb": "GB",
+          "it": "IT",
+          "fr": "FR",
+          "lastDroveAt": "Last drove"
+        }
+      },
+      "drivers": {
+        "title": "Drivers",
+        "contactOpiekun": "Contact your manager",
+        "contactOpiekunSubject": "Driver data change",
+        "searchPlaceholder": "Search by first / last name",
+        "emptyTitle": "No drivers",
+        "emptyMessage": "Contact your manager to add a driver.",
+        "emptyFiltered": {
+          "title": "No results",
+          "message": "No drivers match your search."
+        },
+        "columns": {
+          "name": "Full name",
+          "phone": "Phone",
+          "idDocument": "Driver's license number",
+          "status": "Status"
+        }
+      },
+      "trailers": {
+        "title": "Trailers",
+        "contactOpiekun": "Contact your manager",
+        "contactOpiekunSubject": "Trailer data change",
+        "searchPlaceholder": "Search plate number",
+        "filterByType": "Filter by type",
+        "allTypes": "All types",
+        "emptyTitle": "No trailers",
+        "emptyMessage": "Contact your manager to add a trailer.",
+        "emptyFiltered": {
+          "title": "No results",
+          "message": "No trailers match the selected filters."
+        },
+        "columns": {
+          "plate": "Plate number",
+          "type": "Type",
+          "status": "Status"
+        }
+      },
+      "title": "Fleet",
+      "subtitle": "Your vehicles, drivers and trailers. Data is read-only — managed by your account manager.",
+      "contactOpiekun": "Contact account manager",
+      "contactOpiekunSubject": "Fleet data change",
+      "kpi": {
+        "vehicles": "Vehicles"
+      },
+      "resources": "{drivers, plural, one {# driver} other {# drivers}} · {trailers, plural, one {# trailer} other {# trailers}}",
+      "needsAttention": {
+        "removeTitle": "Vehicles to remove (idle ≥ 29 days):",
+        "longIdleTitle": "Long-idle vehicles (15–28 days):",
+        "days": "{days, plural, one {# day} other {# days}}"
+      }
+    }
+  },
+  "vehicleStatus": {
+    "daysCount": "{days, plural, one {# day} other {# days}}",
+    "aktywna": {
+      "badge": "Active",
+      "tile": "Active",
+      "tooltip": "Has an active delegation"
+    },
+    "stojaca": {
+      "badge": "Parked",
+      "tile": "Parked",
+      "tooltip": "Returned ≤ 14 days ago"
+    },
+    "nieaktywna": {
+      "badge": "Long idle",
+      "tile": "Long idle",
+      "tooltip": "Idle 15–28 days"
+    },
+    "do_usuniecia": {
+      "badge": "To remove",
+      "tile": "To remove",
+      "tooltip": "Idle ≥ 29 days — retire"
+    },
+    "wylaczona": {
+      "badge": "Disabled",
+      "tile": "Disabled",
+      "tooltip": "Manually disabled by an administrator"
+    }
+  },
+  "fleet": {
+    "statusFilter": {
+      "label": "Status filter:",
+      "count": "Showing: {count}",
+      "toggleAria": "{label}: {count} — show only these vehicles",
+      "showAllAria": "All vehicles: {count} — clear the status filter",
+      "emptyTitle": "No vehicles with this status",
+      "emptyMessage": "No vehicle currently has the selected status. Clear the filter or pick another tile."
+    },
+    "a11y": {
+      "showDetails": "Show details: {name}",
+      "showDelegationDetails": "Show trip details: {name}"
+    },
+    "vehicle": {
+      "sections": {
+        "identification": "Identification",
+        "equipment": "Equipment",
+        "permissions": "Permissions",
+        "usage": "Usage"
+      }
+    },
+    "driver": {
+      "sections": {
+        "personal": "Personal details & contact",
+        "documents": "Documents",
+        "notes": "Notes"
+      }
+    },
+    "trailer": {
+      "sections": {
+        "identification": "Identification",
+        "dimensions": "Dimensions",
+        "roof": "Roof",
+        "equipment": "Equipment"
+      }
+    }
+  },
+  "delegations": {
+    "admin": {
+      "title": "Trips",
+      "subtitle": "All trips in the system — read-only view",
+      "filters": {
+        "status": "Status",
+        "allStatuses": "All statuses",
+        "search": "Search",
+        "searchPlaceholder": "Search carrier / plate…",
+        "dateFrom": "Date from",
+        "dateTo": "Date to"
+      },
+      "table": {
+        "emptyTitle": "No trips",
+        "emptyMessage": "No trips have been recorded in the system yet.",
+        "emptyFiltered": {
+          "title": "No results",
+          "message": "No trips match the selected filters."
+        },
+        "columns": {
+          "vehicle": "Vehicle",
+          "driver": "Driver",
+          "route": "Route",
+          "period": "Period",
+          "status": "Status"
+        }
+      }
+    },
+    "opiekun": {
+      "title": "Trips",
+      "subtitle": "All trips of the carriers you supervise — read-only view",
+      "filters": {
+        "status": "Status",
+        "allStatuses": "All statuses",
+        "search": "Search",
+        "searchPlaceholder": "Search carrier / plate…",
+        "dateFrom": "Date from",
+        "dateTo": "Date to"
+      },
+      "table": {
+        "emptyTitle": "No trips",
+        "emptyMessage": "The carriers you supervise have not reported any trips yet.",
+        "emptyFiltered": {
+          "title": "No results",
+          "message": "No trips match the selected filters."
+        },
+        "columns": {
+          "vehicle": "Vehicle",
+          "driver": "Driver",
+          "route": "Route",
+          "period": "Period",
+          "status": "Status"
+        }
+      }
+    }
+  },
+  "eksport": {
+    "delegations": {
+      "title": "Trips",
+      "subtitle": "Mark trips as loaded once the order has been issued",
+      "filters": {
+        "status": "Status",
+        "allStatuses": "All statuses",
+        "includeHistory": "Show history (returned / cancelled)"
+      },
+      "table": {
+        "emptyTitle": "No trips",
+        "emptyMessage": "No trips found to display.",
+        "emptyFiltered": {
+          "title": "No results",
+          "message": "No trips match the selected filters."
+        },
+        "columns": {
+          "vehicle": "Vehicle",
+          "carrier": "Carrier",
+          "route": "Route",
+          "period": "Period",
+          "status": "Status",
+          "actions": "Actions"
+        }
+      },
+      "actions": {
+        "markReady": "Mark as loaded",
+        "rollback": "Roll back to: reported",
+        "advanceTitle": "Mark as loaded",
+        "advanceDescription": "Trip {plate} will be marked as loaded (load found, order issued).",
+        "spedOrderNumberLabel": "Sped order number",
+        "spedOrderNumberPlaceholder": "e.g. ZL12345/01/26",
+        "spedOrderNumberRequired": "Sped order number is required.",
+        "rollbackTitle": "Roll back to: reported",
+        "rollbackDescription": "Trip {plate} will return to the reported status. Only possible before it sets off.",
+        "rollbackConfirm": "Roll back status",
+        "cancel": "Cancel",
+        "readyToast": "Marked as loaded",
+        "rolledBackToast": "Rolled back to: reported",
+        "errorToast": "Failed to change the trip status"
+      }
+    }
+  },
+  "weryfikator": {
+    "tabs": {
+      "ariaLabel": "Verifier screens",
+      "km": "Vehicles / km",
+      "delegations": "Trips"
+    },
+    "delegations": {
+      "title": "Trips",
+      "subtitle": "Mark trips in transit and the vehicle's return",
+      "filters": {
+        "status": "Status",
+        "allStatuses": "All statuses",
+        "includeHistory": "Show history (returned / cancelled)"
+      },
+      "table": {
+        "emptyTitle": "No trips",
+        "emptyMessage": "No trips found to display.",
+        "emptyFiltered": {
+          "title": "No results",
+          "message": "No trips match the selected filters."
+        },
+        "columns": {
+          "vehicle": "Vehicle",
+          "carrier": "Carrier",
+          "route": "Route",
+          "period": "Period",
+          "status": "Status",
+          "actions": "Actions"
+        }
+      },
+      "actions": {
+        "markInTransit": "Mark in transit",
+        "markReturned": "Mark returned",
+        "inTransitTitle": "Mark as in transit",
+        "inTransitDescription": "Enter the actual departure date and time for trip {plate}.",
+        "inTransitDateLabel": "Actual departure date and time",
+        "inTransitRequired": "Enter the departure date and time",
+        "inTransitFuture": "The departure date and time cannot be in the future",
+        "inTransitBeforeDeparture": "Date cannot be earlier than the reported departure date",
+        "returnedTitle": "Mark as returned",
+        "returnedDescription": "Enter the actual return date and time for trip {plate}.",
+        "returnedDateLabel": "Return date and time",
+        "returnedRequired": "Enter the return date and time",
+        "returnedFuture": "The return date and time cannot be in the future",
+        "returnedBeforeDeparture": "The return cannot be earlier than the actual departure.",
+        "returnedIncompleteKm": "Warning: {count} {count, plural, one {day} other {days}} of this trip {count, plural, one {has} other {have}} no km entered on the board. Make sure all days are filled in before marking as returned.",
+        "cancel": "Cancel",
+        "inTransitToast": "Marked as in transit",
+        "returnedToast": "Marked as returned",
+        "errorToast": "Failed to change the trip status"
+      }
+    },
+    "km": {
+      "title": {
+        "board": "Km board",
+        "report": "Km report — my vehicles"
+      },
+      "subtitle": "Daily vehicle mileage — week {week}",
+      "tiles": {
+        "week": "Week",
+        "tractors": "Tractors",
+        "inMotion": "In motion",
+        "idle": "Not driving",
+        "sumKm": "Σ km",
+        "notes": "Notes"
+      },
+      "col": {
+        "vehicle": "Vehicle",
+        "sideShort": "side {side}",
+        "carrier": "Carrier",
+        "opiekun": "Account manager",
+        "dispatcher": "Dispatcher",
+        "sumKm": "Σ km",
+        "note": "Note",
+        "history": "History"
+      },
+      "weekday": {
+        "mon": "Mon",
+        "tue": "Tue",
+        "wed": "Wed",
+        "thu": "Thu",
+        "fri": "Fri",
+        "sat": "Sat",
+        "sun": "Sun"
+      },
+      "cell": {
+        "drove": "Drove",
+        "idle": "Not driving",
+        "empty": "Not checked",
+        "kmPlaceholder": "km",
+        "locked": "locked",
+        "lockedHint": "Can only be filled in the next day."
+      },
+      "modal": {
+        "title": "{plate} · side {side}",
+        "desc": "{carrier} · {weekday}, {date}",
+        "stateLabel": "Day status",
+        "stateDrove": "Drove",
+        "stateIdle": "Not driving",
+        "kmLabel": "Mileage (km)",
+        "kmRequired": "Enter km",
+        "kmZeroHint": "0 km? mark “not driving”",
+        "notesLabel": "Note",
+        "notesPlaceholder": "Note for this day…",
+        "save": "Save",
+        "cancel": "Cancel",
+        "saveError": "Failed to save km"
+      },
+      "clear": {
+        "action": "Clear this day",
+        "confirmTitle": "Clear this day?",
+        "confirmBody": "Are you sure you want to clear the km record for {plate}, {weekday} {date}? The day will return to “Not checked”.",
+        "confirm": "Clear",
+        "cancel": "Cancel",
+        "error": "Failed to clear the day"
+      },
+      "nav": {
+        "prev": "Previous week",
+        "next": "Next week",
+        "current": "Current week",
+        "weekLabel": "Week {week} · {from}–{to}",
+        "pickWeek": "Pick a week"
+      },
+      "progress": "{checked} of {total} vehicles filled this week",
+      "filter": {
+        "inMotionOnly": "In-motion only"
+      },
+      "search": {
+        "placeholder": "Search vehicle (plate / side no. / carrier)",
+        "label": "Search vehicle",
+        "noResults": "No vehicles match your search"
+      },
+      "readOnlyBanner": "Data is read-only — managed by the verifier.",
+      "lagNote": "Data as of the previous day. Today and future days are locked.",
+      "lagNoteShort": "Data as of the previous day.",
+      "empty": {
+        "noVehicles": "No active vehicles",
+        "noAssigned": "No vehicles assigned to you",
+        "noMotion": "No vehicle moved this week"
+      },
+      "month": {
+        "title": "Mileage — {plate} · side {side}",
+        "desc": "{carrier}",
+        "prev": "Previous month",
+        "next": "Next month",
+        "gridLabel": "Mileage calendar — {month}",
+        "sumLabel": "Σ km this month",
+        "range": "Range: {from}–{to}",
+        "emptyMonth": "No km records for this month"
+      },
+      "notesPopover": {
+        "title": "Notes this week",
+        "empty": "No notes"
+      },
+      "aria": {
+        "cell": "{plate}, {weekday} {date}: {state}",
+        "cellLocked": "{plate}, {weekday} {date}: {state} — locked (today or a future day)",
+        "grid": "Weekly km board"
+      }
+    }
+  },
+  "myKm": {
+    "title": "My vehicles — mileage",
+    "tab": "Mileage",
+    "subtitle": {
+      "carrier": "Weekly mileage of your vehicles — week {week}",
+      "opiekun": "Mileage of your carriers' vehicles — week {week}",
+      "planista": "Mileage of your planned vehicles — week {week}",
+      "dyspozytor": "Mileage of your team's vehicles — week {week}"
+    },
+    "readOnlyBanner": "Data is read-only — mileage is recorded by the verifier.",
+    "group": {
+      "summary": "{count, plural, one {# vehicle} other {# vehicles}} · Σ {sum} km"
+    },
+    "tiles": {
+      "carriers": "Carriers"
+    },
+    "filter": {
+      "inMotionOnly": "In-motion only"
+    },
+    "empty": {
+      "noVehicles": {
+        "carrier": "You have no vehicles yet",
+        "scoped": "No vehicles assigned to you"
+      }
+    },
+    "aria": {
+      "carrierGroup": "Carrier {carrier}: {count} vehicles"
+    }
+  },
+  "delegation": {
+    "kmCalendar": {
+      "title": "Mileage during the trip",
+      "summary": "Reg. {plate} · {from}–{to} · {days}",
+      "days": "{n, plural, one {# day} other {# days}}",
+      "sumKm": "Σ {sum} km",
+      "drove": "{km} km",
+      "idle": "not driving",
+      "empty": "—",
+      "noData": "No km data for this period",
+      "aria": "Mileage of vehicle {plate} for {from}–{to}"
+    }
+  },
+  "claim": {
+    "reklamacja": {
+      "resolution": {
+        "pending": "Reclamation pending",
+        "uznana": "Reclamation upheld",
+        "odrzucona": "Reclamation rejected"
+      }
+    },
+    "autoRecalc": {
+      "applied": "Recalculated to actual return date",
+      "skipped": "Needs attention: actual return date differs from the claim period",
+      "appliedTooltip": "Period updated from {origDateEnd} to {actualReturnAt}.",
+      "skippedTooltip": "Trip returned {actualReturnAt}, claim period: {dateEnd}. Auto-recalculation skipped."
+    }
+  },
+  "alerts": {
+    "title": "Alerts",
+    "subtitle": "Documents expiring within {days} days or already expired.",
+    "kpi": {
+      "expired": "Expired",
+      "today": "Expiring today",
+      "warning": "≤3 days",
+      "upcoming": "≤7 days"
+    },
+    "category": {
+      "carrier": "Carriers",
+      "vehicle": "Vehicles",
+      "driver": "Drivers"
+    },
+    "docType": {
+      "carrier_insurance": "OCP insurance",
+      "carrier_license": "Transport licence",
+      "vehicle_fuel_card": "Fuel card",
+      "driver_license": "Driving licence"
+    },
+    "countdown": {
+      "expired": "{days, plural, one {expired # day ago} other {expired # days ago}}",
+      "today": "Expires today",
+      "upcoming": "{days, plural, one {in # day} other {in # days}}"
+    },
+    "expiresOn": "expires {date}",
+    "empty": {
+      "title": "All documents up to date",
+      "message": "No document is expiring soon."
+    },
+    "error": {
+      "title": "Couldn't load alerts",
+      "message": "Try refreshing the page."
+    }
+  }
+}

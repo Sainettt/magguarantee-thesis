@@ -1,0 +1,43 @@
+# Caddy reverse-proxy config for the MAGGuarantee staging VPS.
+#
+# This VPS uses the default hostname provided by OVH (staging.example.com).
+# We don't control its DNS zone, so creating real subdomains (app.* and api.*)
+# isn't possible. Instead we serve web AND api from the same origin via
+# path-based routing.
+#
+# This also sidesteps the cross-origin cookie problem: a single origin means
+# cookies set by the API are sent automatically on every request from web,
+# and we keep SameSite=Strict + Secure (the strongest setting).
+#
+# When a real domain is registered (e.g. *.example.com), split this back into
+# two `domain.com { ... }` blocks for cleaner URLs.
+
+{
+    # Email used by Let's Encrypt for expiry notifications.
+    email admin@example.com
+}
+
+staging.example.com {
+    # /api/* → API container. The full path (including /api/v1/...) is
+    # preserved — Nest already mounts its routes under /api/v1, so Caddy
+    # doesn't need to rewrite anything.
+    @api path /api/*
+    handle @api {
+        reverse_proxy magguarantee-api:3001
+    }
+
+    # Everything else → web container.
+    handle {
+        reverse_proxy magguarantee-web:3000
+    }
+
+    encode gzip zstd
+
+    header {
+        Strict-Transport-Security "max-age=31536000; includeSubDomains"
+        X-Content-Type-Options "nosniff"
+        X-Frame-Options "DENY"
+        Referrer-Policy "strict-origin-when-cross-origin"
+        -Server
+    }
+}

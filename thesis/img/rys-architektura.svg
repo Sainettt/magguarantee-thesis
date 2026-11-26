@@ -1,0 +1,28 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 760 390" width="1520" height="780" font-family="DejaVu Sans, Arial, Helvetica, sans-serif" font-size="13">
+<defs><marker id="arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse"><path d="M0 0L10 5L0 10z" fill="#6b7280"/></marker></defs>
+<rect x="0" y="0" width="760" height="390" fill="#ffffff"/>
+<g fill="none" stroke="#6b7280" stroke-width="1.25">
+<path d="M180 80V128" marker-end="url(#arrow)"/><path d="M580 80V128" marker-end="url(#arrow)"/><path d="M336 164H424" marker-end="url(#arrow)"/>
+<path d="M580 248V280"/><path d="M104 280H632"/>
+<path d="M104 280V304" marker-end="url(#arrow)"/><path d="M280 280V304" marker-end="url(#arrow)"/><path d="M456 280V304" marker-end="url(#arrow)"/><path d="M632 280V304" marker-end="url(#arrow)"/>
+</g>
+<g><rect x="24" y="24" width="712" height="56" rx="8" fill="#2563eb" fill-opacity="0.10" stroke="#2563eb" stroke-width="2"/>
+<text x="380" y="48" text-anchor="middle" font-weight="bold" fill="#111827">packages/shared</text>
+<text x="380" y="66" text-anchor="middle" font-size="11.5" fill="#111827">schematy Zod (DTO) · km-calc · kalendarz UE · reguły wniosku i reklamacji · typy z.infer</text></g>
+<g><rect x="24" y="128" width="312" height="72" rx="8" fill="none" stroke="#6b7280" stroke-width="1.25"/>
+<text x="36" y="152" font-weight="bold" fill="#111827">Przeglądarka: Next.js (apps/web)</text>
+<text x="36" y="170" font-size="11.5" fill="#111827">47 stron, osobny layout dla każdej roli</text>
+<text x="36" y="186" font-size="11.5" fill="#111827">TanStack Query, React Hook Form + zodResolver</text></g>
+<g><rect x="424" y="128" width="312" height="120" rx="8" fill="none" stroke="#6b7280" stroke-width="1.25"/>
+<text x="436" y="152" font-weight="bold" fill="#111827">API: NestJS (apps/api)</text>
+<text x="436" y="170" font-size="11.5" fill="#111827">guardy: JWT, role, własność przewoźnika</text>
+<text x="436" y="186" font-size="11.5" fill="#111827">ZodValidationPipe (schemat z shared)</text>
+<text x="436" y="202" font-size="11.5" fill="#111827">AuditInterceptor: transakcja + audit_log</text>
+<text x="436" y="218" font-size="11.5" fill="#111827">serwisy, repozytoria, Prisma Client</text>
+<text x="436" y="234" font-size="11.5" fill="#111827">packages/database: 22 modele, 53 migracje</text></g>
+<text x="380" y="156" text-anchor="middle" font-size="11.5" fill="#6b7280">HTTPS, JSON</text>
+<g><rect x="24" y="304" width="160" height="56" rx="8" fill="none" stroke="#6b7280" stroke-width="1.25"/><text x="104" y="328" text-anchor="middle" font-weight="bold" fill="#111827">PostgreSQL 16</text><text x="104" y="346" text-anchor="middle" font-size="11.5" fill="#111827">dane, transakcje</text></g>
+<g><rect x="200" y="304" width="160" height="56" rx="8" fill="none" stroke="#6b7280" stroke-width="1.25"/><text x="280" y="328" text-anchor="middle" font-weight="bold" fill="#111827">Redis 7</text><text x="280" y="346" text-anchor="middle" font-size="11.5" fill="#111827">BullMQ, kody 2FA</text></g>
+<g><rect x="376" y="304" width="160" height="56" rx="8" fill="none" stroke="#6b7280" stroke-width="1.25"/><text x="456" y="328" text-anchor="middle" font-weight="bold" fill="#111827">S3 (MinIO w dev)</text><text x="456" y="346" text-anchor="middle" font-size="11.5" fill="#111827">załączniki, zrzuty</text></g>
+<g><rect x="552" y="304" width="160" height="56" rx="8" fill="none" stroke="#6b7280" stroke-width="1.25"/><text x="632" y="328" text-anchor="middle" font-weight="bold" fill="#111827">Gmail API / SMTP</text><text x="632" y="346" text-anchor="middle" font-size="11.5" fill="#111827">e-mail, wątki</text></g>
+</svg>

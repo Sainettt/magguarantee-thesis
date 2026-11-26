@@ -1,0 +1,42 @@
+import { createParamDecorator, ExecutionContext } from '@nestjs/common';
+
+import type { Role } from '@magguarantee/shared';
+
+/**
+ * Shape attached to `req.user` by JwtAccessStrategy after a successful JWT
+ * validation. Controllers consume this via `@CurrentUser()`.
+ */
+export interface AuthUser {
+  sub: string; // userId
+  login: string;
+  email: string;
+  name: string;
+  role: Role;
+  // Forced change-password gate (docs/15-auth-strategy.md). When true the
+  // user has a valid session but must set a new password. DB-sourced — see
+  // JwtAccessStrategy.validate.
+  mustChangePassword: boolean;
+  // Phase 11 — the dispatch team this user belongs to (role=dyspozytor only;
+  // null for every other role / an unassigned dyspozytor). Resolved from the DB
+  // in JwtAccessStrategy.validate (like mustChangePassword), NOT carried in the
+  // JWT payload. A dyspozytor with teamId null/undefined sees an EMPTY
+  // fleet/km/delegation scope (explicit empty set, never "all").
+  //
+  // Optional on the type (test fixtures / non-strategy callers may omit it);
+  // the strategy ALWAYS sets it. Scope code treats `undefined` and `null`
+  // identically — both mean "no team" → empty set.
+  teamId?: string | null;
+  jti?: string; // present only on refresh tokens
+}
+
+export const CurrentUser = createParamDecorator(
+  (_data: unknown, ctx: ExecutionContext): AuthUser => {
+    const req = ctx.switchToHttp().getRequest<{ user?: AuthUser }>();
+    if (!req.user) {
+      // This should be impossible — the global JwtAuthGuard runs first and
+      // would have thrown 401 by now. Keep the assertion to surface bugs.
+      throw new Error('CurrentUser decorator used on a route without JWT guard');
+    }
+    return req.user;
+  },
+);

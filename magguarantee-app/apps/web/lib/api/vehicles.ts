@@ -1,0 +1,249 @@
+// Typed API wrappers for /api/v1/vehicles/*.
+//
+// `createVehicle` / `updateVehicle` are `multipart/form-data`. Scalar fields
+// go in as text parts the API coerces; files go in as `gps` / `agreement` /
+// `cabotageDeInsurance` parts (kabotaż FR is a checkbox-only flag, no scan;
+// the standalone "umowa" / `contract` document was removed 2026-07 —
+// porozumienie / `agreement` is the only vehicle agreement doc; the German
+// cabotage permit `cabotageDe` scan was removed 2026-07 — kabotaż DE now
+// requires only the `cabotageDeInsurance` scan); PATCH may also carry
+// `removeAttachmentIds` (a JSON-encoded id array).
+//
+// NOTE: the ADR certificate scan moved to the Driver (2026-05-29) — the
+// vehicle keeps only the `adr` boolean checkbox and no longer uploads a file.
+
+import type {
+  CreateVehicleDto,
+  KmBoardQuery,
+  SetVehicleDailyKmDto,
+  UpdateVehicleDto,
+  VehicleAttachmentDto,
+  VehicleDailyKmDto,
+  VehicleDailyKmHistoryQuery,
+  VehicleDto,
+  VehicleFilters,
+  VehicleKmBoardDto,
+} from '@magguarantee/shared';
+
+import { apiBlob, apiForm, apiJson } from './client';
+import { type Paginated, toQuery } from './query';
+
+/**
+ * Files to upload per attachment category. Each array maps to a multipart
+ * file field; the API field names MUST match exactly (see
+ * `apps/api/.../vehicle-attachments.constants.ts`).
+ */
+export interface VehicleAttachmentUploads {
+  /** Umowa GPS scan — multipart field `gps` (required when GPS number set). */
+  gps?: File[];
+  /** Porozumienie scan — multipart field `agreement` (SOFT: never blocks save). */
+  agreement?: File[];
+  /** DE cabotage insurance — multipart field `cabotageDeInsurance`. */
+  cabotageDeInsurance?: File[];
+}
+
+/** Scalar fields that must be JSON-encoded as multipart string parts. */
+const ARRAY_FIELDS = new Set([
+  'wasteCountries',
+  'adrClasses',
+  'removeAttachmentIds',
+]);
+
+/**
+ * Serialises a vehicle DTO into `FormData`. Per the API multipart contract:
+ *  - booleans → the literal strings `'true'` / `'false'`
+ *  - numbers  → numeric strings
+ *  - arrays   → JSON-encoded strings
+ *  - strings  → as-is
+ *  - `undefined` / `null` → the part is omitted entirely
+ */
+function toVehicleFormData(
+  body: Record<string, unknown>,
+  files: VehicleAttachmentUploads,
+): FormData {
+  const fd = new FormData();
+
+  for (const [key, value] of Object.entries(body)) {
+    if (value === undefined || value === null) continue;
+    if (ARRAY_FIELDS.has(key)) {
+      fd.append(key, JSON.stringify(value));
+    } else if (typeof value === 'boolean') {
+      fd.append(key, value ? 'true' : 'false');
+    } else if (typeof value === 'number') {
+      fd.append(key, String(value));
+    } else {
+      fd.append(key, String(value));
+    }
+  }
+
+  // File parts — one append per file, all under the multipart field name
+  // (must match apps/api/.../vehicle-attachments.constants.ts exactly).
+  for (const file of files.gps ?? []) fd.append('gps', file);
+  for (const file of files.agreement ?? []) fd.append('agreement', file);
+  for (const file of files.cabotageDeInsurance ?? [])
+    fd.append('cabotageDeInsurance', file);
+
+  return fd;
+}
+
+export function listVehicles(
+  filters: VehicleFilters = { limit: 50 },
+): Promise<Paginated<VehicleDto>> {
+  return apiJson<Paginated<VehicleDto>>(`/vehicles${toQuery(filters)}`, {
+    method: 'GET',
+  });
+}
+
+export function getVehicle(id: string): Promise<VehicleDto> {
+  return apiJson<VehicleDto>(`/vehicles/${id}`, { method: 'GET' });
+}
+
+export function createVehicle(
+  body: CreateVehicleDto,
+  files: VehicleAttachmentUploads = {},
+): Promise<VehicleDto> {
+  return apiForm<VehicleDto>('/vehicles', toVehicleFormData(body, files), {
+    method: 'POST',
+  });
+}
+
+export function updateVehicle(
+  id: string,
+  body: UpdateVehicleDto,
+  files: VehicleAttachmentUploads = {},
+): Promise<VehicleDto> {
+  return apiForm<VehicleDto>(
+    `/vehicles/${id}`,
+    toVehicleFormData(body, files),
+    { method: 'PATCH' },
+  );
+}
+
+export function deactivateVehicle(id: string): Promise<VehicleDto> {
+  return apiJson<VehicleDto>(`/vehicles/${id}/deactivate`, { method: 'POST' });
+}
+
+export function reactivateVehicle(id: string): Promise<VehicleDto> {
+  return apiJson<VehicleDto>(`/vehicles/${id}/reactivate`, { method: 'POST' });
+}
+
+export function deleteVehicle(id: string): Promise<void> {
+  return apiJson<void>(`/vehicles/${id}`, { method: 'DELETE' });
+}
+
+// NOTE: the admin vehicle hard-delete (`DELETE /vehicles/:id/hard`) was RETIRED
+// (Vehicle-status rework) — admin now soft-deletes via `deleteVehicle` like
+// everyone else. No `hardDeleteVehicle` wrapper exists any more.
+
+// ─── Attachments ─────────────────────────────────────────
+
+export function listVehicleAttachments(
+  vehicleId: string,
+): Promise<VehicleAttachmentDto[]> {
+  return apiJson<VehicleAttachmentDto[]>(
+    `/vehicles/${vehicleId}/attachments`,
+    { method: 'GET' },
+  );
+}
+
+/**
+ * Downloads an attachment's bytes. The endpoint is authenticated and streams
+ * `Content-Disposition: inline` — it is NOT a public URL, so we fetch it
+ * through the auth/refresh-aware client and hand back a `Blob`.
+ */
+export function downloadVehicleAttachment(
+  vehicleId: string,
+  attachmentId: string,
+): Promise<Blob> {
+  return apiBlob(
+    `/vehicles/${vehicleId}/attachments/${attachmentId}/download`,
+    { method: 'GET' },
+  );
+}
+
+export function deleteVehicleAttachment(
+  vehicleId: string,
+  attachmentId: string,
+): Promise<void> {
+  return apiJson<void>(
+    `/vehicles/${vehicleId}/attachments/${attachmentId}`,
+    { method: 'DELETE' },
+  );
+}
+
+// ─── Daily km — weryfikator board + read-report (Phase 7.7) ──
+//
+// REWORK 2026-06-12 #3 (docs/14 §7.7, docs/20 §0′): the former route-status
+// board is absorbed into a DAILY km list. The weryfikator records, per
+// (vehicle, day), either `drove` (km>0) or `idle` («nie jeździ»); the absence
+// of a row is «not checked». Roles weryfikator | admin for the editable board;
+// the read-report (`/km-report`) is role-scoped server-side.
+
+/**
+ * GET /vehicles/km-board — the editable weekly km-board (all active vehicles +
+ * 7 day-cells + Σ km + derived motion status). Resolved to a Monday-anchored
+ * 7-day window. Pass `?week=YYYY-Www` or `?from=<Mon ISO>`; absent → current
+ * ISO week. Roles weryfikator | admin.
+ */
+export function getVehicleKmBoard(
+  query: KmBoardQuery = {},
+): Promise<VehicleKmBoardDto> {
+  return apiJson<VehicleKmBoardDto>(`/vehicles/km-board${toQuery(query)}`, {
+    method: 'GET',
+  });
+}
+
+/**
+ * GET /vehicles/km-report — the read-only weekly km-report. Same envelope as
+ * the board but server-scoped to the caller's own vehicles (planista→plannerId,
+ * dyspozytor→team, eksport/admin/weryfikator→all) and limited to vehicles that
+ * actually drove in the window.
+ */
+export function getVehicleKmReport(
+  query: KmBoardQuery = {},
+): Promise<VehicleKmBoardDto> {
+  return apiJson<VehicleKmBoardDto>(`/vehicles/km-report${toQuery(query)}`, {
+    method: 'GET',
+  });
+}
+
+/**
+ * PUT /vehicles/:id/daily-km — UPSERT one (vehicle, day) mark. The server
+ * records `source='manual'`, `notedById=caller`; when `state='drove'` it bumps
+ * `Vehicle.lastDroveAt = max(lastDroveAt, date)`. Returns the saved row.
+ */
+export function setVehicleDailyKm(
+  id: string,
+  body: SetVehicleDailyKmDto,
+): Promise<VehicleDailyKmDto> {
+  return apiJson<VehicleDailyKmDto>(`/vehicles/${id}/daily-km`, {
+    method: 'PUT',
+    json: body,
+  });
+}
+
+/**
+ * DELETE /vehicles/:id/daily-km?date=YYYY-MM-DD — clears ONE (vehicle, day)
+ * mark so the cell returns to «not checked» (row absence). Idempotent: clearing
+ * an already-absent cell still succeeds (204). Roles weryfikator | admin.
+ */
+export function deleteVehicleDailyKm(id: string, date: string): Promise<void> {
+  return apiJson<void>(
+    `/vehicles/${id}/daily-km?date=${encodeURIComponent(date)}`,
+    { method: 'DELETE' },
+  );
+}
+
+/**
+ * GET /vehicles/:id/daily-km — per-vehicle daily-km history, newest-first.
+ * Optional `from`/`to` (date-only) bounds. Powers the read-only history dialog.
+ */
+export function getVehicleDailyKmHistory(
+  id: string,
+  query: VehicleDailyKmHistoryQuery = {},
+): Promise<VehicleDailyKmDto[]> {
+  return apiJson<VehicleDailyKmDto[]>(
+    `/vehicles/${id}/daily-km${toQuery(query)}`,
+    { method: 'GET' },
+  );
+}

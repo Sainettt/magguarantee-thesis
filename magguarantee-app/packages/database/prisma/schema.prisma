@@ -1,0 +1,1242 @@
+generator client {
+  provider      = "prisma-client-js"
+  output        = "../src/generated"
+  binaryTargets = ["native", "linux-musl-openssl-3.0.x"]
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// Phase 2 — full domain. Phase 1 shipped only User, RefreshToken, AppConfig.
+// Source of truth: docs/12-database-schema.md.
+
+// ─── ENUMS ──────────────────────────────────────────────
+
+enum Role {
+  admin
+  pracownik
+  opiekun
+  planista
+  dyspozytor
+  przewoznik
+  eksport
+  weryfikator
+}
+
+// The manual request-authorization flow and the parallel "kwota przełożonego"
+// concept were retired 2026-07-24 (migration remove_manual_authorization_flow).
+// `OCZEKUJE_NA_AUTORYZACJE` stays — it is now set AUTOMATICALLY by the api when a
+// verified claim trips the Approver gate (over-threshold dopłata). The old
+// `AUTORYZACJA_KWOTA_PRZELOZONEGO` value was unreachable (no code ever set it) and was
+// removed together with the amountMaximum column.
+enum ClaimStatus {
+  NA_WERYFIKACJI          @map("NA WERYFIKACJI")
+  ZAAKCEPTOWANO
+  ODRZUCONO
+  REKLAMACJA
+  OCZEKUJE_NA_AUTORYZACJE @map("OCZEKUJE NA AUTORYZACJĘ")
+}
+
+// REWORK 2026-07-31 — outcome of the reklamacja decision (pracownik/admin).
+// Deliberately NOT part of `ClaimStatus`: on the decision the claim status goes
+// BACK to `statusBeforeReklamacja` for BOTH outcomes (an accepted reklamacja on
+// a rejected wniosek does not turn that wniosek into ZAAKCEPTOWANO), so the
+// outcome needs its own column. NULL on `claims.reklamacjaResolution` means
+// "no reklamacja was ever filed" OR "filed, still pending" — the two are told
+// apart by `status == REKLAMACJA` (pending) / `reklamacjaSubmitted`.
+enum ReklamacjaResolution {
+  UZNANA
+  ODRZUCONA
+}
+
+// REWORK 2026-06-20 (#4, docs/20 §0″) — delegation statuses are operational
+// again: carrier→zgloszony, eksport→gotowy, weryfikator→w_trasie→zjechal.
+// Strict chain order zgloszony→gotowy→w_trasie→zjechal (admin can force).
+enum DelegationStatus {
+  zgloszony
+  gotowy
+  w_trasie
+  zjechal
+  anulowany
+}
+
+// REWORK 2026-06-20 (#4, docs/20 §0″) — explicit, stored result of the period
+// auto-recalc that fires when a delegation transitions to `zjechal`. The
+// frontend reads this column directly instead of inferring the outcome
+// heuristically. Set by the api:
+//   none    — no recalc event yet (default).
+//   applied — auto-recalc ran on `zjechal`.
+//   skipped — recalc was due (real divergence between submitted period and the
+//             delegation's actual dates) but suppressed because the wniosek was
+//             already decided OR the period had been adjusted by a human.
+enum ClaimAutoRecalcState {
+  none
+  applied
+  skipped
+}
+
+// Phase 7 (REWORK 2026-06-12 #3, see docs/20 §0′) — the `weryfikator` role
+// records each vehicle's DAILY km. Per-(vehicle, day) state: `drove` (moved,
+// km>0) / `idle` ("checked, stood", km null). NO row for a day = "not checked"
+// (`nieznany`). The derived motion status (`w_ruchu`/`nie_jezdzi`/`nieznany`)
+// is computed at read time and is NOT stored.
+enum VehicleDayState {
+  drove
+  idle
+}
+
+// Origin of a daily-km row. `manual` = a weryfikator/admin stamped it;
+// `gps` = future external tracking service (no associated user).
+enum VehicleStatusSource {
+  manual
+  gps
+}
+
+enum VehicleType {
+  MEGA
+  STD
+  COIL
+}
+
+// EURO emission norm. Only EURO VI is admitted to the km-guarantee program per
+// customer decision 2026-07 (III/IV were dropped 2026-05; V dropped 2026-07).
+// DB is greenfield (no vehicle rows), so reducing the enum to a single value is
+// a clean redefinition. Vehicle.euro defaults to VI.
+enum EuroNorm {
+  VI
+}
+
+// Category of a document/screenshot attached to a Vehicle.
+// `gps` = umowa GPS scan (required by the API when Vehicle.gpsMobilePhone is
+// present). `agreement` = porozumienie scan (SOFT — its absence is a warning,
+// never save-blocking; also gates the derived fuel-card BLOCKED state).
+// `cabotage_de_insurance` = ubezpieczenie kabotażowe DE — the SOLE cabotage
+// document, required by the API when Vehicle.cabotageDe=true. The separate DE
+// cabotage-permit scan (`cabotage_de`) was dropped 2026-07-10; the insurance
+// scan is now the only cabotage document. The Vehicle.cabotageDe/cabotageFr
+// Boolean flags stay.
+// `contract` (Umowa) removed 2026-07-10 — the umowa concept does not exist in
+// this business; porozumienie (`agreement`) is the ONLY vehicle document. See
+// docs/19-known-quirks.md §1 (RESOLVED). Not to be confused with `gps` (umowa
+// GPS), which is a different document and stays.
+// `cabotage_fr` removed 2026-07 — kabotaż FR is now a checkbox-only flag
+// (Vehicle.cabotageFr Boolean), no scan.
+// `adr` removed 2026-05-29 — the ADR certificate is no longer a vehicle
+// attachment; the kept `Vehicle.adr` boolean stays as the permit flag, and
+// the ADR cert scan now lives on the Driver (świadectwo ADR) via
+// DriverAttachment.
+enum VehicleAttachmentCategory {
+  gps
+  agreement
+  cabotage_de_insurance
+}
+
+// Category of a file attached to a Driver. Single value for now — the ADR
+// driver certificate (świadectwo ADR). Kept as an enum (not a literal) to
+// mirror the Vehicle/Carrier attachment pattern and stay extensible.
+enum DriverAttachmentCategory {
+  adr
+}
+
+// Countries where a vehicle is allowed to haul waste (Vehicle.wasteCountries).
+// Replaces the legacy free-text CSV cell with a typed enum array. `LUX` and
+// `GB` avoid ambiguous 2-letter reuse; the rest are ISO-ish shortcodes.
+enum WasteCountry {
+  DE
+  NL
+  AT
+  BE
+  LUX
+  FR
+  GB
+  IT
+  CZ
+  PL
+}
+
+// Driver nationality (Driver.nationality). NOT coupled to the phone prefix —
+// a BY/UA driver may carry a PL number and vice versa. `OTHER` is the catch-all.
+enum DriverNationality {
+  BY
+  RUS
+  UA
+  PL
+  UZB
+  KRG
+  KZ
+  OTHER
+}
+
+// Languages a driver speaks (Driver.languages, array). `OTHER` is the catch-all.
+enum DriverLanguage {
+  PL
+  RU
+  EN
+  UA
+  DE
+  OTHER
+}
+
+// Category of a file attached to a Trailer. Single value for now — the XL
+// certificate (certyfikat XL / EN 12642-XL). Kept as an enum (not a literal)
+// to mirror the Vehicle/Driver/Carrier attachment pattern and stay extensible.
+enum TrailerAttachmentCategory {
+  cert_xl
+}
+
+// Category of a file attached to a Carrier — the carrier's own company
+// documents: OCP insurance, transport license, KREPTD extract, and a catch-all
+// `other`. ADR is NOT modeled at the carrier level: it lives per-vehicle
+// (Vehicle.adr / adrClasses) and per-driver (świadectwo scan via
+// DriverAttachmentCategory.adr). The former carrier-level `adr` category was a
+// legacy modeling bug and was dropped in migration 20260709120000.
+enum CarrierAttachmentCategory {
+  insurance
+  license
+  kreptd
+  other
+}
+
+// Category of a file attached to a Claim (wniosek). `WNIOSEK` — a regular
+// wniosek attachment (default, backfill for existing rows). `AUTORYZACJA_PRZELOZONEGO`
+// — the screenshot of Approver's out-of-band confirmation that lifts the
+// over-threshold authorization gate on a verified claim. See the approverGate*
+// fields on Claim.
+enum ClaimAttachmentCategory {
+  WNIOSEK
+  AUTORYZACJA_PRZELOZONEGO
+}
+
+// ─── GUARANTEE WATCHDOG (Guarantee Watchdog — план 2026-07-07) ──────────
+// A guaranteed vehicle (Vehicle.agreement=true) must report a new wyjazd
+// (Delegation status=zgloszony) within 10 Polish working days of its last
+// return; the watchdog escalates D-3 / D-1 reminders and, past the deadline,
+// a violation. The live board/banner is computed statelessly from delegations;
+// GuaranteeIdleEpisode is the WRITE-layer journal of the "bad" cycles only —
+// it durable-fixes violations and dedups reminder emails. See план §2/§3.
+
+// Lifecycle state of an idle episode row. `warning` — a reminder (D-3 or D-1)
+// has fired but the deadline is not yet missed; `violated` — the deadline
+// passed with no wyjazd; `resolved` — closed (a wyjazd was reported, agreement
+// turned off, or the vehicle went inactive). Only non-`resolved` rows are
+// "open"; the partial unique index enforces at most one open episode per
+// vehicle.
+enum GuaranteeEpisodeState {
+  warning
+  violated
+  resolved
+}
+
+// Where the episode's anchor date came from: `zjechal` — the date of the
+// vehicle's last returned delegation (actualReturnAt); `agreement` — the
+// vehicle has never returned a delegation, so the countdown runs from
+// Vehicle.agreementSince (guarantee-enable date).
+enum GuaranteeAnchorSource {
+  zjechal
+  agreement
+}
+
+// Why an open episode was closed: `wyjazd` — a new delegation was reported
+// (the compliant outcome); `agreement_off` — the guarantee flag was turned
+// off; `vehicle_inactive` — the vehicle was deactivated / soft-deleted.
+enum GuaranteeResolveReason {
+  wyjazd
+  agreement_off
+  vehicle_inactive
+}
+
+// ─── USERS (объединение всех auth-листов) ───────────────
+
+model User {
+  id                 String    @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  login              String    @unique
+  email              String    @unique
+  passwordHash       String? // bcrypt; nullable to allow email-only auth (see docs/15-auth-strategy.md)
+  // Forced password rotation. Set true whenever an admin issues a password
+  // (create or reset); the user must set a new password on next login (after
+  // 2FA). Self-service / forced change clears it back to false.
+  mustChangePassword Boolean   @default(false)
+  // Stamped each time the password is changed (self-service reset, forced
+  // change, or admin reset). NULL until the first password change.
+  passwordChangedAt  DateTime?
+  role               Role
+  name               String?
+  active             Boolean   @default(true)
+  // 2FA / login attempts
+  failedAttempts     Int       @default(0)
+  lockedUntil        DateTime?
+  lastLoginAt        DateTime?
+
+  // role-specific fields (NULL for other roles)
+  // planista — per-role tech debt; same denormalization pattern as the
+  // ex-`User.company` field (already moved to Carrier). Likely future cleanup:
+  // move to a Planista extension table OR keep on User if no other
+  // planista-only fields emerge. See docs/19-known-quirks.md#liderEmail.
+  liderEmail String?
+
+  // DYSPOZYTOR — the dispatch team this dispatcher belongs to (Phase 11).
+  // Semantically meaningful only for role=dyspozytor; NULL for every other
+  // role. A dispatcher is a member of exactly one team. Enforced "user with
+  // role=dyspozytor" at the service layer (no DB-level role guard possible).
+  teamId String? @db.Uuid
+  team   Team?   @relation("TeamDispatchers", fields: [teamId], references: [id])
+
+  // OPIEKUN — reverse relation through Carrier.opiekunId
+  carriers       Carrier[] @relation("OpiekunCarriers")
+  // PRZEWOZNIK — extends through Carrier (1:1)
+  carrierProfile Carrier?  @relation("CarrierUser")
+
+  // vehicle assignment — planista (lead spedytor) is a single user; the
+  // dispatch side moved from a single user to a Team in Phase 11 (see Team).
+  plannerVehicles Vehicle[] @relation("VehiclePlanner")
+
+  // activity
+  reportedDelegations        Delegation[]        @relation("DelegationReporter")
+  verifiedDelegations        Delegation[]        @relation("DelegationVerifier")
+  readiedDelegations         Delegation[]        @relation("DelegationReadier")
+  authoredClaims             Claim[]             @relation("ClaimDecidedBy")
+  verifiedClaims             Claim[]             @relation("ClaimVerifiedBy")
+  approverGateClearedClaims    Claim[]             @relation("ClaimApproverGateClearedBy")
+  reklamacjaDecidedClaims    Claim[]             @relation("ClaimReklamacjaDecidedBy")
+  uploadedVehicleAttachments VehicleAttachment[]
+  uploadedDriverAttachments  DriverAttachment[]
+  uploadedCarrierAttachments CarrierAttachment[]
+  uploadedTrailerAttachments TrailerAttachment[]
+  notedDailyKm               VehicleDailyKm[]    @relation("DailyKmNotedBy")
+  auditEntries               AuditLog[]
+  refreshTokens              RefreshToken[]
+
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+  deletedAt DateTime?
+
+  @@index([role])
+  @@index([deletedAt])
+  @@index([teamId])
+  @@map("users")
+}
+
+// ─── CARRIERS (UZYTKOWNICY extension fields) ────────────
+
+model Carrier {
+  id     String @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  userId String @unique @db.Uuid
+  user   User   @relation("CarrierUser", fields: [userId], references: [id])
+
+  company         String? // firma — only meaningful for the carrier extension
+  // NIP is required at create time — Polish carriers send a 10-digit NIP;
+  // foreign carriers send their local TIN. `vatId` (EU VAT, country prefix +
+  // 2–12 alphanumeric, max 14 chars total) is OPTIONAL — some carriers register
+  // without an EU VAT number and operate only with the local NIP/TIN.
+  nip             String
+  vatId           String? // EU VAT (optional)
+  contactPerson   String // OsobaKontaktowa
+  phone           String
+  ordersEmail     String // EmailZlecenia
+  accountEur      String // KontoEUR — IBAN
+  accountPln      String? // KontoPLN
+  paymentTerms    Int       @default(30) // days
+  // OCP insurance sum (EUR/PLN). Required at every layer (UI + Zod + DB
+  // NOT NULL); Zod additionally enforces `> 0`. Without an insurance value
+  // the carrier cannot legally haul, so unlike the expiry-date documents
+  // there is no "we'll fill it in after onboarding" path.
+  insuranceValue  Decimal   @db.Decimal(12, 2)
+  // Expiry dates are nullable at the DB level because admin/opiekun
+  // onboarding doesn't always have certificate copies in hand at
+  // row-creation time, and foreign carriers may follow a different
+  // certification regime. Activation gate / reminder is enforced in UI,
+  // not at the schema level.
+  insuranceExpiry DateTime? @db.Date
+  licenseExpiry   DateTime? @db.Date
+  numberOfVehicle Int? // LiczbaWypisow (KREPTD)
+  companyAddress  String
+
+  opiekunId String @db.Uuid
+  opiekun   User   @relation("OpiekunCarriers", fields: [opiekunId], references: [id])
+
+  vehicles          Vehicle[]
+  drivers           Driver[]
+  trailers          Trailer[]
+  claims            Claim[]
+  delegations       Delegation[]
+  attachments       CarrierAttachment[]
+  guaranteeEpisodes GuaranteeIdleEpisode[] // Guarantee Watchdog — denormalized carrier for board/scope
+
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+  deletedAt DateTime?
+
+  @@index([opiekunId])
+  @@index([deletedAt])
+  @@map("carriers")
+}
+
+// ─── CARRIER ATTACHMENTS (OCP insurance / license / KREPTD) ──
+// Files uploaded from the Carrier create/edit view — the carrier's own
+// company documents — stored in MinIO. The DB row holds only metadata + the
+// object key; the bytes live in the bucket. Mirrors VehicleAttachment.
+model CarrierAttachment {
+  id        String  @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  carrierId String  @db.Uuid
+  carrier   Carrier @relation(fields: [carrierId], references: [id], onDelete: Cascade)
+
+  category   CarrierAttachmentCategory
+  // Object key in the MinIO bucket, e.g.
+  // `carriers/<carrierId>/<category>/<fileId>.<ext>`.
+  storageKey String
+  fileName   String // original upload filename
+  mimeType   String
+  size       Int // bytes
+
+  uploadedById String? @db.Uuid
+  uploadedBy   User?   @relation(fields: [uploadedById], references: [id])
+
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+  deletedAt DateTime? // soft-delete — consistent with the global middleware
+
+  @@index([carrierId, category])
+  @@map("carrier_attachments")
+}
+
+// ─── TEAMS (dispatch teams — Phase 11) ──────────────────
+// A numbered dispatch team (code like `1.1.13`) that a vehicle is assigned to.
+// Mirrors the real MAGTRANS process: in the external maciosoft (Sped Trans)
+// system a vehicle is attached to a whole team, not a single person — formerly
+// tracked by hand in an Excel "raport DAF". In MAGGuarantee the team catalog is
+// maintained by `admin`, an explicit replacement for that Excel.
+//
+// Replaces the single `Vehicle.dispatcherId` FK (dropped in
+// `phase11_team_dispatch`). The shift/zmiana is deliberately NOT stored — it
+// rotates weekly; for notifications the names of all team dispatchers suffice.
+//
+// Uses an `active` flag (NOT a `deletedAt` soft-delete) per docs/04-data-model
+// — admin keeps a small, curated catalog of teams; hard-delete is guarded at
+// the API layer (a team referenced by users/vehicles must not be removed).
+model Team {
+  id     String  @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  // Team code, e.g. `1.1.13`. Globally unique. The `^\d+\.\d+\.\d+$` format is
+  // validated in the API/Zod layer — at the DB level it is just a unique String.
+  code   String  @unique
+  // Optional human-readable label.
+  name   String?
+  active Boolean @default(true)
+
+  // 1:N — the dispatchers (role=dyspozytor) that make up the team. Usually 2
+  // (by shift) but the count is NOT fixed.
+  dispatchers User[]    @relation("TeamDispatchers")
+  // 1:N — the vehicles assigned to this team.
+  vehicles    Vehicle[] @relation("VehicleDispatchTeam")
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@map("teams")
+}
+
+// ─── VEHICLES (AUTA, 36 columns) ────────────────────────
+
+model Vehicle {
+  id        String  @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  carrierId String  @db.Uuid
+  carrier   Carrier @relation(fields: [carrierId], references: [id])
+
+  plateNumber   String // NrRej
+  active        Boolean   @default(true)
+  addedAt       DateTime  @default(now())
+  deactivatedAt DateTime?
+  createdById   String?   @db.Uuid // UtworzonePrzez
+
+  // people
+  plannerId      String? @db.Uuid
+  planner        User?   @relation("VehiclePlanner", fields: [plannerId], references: [id])
+  // Phase 11 — dispatch moved from a single user (`dispatcherId`) to a Team.
+  // Both on-shift dispatchers see the vehicle through team membership; the
+  // single-dispatcher FK was dropped in `phase11_team_dispatch`. Nullable —
+  // a vehicle may not be assigned to a team yet. Service layer enforces the
+  // target Team is active.
+  dispatchTeamId String? @db.Uuid
+  dispatchTeam   Team?   @relation("VehicleDispatchTeam", fields: [dispatchTeamId], references: [id])
+
+  // attributes
+  notes          String?
+  // Boolean flag: legacy L1/L2/L3 enum was collapsed to a single TAK/NIE
+  // decision in 2026-05. true = vehicle holds an L-certificate (any class),
+  // false = no certificate / NULL in the legacy column.
+  certificateL   Boolean
+  euro           EuroNorm    @default(VI)
+  // Fuel card. `fuelCard` is the has-card flag; the card detail fields below are
+  // populated only when true (all Zod-enforced formats). The card is considered
+  // BLOCKED — a state DERIVED in the API, never stored — unless the vehicle has
+  // agreement=true AND a live `agreement` attachment (porozumienie scan) exists.
+  fuelCard       Boolean     @default(false)
+  fuelCardNumber String? // 16 digits, Zod-enforced
+  fuelCardExpiry DateTime?   @db.Date
+  fuelCardPin    String? // 4-6 digits, Zod-enforced
+  type           VehicleType
+
+  gb             Boolean? // UK access
+  it             Boolean?
+  fr             Boolean?
+  agreement      Boolean? // Porozumienie
+  // Guarantee Watchdog (план 2026-07-07): the date the km-guarantee was turned
+  // ON for this vehicle. Maintained by the API on the agreement toggle
+  // (false/null→true ⇒ set to today; true→false ⇒ cleared to NULL). Used as
+  // the watchdog anchor for a vehicle that has never returned a delegation
+  // (anchorSource=agreement). Date-only. The DB just stores it.
+  agreementSince DateTime? @db.Date
+  // Legacy `contract` (Umowa) boolean dropped 2026-05; the whole umowa concept
+  // was removed 2026-07-10 — the umowa does not exist in this business,
+  // porozumienie (`agreement`) is the only vehicle document. See
+  // docs/19-known-quirks.md#umowa-vs-porozumienie (RESOLVED).
+
+  // EUR/km rates — negotiated between MAGTRANS and the carrier AFTER vehicle
+  // creation. NULL means "not yet set"; `0` would be ambiguous ("free haulage"
+  // vs "not negotiated"). Admin sets these once the contract terms land.
+  rateDe     Decimal? @db.Decimal(6, 4)
+  rateUe     Decimal? @db.Decimal(6, 4)
+  rateExport Decimal? @db.Decimal(6, 4)
+  rateImport Decimal? @db.Decimal(6, 4)
+
+  // waste
+  wasteAllowed   Boolean        @default(false)
+  wasteCountries WasteCountry[] // legacy CSV → typed enum array
+
+  // cabotage
+  cabotageDe Boolean  @default(false)
+  cabotageFr Boolean  @default(false)
+  adr        Boolean  @default(false)
+  // ADR top-level classes ("1".."9") the vehicle is permitted for. String[]
+  // (not an enum) because Prisma enum values may not start with a digit; the
+  // "1".."9" domain is constrained in Zod. Meaningful only when adr=true.
+  adrClasses String[]
+
+  // tracker device id — OPTIONAL (nullable again since 2026-07). Not every
+  // vehicle carries a GPS device at create time. When a value IS present, the
+  // API requires a `gps` VehicleAttachment (umowa GPS scan). The legacy `gps`
+  // boolean toggle and the conditional `vehicle_gps_device_when_gps_on` CHECK
+  // were dropped 2026-06-17 (migration drop_vehicle_gps_toggle_require_gps_device).
+  gpsMobilePhone String?
+  sideNumber     String? // NrBoczny
+  // OstatnioJezdzilo — auto-bumped by the api to max(lastDroveAt, date) on a
+  // VehicleDailyKm drove-row (Phase 7 #3). Never edited by hand.
+  lastDroveAt    DateTime?
+
+  // ── Admin-removal alert (delegation-driven idle escalation) ──────────────
+  // Operational status is DERIVED at read time from delegations, NOT stored:
+  //   aktywna  = has a non-terminal delegation (zgloszony/gotowy/w_trasie);
+  //   otherwise anchor = max(Delegation.actualReturnAt over zjechal, non-deleted)
+  //   ?? createdAt, and daysSinceReturn (CALENDAR days from anchor to today)
+  //   buckets into stojąca 0–14 / nieaktywna 15–28 / do_usunięcia ≥29.
+  // These two columns are the ONLY persisted state for that flow — they dedup
+  // the daily "≥29 days, please remove this vehicle" email sent to all active
+  // admins (for ALL vehicles, not only guaranteed ones).
+  //
+  // Timestamp of the LAST removal email sent for this vehicle. NULL = never
+  // notified / reset. Cron sends when daysSinceReturn >= 29 AND
+  // (adminRemovalNotifiedAt IS NULL OR now - adminRemovalNotifiedAt >= 3 days),
+  // then stamps this = now. Cleared back to NULL once the vehicle leaves the
+  // ≥29 state (a new delegation, etc.), so a later relapse re-triggers cleanly.
+  adminRemovalNotifiedAt  DateTime?
+  // Running total of removal emails ever sent for this vehicle
+  // (observability / audit). Incremented each time the cron sends; NOT reset
+  // when adminRemovalNotifiedAt is cleared — it is a lifetime counter.
+  adminRemovalNotifyCount Int       @default(0)
+
+  delegations       Delegation[]
+  claims            Claim[]
+  attachments       VehicleAttachment[]
+  dailyKm           VehicleDailyKm[] // Phase 7 (#3) — daily km records (weryfikator)
+  guaranteeEpisodes GuaranteeIdleEpisode[] // Guarantee Watchdog — idle-episode journal
+
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+  deletedAt DateTime?
+
+  @@unique([carrierId, plateNumber], name: "carrier_plate_unique")
+  @@index([plannerId])
+  @@index([dispatchTeamId])
+  @@index([active, deletedAt])
+  @@map("vehicles")
+}
+
+// ─── VEHICLE ATTACHMENTS (gps / porozumienie / cabotage scans) ──
+// Files uploaded from the Vehicle create/edit modal — umowa GPS scan,
+// porozumienie, cabotage permits — stored in MinIO (S3-compatible). The DB
+// row only holds metadata + the object key; the bytes live in the bucket.
+model VehicleAttachment {
+  id        String  @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  vehicleId String  @db.Uuid
+  vehicle   Vehicle @relation(fields: [vehicleId], references: [id], onDelete: Cascade)
+
+  category   VehicleAttachmentCategory
+  // Object key in the MinIO bucket, e.g.
+  // `vehicles/<vehicleId>/<category>/<fileId>.<ext>`.
+  storageKey String
+  fileName   String // original upload filename
+  mimeType   String
+  size       Int // bytes
+
+  uploadedById String? @db.Uuid
+  uploadedBy   User?   @relation(fields: [uploadedById], references: [id])
+
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+  deletedAt DateTime? // soft-delete — consistent with the global middleware
+
+  @@index([vehicleId, category])
+  @@map("vehicle_attachments")
+}
+
+// ─── DRIVERS (KIEROWCY) ─────────────────────────────────
+
+model Driver {
+  id        String  @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  carrierId String  @db.Uuid
+  carrier   Carrier @relation(fields: [carrierId], references: [id])
+
+  loginSlug        String            @unique // имя.фамилия (or -2/-3 on collision)
+  firstName        String
+  lastName         String
+  phone            String
+  phone2           String?
+  // Drivers in PL trucking often don't have or use email professionally —
+  // phone is the primary channel. Required at the API/Zod level only when
+  // the form context demands it.
+  email            String?
+  // Identity-document number for the driver — may be a passport, a national ID
+  // card (dowód osobisty) or any equivalent document, depending on what the
+  // driver presents during cross-border delegations. (Historically this column
+  // was `driverLicenseNumber`, then briefly `passportNumber`; renamed in-place
+  // each time via ALTER TABLE … RENAME COLUMN, no data loss.) Column name stays
+  // camelCase to match the rest of this table's convention.
+  idDocumentNumber String
+  // Driving-license expiry is unrelated to the id document above — kept as-is
+  // because it's still a real attribute we track for the driver.
+  licenseExpiry    DateTime?         @db.Date
+  notes            String?
+  active           Boolean           @default(true)
+  addedAt          DateTime          @default(now())
+  // ADR transport permit flag (świadectwo ADR). The certificate scan itself
+  // is stored as a DriverAttachment row (category=adr).
+  adr              Boolean           @default(false)
+  // Driver nationality — NOT NULL (greenfield reset makes this safe). NOT
+  // coupled to the phone prefix (a BY/UA driver may carry a PL number).
+  nationality      DriverNationality
+  // Languages the driver speaks (typed enum array).
+  languages        DriverLanguage[]
+  // ADR top-level classes ("1".."9") — same String[] convention as
+  // Vehicle.adrClasses (Prisma enum values can't start with a digit; domain
+  // constrained in Zod). Meaningful only when adr=true.
+  adrClasses       String[]
+
+  delegations Delegation[]
+  attachments DriverAttachment[]
+
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+  deletedAt DateTime?
+
+  @@index([carrierId, active])
+  @@map("drivers")
+}
+
+// ─── DRIVER ATTACHMENTS (świadectwo ADR) ────────────────
+// Files uploaded from the Driver create/edit view — the driver's ADR
+// certificate — stored in MinIO. The DB row holds only metadata + the object
+// key; the bytes live in the bucket. Mirrors VehicleAttachment.
+model DriverAttachment {
+  id       String @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  driverId String @db.Uuid
+  driver   Driver @relation(fields: [driverId], references: [id], onDelete: Cascade)
+
+  category   DriverAttachmentCategory
+  // Object key in the MinIO bucket, e.g.
+  // `drivers/<driverId>/<category>/<fileId>.<ext>`.
+  storageKey String
+  fileName   String // original upload filename
+  mimeType   String
+  size       Int // bytes
+
+  uploadedById String? @db.Uuid
+  uploadedBy   User?   @relation(fields: [uploadedById], references: [id])
+
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+  deletedAt DateTime? // soft-delete — consistent with the global middleware
+
+  @@index([driverId, category])
+  @@map("driver_attachments")
+}
+
+// ─── TRAILERS (NACZEPY) ─────────────────────────────────
+
+model Trailer {
+  id        String  @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  carrierId String  @db.Uuid
+  carrier   Carrier @relation(fields: [carrierId], references: [id])
+
+  plateNumber   String // NrRej
+  trailerTypeId String      @db.Uuid
+  trailerType   TrailerType @relation(fields: [trailerTypeId], references: [id])
+  active        Boolean     @default(true)
+  addedAt       DateTime    @default(now())
+
+  belts           Boolean? // Pasy
+  beltsCount      Int? // Liczba pasów (nullable; UI/Zod enforce >= 0)
+  mats            Boolean? // Maty
+  matsCount       Int? // Liczba mat (nullable; UI/Zod enforce >= 0)
+  // Belki zabezpieczające — mirrors the belts/beltsCount nullable pattern;
+  // UI/Zod enforce a minimum of 3 (like belts/mats).
+  beams           Boolean?
+  beamsCount      Int?
+  innerLength     Decimal? @db.Decimal(8, 2)
+  innerWidth      Decimal? @db.Decimal(8, 2)
+  innerHeight     Decimal? @db.Decimal(8, 2)
+  capacity        Decimal? @db.Decimal(10, 2)
+  // Boczny prześwit ładunkowy in cm — STRICT (NOT NULL).
+  sideClearanceCm Int
+  // Podnoszony dach (lifting roof).
+  liftingRoof     Boolean  @default(false)
+  // Odsuwany dach (sliding roof).
+  slidingRoof     Boolean  @default(false)
+  // Edscha sliding-roof mechanism — meaningful only when slidingRoof=true.
+  edscha          Boolean?
+  // Kosz paletowy (pallet box).
+  palletBox       Boolean  @default(false)
+  certXl          Boolean?
+  multilock       Boolean?
+  notes           String?
+
+  delegations Delegation[]
+  attachments TrailerAttachment[]
+
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+  deletedAt DateTime?
+
+  @@unique([carrierId, plateNumber])
+  @@map("trailers")
+}
+
+model TrailerType {
+  id          String    @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  name        String    @unique
+  shortCode   String?
+  description String?
+  active      Boolean   @default(true)
+  trailers    Trailer[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@map("trailer_types")
+}
+
+// ─── TRAILER ATTACHMENTS (certyfikat XL) ────────────────
+// Files uploaded from the Trailer create/edit view — the trailer's XL
+// certificate — stored in MinIO. The DB row holds only metadata + the object
+// key; the bytes live in the bucket. Mirrors VehicleAttachment.
+model TrailerAttachment {
+  id        String  @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  trailerId String  @db.Uuid
+  trailer   Trailer @relation(fields: [trailerId], references: [id], onDelete: Cascade)
+
+  category   TrailerAttachmentCategory
+  // Object key in the MinIO bucket, e.g.
+  // `trailers/<trailerId>/<category>/<fileId>.<ext>`.
+  storageKey String
+  fileName   String // original upload filename
+  mimeType   String
+  size       Int // bytes
+
+  uploadedById String? @db.Uuid
+  uploadedBy   User?   @relation(fields: [uploadedById], references: [id])
+
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+  deletedAt DateTime? // soft-delete — consistent with the global middleware
+
+  @@index([trailerId, category])
+  @@map("trailer_attachments")
+}
+
+// ─── CLAIMS (WNIOSEK, 50 columns) ───────────────────────
+
+model Claim {
+  id                   String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  nrZgl                String   @unique // GWA/NNN/MM/RR
+  carrierId            String   @db.Uuid
+  carrier              Carrier  @relation(fields: [carrierId], references: [id])
+  vehicleId            String?  @db.Uuid // may become NULL if vehicle deleted
+  vehicle              Vehicle? @relation(fields: [vehicleId], references: [id])
+  vehiclePlateSnapshot String // preserved if vehicle is removed
+
+  // period
+  dateStart DateTime @db.Timestamp(0)
+  dateEnd   DateTime @db.Timestamp(0)
+  timeFrom  String // HH:MM, legacy format
+  timeTo    String
+
+  // calculation
+  drivenDays         Decimal  @db.Decimal(6, 2) // DniJezdne (can be fractional)
+  mileage            Decimal  @db.Decimal(10, 2) // Przebieg (km)
+  kmPerDay           Decimal  @db.Decimal(8, 2)
+  kmGuaranteed       Decimal  @db.Decimal(10, 2) // KmGwarant
+  kmDifference       Decimal  @db.Decimal(10, 2)
+  paymentEur         Decimal  @db.Decimal(12, 2) // Doplata
+  /// Immutable snapshot of the km-calc payment (Doplata) at submit time — same
+  /// type as `paymentEur` (Decimal @db.Decimal(12, 2); money is Decimal, never
+  /// Float — see docs/12 §Decimal). Set once at submit and never mutated; powers
+  /// the "Korekty weryfikatora" diff (orig vs verifier-corrected payment) in the
+  /// Approver authorization email. Nullable: pre-existing rows have no snapshot.
+  origPaymentEur     Decimal? @db.Decimal(12, 2)
+  ratePerKmEffective Decimal  @db.Decimal(6, 4) // weighted EUR/km
+  breakdown          Json? // monthly breakdown (totalDays, kmGwarant, stawka, ...)
+
+  // status & workflow
+  status          ClaimStatus @default(NA_WERYFIKACJI)
+  statusChangedAt DateTime?
+  decidedById     String?     @db.Uuid
+  decidedBy       User?       @relation("ClaimDecidedBy", fields: [decidedById], references: [id])
+
+  // verification checkpoint ("Zapisz weryfikację") — the pracownik persists his
+  // corrections BEFORE any accept/reject decision. `verifiedAt` = when the
+  // verification was last saved/confirmed (NULL = not verified yet). Reset to
+  // NULL by the delegation auto-recalc (owned by the api). `verifiedBy` mirrors
+  // the `decidedBy` pattern above (optional FK, ON DELETE SET NULL, no index —
+  // same as the sibling).
+  verifiedAt   DateTime?
+  verifiedById String?   @db.Uuid
+  verifiedBy   User?     @relation("ClaimVerifiedBy", fields: [verifiedById], references: [id])
+
+  comment     String?
+  // NrZlecenia — set only on transition to ZAAKCEPTOWANO; carrier-side
+  // submit creates the row with NULL. Strictness recovered via
+  // `claim_accepted_payment_complete` CHECK constraint.
+  orderNumber String?
+  orderDate   DateTime? @db.Date
+
+  // Approver authorization gate. When a verifier saves a verification and the
+  // compensation exceeds the threshold on a verified claim, the accept/reject
+  // decision is BLOCKED until the verifier uploads a screenshot of Approver's
+  // out-of-band confirmation (a ClaimAttachment with category=AUTORYZACJA_PRZELOZONEGO),
+  // and the api moves the claim into status OCZEKUJE_NA_AUTORYZACJE. This AUTO
+  // gate is the sole authorization path now — the former MANUAL
+  // request-authorization flow (authorization*/margin/amountMaximum columns +
+  // the AUTORYZACJA_KWOTA_PRZELOZONEGO status) was removed 2026-07-24 (migration
+  // remove_manual_authorization_flow). `approverGateRequired` — the gate is active.
+  // `approverGateNotifiedAt` — dedup flag: when the auto-email to Approver was sent.
+  // `approverGateClearedAt` — when the confirmation screenshot lifted the gate.
+  // `approverGateClearedBy` mirrors the `verifiedBy` pattern (optional named FK,
+  // no index).
+  approverGateRequired       Boolean   @default(false)
+  approverGateNotifiedAt     DateTime?
+  // The over-threshold dopłata (EUR) that Approver was LAST notified about via the
+  // auto-confirmation email. Used by the api `_applyApproverGate` to detect when a
+  // re-verify moved the amount and Approver must be re-notified. NULL when the gate
+  // was never armed/notified or was reset. Must be nulled in lockstep wherever the
+  // rest of the approverGate* fields reset. Same precision as paymentEur /
+  // origPaymentEur (Decimal @db.Decimal(12, 2); money is Decimal).
+  approverGateNotifiedAmount Decimal?  @db.Decimal(12, 2)
+  approverGateClearedAt      DateTime?
+  approverGateClearedById    String?   @db.Uuid
+  approverGateClearedBy      User?     @relation("ClaimApproverGateClearedBy", fields: [approverGateClearedById], references: [id])
+
+  /// ZatwKwota — what MAGTRANS actually pays out. Written only on the
+  /// transition to ZAAKCEPTOWANO (guarded by `claim_accepted_payment_complete`).
+  /// The other two money fields it must be read against are `origPaymentEur`
+  /// (what the carrier originally asked for) and `paymentEur` (the km-calc
+  /// after the verifier's corrections). The former `amountRequested` column was
+  /// dropped 2026-07-26 — it was a pure mirror of `paymentEur` (both submit and
+  /// every recalc path wrote them from the same expression), so it carried no
+  /// information while making the UI label «Wnioskowana» read as the carrier's
+  /// request when it was really the post-verification figure.
+  amountApproved Decimal? @db.Decimal(12, 2)
+
+  // reklamacja (mirror for rollback)
+  //
+  // REWORK 2026-07-31 — one reklamacja per claim, filed by the carrier on a
+  // DECIDED wniosek (ZAAKCEPTOWANO/ODRZUCONO) within 48h of `statusChangedAt`,
+  // for at most `origPaymentEur - (amountApproved if ZAAKCEPTOWANO else 0)`.
+  // `reklamacjaSubmitted` is the one-shot flag (never reset). Pracownik/admin
+  // then decide UZNANA / ODRZUCONA; the decision moves `status` BACK to
+  // `statusBeforeReklamacja` in both cases and records the outcome in
+  // `reklamacjaResolution`. The wniosek's own payout fields (`amountApproved`,
+  // `orderNumber`, `orderDate`) are NEVER touched by the reklamacja — an UZNANA
+  // reklamacja is paid out under `reklamacjaOrderNumber` instead.
+  reklamacjaSubmitted    Boolean               @default(false)
+  reklamacjaText         String?
+  /// OdpMagtrans — MAGTRANS' answer to the carrier. REQUIRED (app layer) as the
+  /// justification when the reklamacja is decided ODRZUCONA; free-form otherwise.
+  reklamacjaResponse     String?
+  reklamacjaAmount       Decimal?              @db.Decimal(12, 2)
+  /// «Nr zlecenia» under which an UZNANA reklamacja is paid out. Written ONLY on
+  /// an accepted (UZNANA) reklamacja decision. Independent from the wniosek's own
+  /// `orderNumber`: the UI prefills from it, but the two may legitimately differ —
+  /// MAGTRANS usually amends the existing zlecenie, but sometimes issues a new
+  /// one. Enforced non-empty for UZNANA by CHECK
+  /// `claim_reklamacja_resolution_complete`.
+  reklamacjaOrderNumber  String?
+  /// Outcome of the reklamacja decision. NULL = no reklamacja filed, or filed and
+  /// still pending (pending ⇔ `status == REKLAMACJA`). Intentionally separate from
+  /// `status`, which rolls back to `statusBeforeReklamacja` for BOTH outcomes.
+  reklamacjaResolution   ReklamacjaResolution?
+  /// When the carrier filed the reklamacja. Cannot be derived from
+  /// `statusChangedAt` — that column is re-stamped by the decision (status rolls
+  /// back to `statusBeforeReklamacja`), which would lose the submit moment.
+  reklamacjaSubmittedAt  DateTime?
+  /// When pracownik/admin decided the reklamacja (UZNANA or ODRZUCONA).
+  reklamacjaDecidedAt    DateTime?
+  /// Who decided the reklamacja. Mirrors the `verifiedBy` / `approverGateClearedBy`
+  /// pattern above (optional named FK, ON DELETE SET NULL, no index).
+  reklamacjaDecidedById  String?               @db.Uuid
+  reklamacjaDecidedBy    User?                 @relation("ClaimReklamacjaDecidedBy", fields: [reklamacjaDecidedById], references: [id])
+  /// Immutable snapshot of the value the carrier submitted. Set once at submit
+  /// and never modified after — used by History tab + audit trail to detect
+  /// if the verifier overrode the carrier's claimed downtime.
+  origHoursAdjusted      Decimal?              @db.Decimal(5, 2)
+  /// Currently applied downtime correction in hours. Submit writes this equal
+  /// to origHoursAdjusted; verifier PATCH mutates only this column. Drives
+  /// km-calc (korektaDni = hoursAdjustedValue / 24).
+  hoursAdjustedValue     Decimal?              @db.Decimal(5, 2)
+  statusBeforeReklamacja ClaimStatus?
+  origDateStart          DateTime?
+  origDateEnd            DateTime?
+  origMileage            Decimal?              @db.Decimal(10, 2)
+  /// Immutable snapshot of timeFrom (HH:MM, legacy string) as the carrier
+  /// submitted it. Set once at submit; verifier (pracownik) PATCH never mutates
+  /// it. Working/editable value lives in `timeFrom`.
+  origTimeFrom           String?
+  /// Immutable snapshot of timeTo (HH:MM, legacy string) as the carrier
+  /// submitted it. Set once at submit; verifier (pracownik) PATCH never mutates
+  /// it. Working/editable value lives in `timeTo`.
+  origTimeTo             String?
+
+  // attachments
+  attachments ClaimAttachment[]
+
+  // REWORK 2026-06-20 (#4, docs/20 §0″) — wniosek↔wyjazd link. One claim per
+  // delegation (@unique). Nullable in DB (legacy/migration); required for new
+  // claims is enforced at the app layer, NOT in the DB. Period (dateStart=
+  // departureAt, dateEnd=actualReturnAt ?? plannedReturnAt) and mileage are
+  // derived from the delegation.
+  delegationId             String?              @db.Uuid
+  delegation               Delegation?          @relation(fields: [delegationId], references: [id])
+  // true once a pracownik PATCHes dateStart/dateEnd — the boundary that gates
+  // the auto-recalc when the delegation later transitions to `zjechal`.
+  periodAdjustedByVerifier Boolean              @default(false)
+  // Explicit, stored result of the `zjechal` auto-recalc — read directly by
+  // the frontend (no heuristic inference). `none` until a recalc event occurs;
+  // api writes `applied` / `skipped`. See enum ClaimAutoRecalcState.
+  autoRecalcState          ClaimAutoRecalcState @default(none)
+
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+  deletedAt DateTime?
+
+  @@unique([delegationId])
+  @@index([carrierId, status])
+  @@index([carrierId, deletedAt])
+  @@index([vehicleId])
+  // Phase 3 — supports carrier-submission cooldown lookup:
+  // findFirst({ where: { vehicleId, status: { not: ODRZUCONO } }, orderBy: { createdAt: 'desc' } }).
+  // Kept alongside @@index([vehicleId]) which still serves plain list({ vehicleId }).
+  @@index([vehicleId, createdAt])
+  @@index([status, statusChangedAt])
+  @@index([dateStart])
+  @@map("claims")
+}
+
+model ClaimAttachment {
+  id           String                  @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  claimId      String                  @db.Uuid
+  claim        Claim                   @relation(fields: [claimId], references: [id], onDelete: Cascade)
+  // Distinguishes the Approver confirmation screenshot (AUTORYZACJA_PRZELOZONEGO) from
+  // regular wniosek attachments (WNIOSEK, default + backfill for existing rows).
+  category     ClaimAttachmentCategory @default(WNIOSEK)
+  url          String
+  mimeType     String?
+  size         Int?
+  uploadedById String?                 @db.Uuid
+  createdAt    DateTime                @default(now())
+
+  @@map("claim_attachments")
+}
+
+// ─── DELEGATIONS (DELEGACJE) ────────────────────────────
+
+model Delegation {
+  id        String  @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  vehicleId String  @db.Uuid
+  vehicle   Vehicle @relation(fields: [vehicleId], references: [id])
+  trailerId String  @db.Uuid
+  trailer   Trailer @relation(fields: [trailerId], references: [id])
+  driverId  String  @db.Uuid
+  driver    Driver  @relation(fields: [driverId], references: [id])
+  carrierId String  @db.Uuid
+  carrier   Carrier @relation(fields: [carrierId], references: [id])
+
+  driverNameSnapshot  String?
+  driverPhoneSnapshot String?
+
+  departureAt         DateTime
+  departureCountry    String
+  departurePostalCode String
+
+  // Return planning is required at submit (2026-05 product decision): a
+  // delegation cannot be reported without a planned return date + location.
+  // `plannedReturnAt` is `@db.Date` (date-only, no time) — driver doesn't
+  // commit to an hour, only a day. `actualReturnAt` stays `DateTime?` (full
+  // timestamp, set only on transition to `zjechal`).
+  plannedReturnAt  DateTime @db.Date
+  returnCountry    String
+  returnPostalCode String
+
+  status            DelegationStatus @default(zgloszony)
+  // Verifier-set actual dates. `actualDepartureAt` is set by the weryfikator on
+  // transition to `w_trasie` (in transit); `actualReturnAt` on transition to
+  // `zjechal`. Both stay `DateTime?` (nullable, NOT `@db.Date`): date-only value
+  // stored as UTC midnight, flipped together with `status` in a single service
+  // transaction, so there is no DB CHECK enforcing presence.
+  actualDepartureAt DateTime?
+  actualReturnAt    DateTime?
+
+  // REWORK 2026-06-20 (#4, docs/20 §0″) — wniosek↔wyjazd link. One-to-one:
+  // the owning side is Claim.delegationId (@unique).
+  claim Claim?
+
+  // Guarantee Watchdog — episodes this delegation resolved (a reported wyjazd
+  // closes an open idle episode). Back-relation of
+  // GuaranteeIdleEpisode.resolvedByDelegation.
+  resolvedGuaranteeEpisodes GuaranteeIdleEpisode[] @relation("GuaranteeEpisodeResolvedBy")
+
+  reportedById String?   @db.Uuid
+  reportedBy   User?     @relation("DelegationReporter", fields: [reportedById], references: [id])
+  reportedAt   DateTime  @default(now())
+  verifiedById String?   @db.Uuid
+  verifiedBy   User?     @relation("DelegationVerifier", fields: [verifiedById], references: [id])
+  verifiedAt   DateTime?
+
+  // Eksport who marked the outing `gotowy` (ready). Surfaced in the modal as
+  // the "zweryfikowany" actor — in MAGTRANS the export coordinator readying the
+  // load IS the verification step. Stamped in `markReady` on the forward flip.
+  readyById String?   @db.Uuid
+  readyBy   User?     @relation("DelegationReadier", fields: [readyById], references: [id])
+  readyAt   DateTime?
+
+  spedOrderNumber String? // Nr zlecenia ze spedu — set on markReady (zgloszony → gotowy)
+
+  notes String?
+
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+  deletedAt DateTime?
+
+  @@index([vehicleId, status])
+  @@index([carrierId, status])
+  @@index([carrierId, deletedAt, status])
+  @@index([status, departureAt])
+  @@map("delegations")
+}
+
+// ─── VEHICLE DAILY KM (Phase 7 #3 — weryfikator) ────────
+// One row per (vehicle, day) — upsert. The `weryfikator` role records each
+// vehicle's DAILY km via external means (SpedTrans+GPS). state=drove ⇒ km>0;
+// state=idle ⇒ km null ("checked, stood"); NO row for a day = "not checked"
+// (nieznany). The derived motion status (w_ruchu/nie_jezdzi/nieznany) is
+// computed at read time, NOT stored — there is deliberately NO status column
+// on Vehicle. On a drove-row the api bumps Vehicle.lastDroveAt =
+// max(lastDroveAt, date) in the same txn. `source=gps` rows have no
+// `notedById` (external service). Claim mileage is derived as Σ km
+// (state=drove) over the period — there is NO Claim↔Delegation FK.
+model VehicleDailyKm {
+  id        String  @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  vehicleId String  @db.Uuid
+  vehicle   Vehicle @relation(fields: [vehicleId], references: [id], onDelete: Cascade)
+
+  date   DateTime            @db.Date
+  km     Int? // null when state=idle
+  state  VehicleDayState
+  source VehicleStatusSource @default(manual)
+
+  // Nullable — GPS-sourced rows are not attributed to a user.
+  notedById String? @db.Uuid
+  notedBy   User?   @relation("DailyKmNotedBy", fields: [notedById], references: [id])
+  notes     String?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@unique([vehicleId, date]) // one stamp per vehicle/day (upsert)
+  @@index([date]) // weekly board
+  @@map("vehicle_daily_km")
+}
+
+// ─── GUARANTEE IDLE EPISODE (Guarantee Watchdog — write layer) ──
+// Append-only journal of the "bad" guarantee cycles for a guaranteed vehicle
+// (Vehicle.agreement=true). A row is created on the FIRST escalation event of a
+// cycle (D-3 / D-1 / violation) and holds the fixed deadline, per-mail dedup
+// flags, and (once closed) the resolution outcome. Compliant cycles create NO
+// row — their trace already lives in the delegations. The live board/banner is
+// computed statelessly from delegations; this table exists to dedup reminder
+// emails and durable-fix violations (see план §2/§3).
+//
+// NO `deletedAt` / soft-delete on purpose: this is an append-only journal, and
+// the soft-delete Prisma extension only touches models listed in its explicit
+// SOFT_DELETE_MODELS allowlist (apps/api/.../soft-delete.extension.ts). A model
+// without `deletedAt` (and not in that list) is left completely untouched by
+// the extension, so no filtering is applied here.
+//
+// The "at most one OPEN episode per vehicle" invariant (state <> 'resolved') is
+// enforced by a partial unique index added by hand in the migration SQL —
+// Prisma cannot express a partial unique in the schema DSL.
+model GuaranteeIdleEpisode {
+  id String @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+
+  vehicleId String  @db.Uuid // scope of the episode — the vehicle
+  vehicle   Vehicle @relation(fields: [vehicleId], references: [id])
+  // Denormalized carrier — copied from the vehicle so the opiekun/admin board
+  // can scope + group by carrier without a join through Vehicle.
+  carrierId String  @db.Uuid
+  carrier   Carrier @relation(fields: [carrierId], references: [id])
+
+  anchorAt     DateTime              @db.Date // cycle anchor (last return / agreementSince)
+  anchorSource GuaranteeAnchorSource
+  deadlineAt   DateTime              @db.Date // fixed at row creation (10 working days after anchor)
+  state        GuaranteeEpisodeState
+
+  // Per-mail dedup flags — set once the corresponding notification is enqueued.
+  reminder3SentAt DateTime? // D-3 reminder sent
+  reminder1SentAt DateTime? // D-1 reminder sent
+  violationSentAt DateTime? // "violation" section in the opiekun digest sent
+  violatedAt      DateTime? // stamped when the deadline is first crossed (state=violated)
+
+  // Resolution (set when the episode is closed).
+  resolvedAt             DateTime?
+  resolvedByDelegationId String?                 @db.Uuid
+  resolvedByDelegation   Delegation?             @relation("GuaranteeEpisodeResolvedBy", fields: [resolvedByDelegationId], references: [id])
+  resolvedDaysLeft       Int? // daysLeft at close; < 0 = closed late
+  resolvedReason         GuaranteeResolveReason?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([carrierId, state])
+  @@index([vehicleId, state])
+  @@map("guarantee_idle_episodes")
+}
+
+// ─── LIMITS (LIMITY KM) ─────────────────────────────────
+
+model MonthlyLimit {
+  id            String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  year          Int
+  month         Int // 1..12
+  kmPerDay      Decimal? @db.Decimal(8, 2)
+  ratePerKm     Decimal? @db.Decimal(6, 4)
+  // Guarantee km credited for a single qualifying ("odd") Saturday. NULL is
+  // treated as 0 by km-calc (fallback owned by the api, NOT the DB — the column
+  // just stores the value, no default). Same precision as `kmPerDay`
+  // (Decimal(8,2); km is Decimal, never Float).
+  kmPerSaturday Decimal? @db.Decimal(8, 2)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@unique([year, month])
+  @@map("monthly_limits")
+}
+
+// ─── AUDIT LOG ──────────────────────────────────────────
+
+model AuditLog {
+  id         String  @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  userId     String? @db.Uuid
+  user       User?   @relation(fields: [userId], references: [id])
+  userRole   Role?
+  action     String
+  targetType String? // 'Claim', 'Vehicle', ...
+  targetKey  String? // nrZgl, plateNumber, ...
+  before     Json?
+  after      Json?
+  reason     String?
+  metadata   Json?
+  ipAddress  String? @db.Inet
+
+  createdAt DateTime @default(now())
+
+  @@index([userId])
+  @@index([targetType, targetKey])
+  @@index([action])
+  @@index([createdAt])
+  @@map("audit_log")
+}
+
+// ─── REFRESH TOKENS (JWT rotation) ──────────────────────
+
+model RefreshToken {
+  id        String    @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  userId    String    @db.Uuid
+  user      User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  tokenHash String    @unique // SHA-256 hex of the actual token, never the token itself
+  expiresAt DateTime
+  revokedAt DateTime?
+  ipAddress String?   @db.Inet
+  userAgent String?
+
+  // theft-detection chain — points to the token that replaced this one on refresh
+  replacedById String?       @unique @db.Uuid
+  replacedBy   RefreshToken? @relation("RefreshTokenReplacement", fields: [replacedById], references: [id])
+  replaces     RefreshToken? @relation("RefreshTokenReplacement")
+
+  createdAt DateTime @default(now())
+
+  @@index([userId])
+  @@index([tokenHash])
+  @@index([expiresAt])
+  @@map("refresh_tokens")
+}
+
+// ─── APP CONFIG (key-value runtime config) ──────────────
+
+model AppConfig {
+  key         String   @id
+  value       String
+  description String?
+  updatedAt   DateTime @updatedAt
+
+  @@map("app_config")
+}
+
+// ─── CLAIM SEQUENCE (atomic nrZgl numbering — Phase 3 NrZglService) ──
+// Forward-looking add: sequential per (YY-MM) counter for claim numbers.
+// Empty in Phase 2; will be populated when NrZglService lands.
+model ClaimSequence {
+  yearMonth  String   @id // 'YY-MM' e.g. '26-05'
+  lastNumber Int      @default(0)
+  updatedAt  DateTime @updatedAt
+
+  @@map("claim_sequences")
+}
+
+// ─── EMAIL THREADS (Phase 9 — Gmail API RFC threading) ──
+// One row per email conversation, keyed by a business `threadKey`
+// (e.g. 'wniosek-GWA/001/05/26'). On the first send `gmailThreadId` and
+// `lastMessageId` are NULL; after Gmail API returns ids we persist them so
+// subsequent sends thread correctly (threadId → gmail.users.messages.send,
+// lastMessageId → In-Reply-To/References headers). SMTP/Mailhog ignores these.
+// See docs/16-jobs-and-integrations.md §"Хранение thread-id".
+model EmailThread {
+  id            String  @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  threadKey     String  @unique // business key, e.g. 'wniosek-GWA/001/05/26'
+  gmailThreadId String? // Gmail thread id (null until first send returns it)
+  lastMessageId String? // last RFC Message-ID (for In-Reply-To/References)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@map("email_threads")
+}

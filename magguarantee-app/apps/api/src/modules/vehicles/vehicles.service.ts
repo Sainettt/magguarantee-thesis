@@ -1,0 +1,1323 @@
+import { randomUUID } from 'node:crypto';
+
+import {
+  ConflictException,
+  ForbiddenException,
+  Injectable,
+  Logger,
+  NotFoundException,
+  Optional,
+  UnprocessableEntityException,
+} from '@nestjs/common';
+
+import { startOfBusinessTodayUtc } from '@magguarantee/shared';
+
+import type {
+  CreateVehicleDto,
+  UpdateVehicleDto,
+  VehicleAttachmentCategory,
+  VehicleAttachmentDto,
+  VehicleDto,
+  VehicleFilters,
+  VehicleLifecycleStatus,
+} from '@magguarantee/shared';
+
+import {
+  VehicleDelegationStatusRepository,
+  type VehicleDelegationStatus,
+} from './vehicle-delegation-status.repository';
+import {
+  EMPTY_DELEGATION_STATUS,
+  computeVehicleLifecycle,
+  type VehicleLifecycleInfo,
+} from './vehicle-lifecycle';
+
+import { AuditContext } from '../../common/audit';
+import {
+  isPrismaUniqueViolation,
+  uniqueViolationToConflict,
+} from '../../common/errors/prisma-error';
+import type { AuthUser } from '../auth/decorators/current-user.decorator';
+import { CarriersRepository } from '../carriers/carriers.repository';
+import { GuaranteeWatchdogService } from '../guarantee-watchdog/guarantee-watchdog.service';
+import { StorageService, type StorageObject } from '../storage/storage.service';
+import { TeamsRepository } from '../teams/teams.repository';
+import { UsersRepository } from '../users/users.repository';
+import {
+  extensionForMime,
+  isAllowedMimeType,
+  type CategorizedUpload,
+} from './attachment-validation';
+import {
+  VehicleAttachmentsRepository,
+  type VehicleAttachmentRow,
+} from './vehicle-attachments.repository';
+import { computeVehicleDerivedFlags } from './vehicle-derived-flags';
+import {
+  NO_TEAM_SENTINEL,
+  VehiclesRepository,
+  type VehicleRow,
+  type VehicleRowAttachment,
+} from './vehicles.repository';
+
+/**
+ * Machine code for the same-plate soft-delete recreate block (anti-abuse).
+ * Published in docs/13-api-design.md#vehicles — do NOT rename. A carrier must
+ * not be able to delete+recreate a vehicle to reset its idle clock, so a
+ * soft-deleted tombstone for `(carrierId, plateNumber)` blocks the recreate
+ * with a distinct, self-explanatory 409.
+ */
+const VEHICLE_PLATE_SOFT_DELETED_CODE = 'VEHICLE_PLATE_SOFT_DELETED';
+
+/** Canonical `list()` response — one cursor-paginated page of vehicle DTOs. */
+interface VehiclePage {
+  items: VehicleDto[];
+  nextCursor: string | null;
+}
+
+/**
+ * Role-scoped repository filters: `VehicleFilters` after `_scopeFilters`, minus
+ * the derived `lifecycleStatus` — the repository has no such column, so `list()`
+ * peels it off and resolves it itself before delegating down.
+ */
+type ScopedVehicleFilters = Omit<VehicleFilters, 'lifecycleStatus'> & {
+  carrierIds?: string[];
+};
+
+/**
+ * Vehicle CRUD service per docs/13-api-design.md#vehicles.
+ *
+ * Invariants enforced here (per docs/04-data-model.md):
+ *   - `plannerId` → User.role='planista'
+ *   - `dispatchTeamId` → an ACTIVE `Team` (Phase 11 — replaces the legacy
+ *     single `dispatcherId → User.role='dyspozytor'`)
+ *   - composite UNIQUE (carrierId, plateNumber) — DB; we translate the
+ *     P2002 to 409 Conflict.
+ *
+ * Required-attachment rules (gps + cabotage screenshots) — service-layer,
+ * because files arrive as separate multipart parts and cannot be expressed in
+ * the body Zod schema:
+ *   - `gpsMobilePhone` set ⇒ ≥1 `gps` attachment (umowa GPS scan)
+ *   - `cabotageDe=true`    ⇒ ≥1 `cabotage_de_insurance` (the DE cabotage permit
+ *     screenshot / category `cabotage_de` was removed 2026-07 — only the
+ *     insurance scan is required now)
+ * The `contract` (scanned umowa) requirement — and the `contract` category
+ * itself — was removed 2026-07: the umowa concept no longer exists, and
+ * porozumienie (category `agreement`, SOFT) is the only vehicle agreement
+ * document. The `adr` boolean stays on the vehicle (permit flag) but no longer
+ * requires an attachment — the ADR certificate scan moved to the Driver
+ * (świadectwo ADR) as a `DriverAttachment` (2026-05-29).
+ * On create the rules are checked BEFORE any DB/storage write. On update they
+ * hold over the post-update set (existing live attachments + newly uploaded −
+ * removed).
+ *
+ * Role-scoped list filtering happens here because guards can only fire on
+ * per-row routes; collection routes need service-side narrowing.
+ */
+@Injectable()
+export class VehiclesService {
+  private readonly logger = new Logger(VehiclesService.name);
+
+  /**
+   * Row cap for the derived-status list path (`_listByIdleStatus`). Matches the
+   * fleet aggregates' `limit: 500` full-scan posture — a fleet larger than this
+   * gets its tail truncated rather than a slow query.
+   */
+  private static readonly LIFECYCLE_FILTER_SCAN_CAP = 500;
+
+  constructor(
+    private readonly vehicles: VehiclesRepository,
+    private readonly users: UsersRepository,
+    private readonly carriers: CarriersRepository,
+    private readonly attachments: VehicleAttachmentsRepository,
+    private readonly storage: StorageService,
+    private readonly teams: TeamsRepository,
+    // Guarantee Watchdog — agreement-toggle hook (true→false resolves the open
+    // idle episode). `@Optional()` so the positional service-test fakes keep
+    // compiling; the hook no-ops when absent.
+    @Optional() private readonly guaranteeWatchdog?: GuaranteeWatchdogService,
+    // Batched delegation-status lookup for the read-time lifecycle status
+    // (`lifecycleStatus`/`daysSinceReturn` on the DTO). `@Optional()` so the
+    // positional service-test fakes keep compiling; `toDto` falls back to the
+    // no-delegation classification when it is absent (the derived status still
+    // resolves from `active` + `createdAt`).
+    @Optional()
+    private readonly delegationStatus?: VehicleDelegationStatusRepository,
+  ) {}
+
+  async list(
+    user: AuthUser,
+    filters: VehicleFilters,
+  ): Promise<VehiclePage> {
+    const page = await this._listResolved(user, filters);
+    // Role-scrub every row on the wire: dyspozytor never sees the four km rates,
+    // and only admin/opiekun/przewoznik see the fuel-card number + PIN. Applied
+    // ONCE here so both list paths (`_listPage` / `_listByIdleStatus`) are
+    // covered without threading the viewer through each private method.
+    return {
+      items: page.items.map((v) => this._scrubForViewer(v, user)),
+      nextCursor: page.nextCursor,
+    };
+  }
+
+  private async _listResolved(
+    user: AuthUser,
+    filters: VehicleFilters,
+  ): Promise<VehiclePage> {
+    const effective = await this._scopeFilters(user, filters);
+    const { lifecycleStatus, ...scoped } = effective;
+    if (!lifecycleStatus) return this._listPage(scoped);
+
+    // A lifecycle filter always implies an `active` value: `wylaczona` IS
+    // `active=false`, every other bucket requires `active=true` (the classifier
+    // short-circuits on the manual switch). A caller asking for the opposite
+    // `active` can match nothing — answer with the canonical empty page instead
+    // of firing a query that provably returns 0 rows.
+    const requiredActive = lifecycleStatus !== 'wylaczona';
+    if (typeof scoped.active === 'boolean' && scoped.active !== requiredActive) {
+      return { items: [], nextCursor: null };
+    }
+
+    // `wylaczona` is a STORED column — plain SQL path, cursor pagination and
+    // the single-page delegation lookup stay exactly as they are.
+    if (!requiredActive) {
+      return this._listPage({ ...scoped, active: false });
+    }
+
+    return this._listByIdleStatus({ ...scoped, active: true }, lifecycleStatus);
+  }
+
+  /** The plain SQL list path — everything the repository can filter itself. */
+  private async _listPage(filters: ScopedVehicleFilters): Promise<VehiclePage> {
+    const rows = await this.vehicles.list(filters);
+    const hasNext = rows.length > filters.limit;
+    const page = hasNext ? rows.slice(0, filters.limit) : rows;
+    // ONE batched delegation-status lookup for the whole page (no N+1) → the
+    // per-row lifecycle status.
+    const lifecycle = await this._lifecycleBatch(page);
+    return {
+      items: page.map((r) => this.toDto(r, lifecycle.get(r.id))),
+      nextCursor: hasNext ? (page[page.length - 1]?.id ?? null) : null,
+    };
+  }
+
+  /**
+   * List path for the four DERIVED idle buckets (`stojaca` / `nieaktywna` /
+   * `do_usuniecia` / `aktywna`). There is no status column to put in the
+   * `WHERE`, so we scan the already role-scoped ACTIVE set (capped at
+   * {@link LIFECYCLE_FILTER_SCAN_CAP}), classify it through the SAME batched
+   * delegation lookup the fleet aggregates use — so a KPI tile and this list
+   * can never disagree — and then page in memory.
+   *
+   * The scan mirrors the established fleet-aggregate posture (`vehicles.list`
+   * with `limit: 200…500` + in-memory classification); it is ONE extra
+   * `findMany` over an FK-indexed, `active=true`-narrowed set plus the two
+   * grouped delegation reads. Beyond the cap the tail is dropped — same
+   * truncation the aggregates already accept.
+   *
+   * `cursor` keeps its meaning (the last id of the previous page) but is
+   * resolved against the FILTERED sequence; an unknown cursor restarts from the
+   * top rather than 404-ing.
+   */
+  private async _listByIdleStatus(
+    filters: ScopedVehicleFilters,
+    status: VehicleLifecycleStatus,
+  ): Promise<VehiclePage> {
+    const scan = await this.vehicles.list({
+      ...filters,
+      cursor: undefined,
+      limit: VehiclesService.LIFECYCLE_FILTER_SCAN_CAP,
+    });
+    const lifecycle = await this._lifecycleBatch(scan);
+    const matching = scan.filter(
+      (r) => lifecycle.get(r.id)?.status === status,
+    );
+    const start = filters.cursor
+      ? matching.findIndex((r) => r.id === filters.cursor) + 1
+      : 0;
+    const rest = matching.slice(start);
+    const hasNext = rest.length > filters.limit;
+    const page = rest.slice(0, filters.limit);
+    return {
+      items: page.map((r) => this.toDto(r, lifecycle.get(r.id))),
+      nextCursor: hasNext ? (page[page.length - 1]?.id ?? null) : null,
+    };
+  }
+
+  async getById(user: AuthUser, id: string): Promise<VehicleDto> {
+    const row = await this.vehicles.findById(id);
+    if (!row) throw new NotFoundException('Pojazd nie znaleziony');
+    this._assertVehicleReadable(user, row);
+    // Single vehicle → one delegation lookup for the lifecycle status.
+    const ds = await this._delegationStatusOf(id);
+    return this._scrubForViewer(this.toDto(row, this._lifecycleFor(row, ds)), user);
+  }
+
+  /**
+   * Creates a vehicle plus its umowa/cabotage attachments.
+   *
+   * Order: validate required-attachment rule → create Vehicle → upload each
+   * file to MinIO → insert `VehicleAttachment` rows. On any post-create
+   * failure the uploaded objects and the vehicle row are rolled back so the
+   * request is all-or-nothing.
+   */
+  async create(
+    user: AuthUser,
+    dto: CreateVehicleDto,
+    uploads: CategorizedUpload[],
+  ): Promise<VehicleDto> {
+    await this._assertCarrierAccessibleForWrite(user, dto.carrierId);
+    if (dto.plannerId) await this._assertRole(dto.plannerId, 'planista');
+    if (dto.dispatchTeamId) await this._assertTeamActive(dto.dispatchTeamId);
+
+    // Anti-abuse: block recreating a vehicle with the same
+    // `(carrierId, plateNumber)` as a SOFT-DELETED tombstone. The plain unique
+    // index would already 409 with a generic "już istnieje", but that hides the
+    // real reason — the plate belongs to a previously-removed vehicle and a
+    // delete+recreate must not silently reset the idle clock. We surface a
+    // DISTINCT, self-explanatory 409 instead.
+    //
+    // FUTURE: the coming "no re-add for 3 months after ADMIN deletion" rule will
+    // RELAX this — a tombstone older than 3 months becomes re-addable, and the
+    // recreate should RESURRECT the tombstone (restore `deletedAt=null`) rather
+    // than insert a fresh row, so the idle anchor (`createdAt` / last zjechał) is
+    // preserved. Do NOT implement that here, and do NOT relax the unique index.
+    await this._assertNoSoftDeletedTombstone(dto.carrierId, dto.plateNumber);
+
+    // Required-attachment + cross-field rules — checked BEFORE any write so a
+    // missing screenshot / bad field combo fails clean with 422 (no orphans).
+    this._assertVehicleRulesOnCreate(dto, uploads);
+
+    const row = await this._persistVehicle(user, dto);
+    const persisted = await this._attachUploadsWithRollback(
+      row,
+      uploads,
+      user.sub,
+      // On create, a failed attachment step must also remove the vehicle row
+      // so the request is all-or-nothing (no half-built vehicle left behind).
+      { rollbackVehicle: true },
+    );
+
+    // Onboarding state is derived on read from the live child-count snapshot
+    // (see `CarriersService.toDto`) — creating a vehicle no longer needs a
+    // side-effect to mutate any carrier-level flag.
+    //
+    // A freshly created vehicle cannot yet have any delegation (the FK points at
+    // the row we just inserted), so its lifecycle is the no-delegation case —
+    // no lookup needed.
+    return this.toDto(persisted, this._lifecycleFor(persisted, EMPTY_DELEGATION_STATUS));
+  }
+
+  /**
+   * Updates a vehicle. Supports adding new attachments (file parts) and
+   * removing existing ones (`removeAttachmentIds`). The required-attachment
+   * rule must hold over the post-update set: existing live attachments minus
+   * removed plus newly uploaded.
+   */
+  async update(
+    id: string,
+    dto: UpdateVehicleDto,
+    uploads: CategorizedUpload[],
+  ): Promise<VehicleDto> {
+    const existing = await this.vehicles.findById(id);
+    if (!existing) throw new NotFoundException('Pojazd nie znaleziony');
+    // ONE delegation-status lookup, reused for both the before-image and the
+    // response: a vehicle update touches neither delegations nor `createdAt`, so
+    // the delegation state is identical pre/post. (`active` may still flip, so
+    // the two lifecycle results are computed per-row against this shared state.)
+    const ds = await this._delegationStatusOf(id);
+    // Capture the pre-mutation row for the audit interceptor — the trimmer
+    // narrows this down to the keys present in `after` (= response body)
+    // before the audit row lands.
+    AuditContext.setBefore(this.toDto(existing, this._lifecycleFor(existing, ds)));
+    if (dto.plannerId !== undefined && dto.plannerId !== null) {
+      await this._assertRole(dto.plannerId, 'planista');
+    }
+    // Phase 11 — reassigning to a Team requires it to exist and be active.
+    // `null` (detach) skips the check.
+    if (dto.dispatchTeamId !== undefined && dto.dispatchTeamId !== null) {
+      await this._assertTeamActive(dto.dispatchTeamId);
+    }
+
+    const removeIds = dto.removeAttachmentIds ?? [];
+    const toRemove = await this._resolveRemovals(id, removeIds);
+
+    // Required-attachment + cross-field rules over the post-update state.
+    this._assertVehicleRulesOnUpdate(
+      existing,
+      dto,
+      uploads,
+      new Set(toRemove.map((a) => a.id)),
+    );
+
+    const patch = this._buildUpdatePatch(existing, dto);
+
+    // Guarantee Watchdog — maintain `Vehicle.agreementSince` on the agreement
+    // toggle (plan §4). `agreement` is `Boolean?`; NULL is treated as false. Only
+    // acts when `dto.agreement` was actually supplied (else `agreementSince` is
+    // left untouched). Date-only UTC-midnight (same convention as markReturned's
+    // `actualReturnAt`). The value lands in the SAME update as the scalar.
+    const agreementTransition = this._resolveAgreementTransition(existing, dto);
+    if (agreementTransition !== 'unchanged') {
+      patch.agreementSince =
+        agreementTransition === 'enabled' ? startOfBusinessTodayUtc() : null;
+    }
+
+    let row: VehicleRow;
+    try {
+      row = await this.vehicles.update(id, patch);
+    } catch (err) {
+      if (isPrismaUniqueViolation(err)) {
+        throw uniqueViolationToConflict(
+          err,
+          'Pojazd o tym numerze rejestracyjnym już istnieje u tego przewoźnika',
+        );
+      }
+      throw err;
+    }
+
+    // Apply attachment removals (soft-delete; MinIO object left intact) and
+    // new uploads. The vehicle scalars are already persisted at this point.
+    for (const a of toRemove) {
+      await this.attachments.softDelete(a.id);
+    }
+    await this._attachUploadsWithRollback(row, uploads, /* createdById */ null);
+
+    // Guarantee Watchdog — when the guarantee was just turned OFF, close the
+    // vehicle's open idle episode (reason agreement_off). Off-path: the hook
+    // catches everything internally; the belt-and-suspenders guard here ensures
+    // a hook failure never breaks the vehicle update. No-op when the service
+    // isn't wired (unit tests).
+    if (agreementTransition === 'disabled' && this.guaranteeWatchdog) {
+      void this.guaranteeWatchdog.onAgreementDisabled(id).catch((err) => {
+        this.logger.warn({
+          msg: 'guarantee watchdog agreement-off hook enqueue failed (non-fatal)',
+          vehicleId: id,
+          error: err instanceof Error ? err.message : String(err),
+        });
+      });
+    }
+
+    const fresh = await this.vehicles.findById(id);
+    const finalRow = fresh ?? row;
+    return this.toDto(finalRow, this._lifecycleFor(finalRow, ds));
+  }
+
+  /**
+   * Classifies the agreement toggle for the watchdog `agreementSince`
+   * maintenance (plan §4). `Vehicle.agreement` is `Boolean?` — NULL is treated
+   * as false. Returns `unchanged` when `dto.agreement` was not supplied or the
+   * effective boolean did not flip. Otherwise `enabled` (false/null→true) or
+   * `disabled` (true→false/null).
+   */
+  private _resolveAgreementTransition(
+    existing: VehicleRow,
+    dto: UpdateVehicleDto,
+  ): 'enabled' | 'disabled' | 'unchanged' {
+    if (dto.agreement === undefined) return 'unchanged';
+    const before = existing.agreement === true;
+    const after = dto.agreement === true;
+    if (before === after) return 'unchanged';
+    return after ? 'enabled' : 'disabled';
+  }
+
+  async deactivate(id: string): Promise<VehicleDto> {
+    const existing = await this.vehicles.findById(id);
+    if (!existing) throw new NotFoundException('Pojazd nie znaleziony');
+    if (!existing.active) {
+      throw new ConflictException('Pojazd jest już nieaktywny');
+    }
+    const ds = await this._delegationStatusOf(id);
+    AuditContext.setBefore(this.toDto(existing, this._lifecycleFor(existing, ds)));
+    const row = await this.vehicles.setActive(id, false);
+    // active→false ⇒ status collapses to `wylaczona` (short-circuits the clock).
+    return this.toDto(row, this._lifecycleFor(row, ds));
+  }
+
+  async reactivate(id: string): Promise<VehicleDto> {
+    const existing = await this.vehicles.findById(id);
+    if (!existing) throw new NotFoundException('Pojazd nie znaleziony');
+    if (existing.active) {
+      throw new ConflictException('Pojazd jest już aktywny');
+    }
+    const ds = await this._delegationStatusOf(id);
+    AuditContext.setBefore(this.toDto(existing, this._lifecycleFor(existing, ds)));
+    const row = await this.vehicles.setActive(id, true);
+    return this.toDto(row, this._lifecycleFor(row, ds));
+  }
+
+  async softDelete(id: string): Promise<void> {
+    const existing = await this.vehicles.findById(id);
+    if (!existing) throw new NotFoundException('Pojazd nie znaleziony');
+    const ds = await this._delegationStatusOf(id);
+    AuditContext.setBefore(this.toDto(existing, this._lifecycleFor(existing, ds)));
+    await this.vehicles.softDelete(id);
+  }
+
+  /**
+   * Anti-abuse guard for `create`: refuses a recreate whose
+   * `(carrierId, plateNumber)` matches a SOFT-DELETED tombstone. A carrier could
+   * otherwise delete a vehicle and re-add it under the same plate to zero the
+   * idle clock — this makes the block EXPLICIT (a distinct machine code) instead
+   * of the generic unique-index "już istnieje". An ACTIVE duplicate is NOT
+   * handled here — it keeps its existing "już istnieje" 409 from the unique
+   * index (see `_persistVehicle`).
+   */
+  private async _assertNoSoftDeletedTombstone(
+    carrierId: string,
+    plateNumber: string,
+  ): Promise<void> {
+    const tombstone = await this.vehicles.findSoftDeletedByCarrierAndPlate(
+      carrierId,
+      plateNumber,
+    );
+    if (tombstone) throw this._plateSoftDeletedConflict();
+  }
+
+  /**
+   * Builds the 409 for a same-plate recreate of a soft-deleted vehicle — a
+   * `ConflictException` (mirroring `TeamsService`/`TrailerTypesService`) with the
+   * machine code lifted into the RFC-7807 `extensions` bag (the envelope the web
+   * reads via `body.extensions.code`). The code (`VEHICLE_PLATE_SOFT_DELETED`)
+   * is published in docs/13-api-design.md#vehicles.
+   */
+  private _plateSoftDeletedConflict(): ConflictException {
+    return new ConflictException({
+      code: VEHICLE_PLATE_SOFT_DELETED_CODE,
+      message:
+        'Ten numer rejestracyjny należy do wcześniej usuniętego pojazdu tego ' +
+        'przewoźnika i nie może zostać utworzony ponownie. Skontaktuj się z ' +
+        'administratorem, jeśli pojazd ma wrócić do eksploatacji.',
+      extensions: { code: VEHICLE_PLATE_SOFT_DELETED_CODE },
+    });
+  }
+
+  // ── Attachments ──────────────────────────────────────────
+
+  /** Lists the non-deleted attachments of a vehicle as public DTOs. */
+  async listAttachments(vehicleId: string): Promise<VehicleAttachmentDto[]> {
+    const vehicle = await this.vehicles.findById(vehicleId);
+    if (!vehicle) throw new NotFoundException('Pojazd nie znaleziony');
+    const rows = await this.attachments.listByVehicle(vehicleId);
+    return rows.map((r) => attachmentRowToDto(r));
+  }
+
+  /**
+   * Returns the byte stream + metadata for an attachment so the controller
+   * can proxy it to the HTTP response. MinIO is not publicly reachable —
+   * downloads always go through the API.
+   */
+  async downloadAttachment(
+    vehicleId: string,
+    attachmentId: string,
+  ): Promise<{ object: StorageObject; fileName: string; mimeType: string }> {
+    const att = await this._loadAttachmentOf(vehicleId, attachmentId);
+    const object = await this.storage.getObject(att.storageKey);
+    return { object, fileName: att.fileName, mimeType: att.mimeType };
+  }
+
+  /**
+   * Soft-deletes an attachment row. The MinIO object is intentionally left in
+   * place (per the task brief).
+   */
+  async deleteAttachment(
+    vehicleId: string,
+    attachmentId: string,
+  ): Promise<void> {
+    const att = await this._loadAttachmentOf(vehicleId, attachmentId);
+    await this.attachments.softDelete(att.id);
+  }
+
+  // ── Internals: persistence ───────────────────────────────
+
+  private async _persistVehicle(
+    user: AuthUser,
+    dto: CreateVehicleDto,
+  ): Promise<VehicleRow> {
+    // Normalise fuel-card fields: cleared to null unless fuelCard=true (rule 4).
+    const fuelCard = dto.fuelCard ?? false;
+    try {
+      return await this.vehicles.create({
+        carrierId: dto.carrierId,
+        plateNumber: dto.plateNumber,
+        active: dto.active,
+        plannerId: dto.plannerId ?? null,
+        dispatchTeamId: dto.dispatchTeamId ?? null,
+        notes: dto.notes ?? null,
+        certificateL: dto.certificateL,
+        euro: dto.euro,
+        fuelCard,
+        fuelCardNumber: fuelCard ? (dto.fuelCardNumber ?? null) : null,
+        fuelCardExpiry:
+          fuelCard && dto.fuelCardExpiry ? new Date(dto.fuelCardExpiry) : null,
+        fuelCardPin: fuelCard ? (dto.fuelCardPin ?? null) : null,
+        type: dto.type,
+        gb: dto.gb ?? null,
+        it: dto.it ?? null,
+        fr: dto.fr ?? null,
+        agreement: dto.agreement ?? null,
+        rateDe: dto.rateDe,
+        rateUe: dto.rateUe,
+        rateExport: dto.rateExport,
+        rateImport: dto.rateImport,
+        wasteAllowed: dto.wasteAllowed,
+        wasteCountries: dto.wasteCountries ?? [],
+        cabotageDe: dto.cabotageDe,
+        cabotageFr: dto.cabotageFr,
+        adr: dto.adr,
+        adrClasses: dto.adrClasses ?? [],
+        gpsMobilePhone: dto.gpsMobilePhone ?? null,
+        sideNumber: dto.sideNumber ?? null,
+        createdById: user.sub,
+      });
+    } catch (err) {
+      throw uniqueViolationToConflict(
+        err,
+        'Pojazd o tym numerze rejestracyjnym już istnieje u tego przewoźnika',
+      );
+    }
+  }
+
+  private _buildUpdatePatch(
+    existing: VehicleRow,
+    dto: UpdateVehicleDto,
+  ): Record<string, unknown> {
+    const patch: Record<string, unknown> = {};
+    const passthrough: (keyof UpdateVehicleDto)[] = [
+      'plateNumber',
+      'active',
+      'plannerId',
+      'dispatchTeamId',
+      'notes',
+      'certificateL',
+      'euro',
+      'fuelCard',
+      'type',
+      'gb',
+      'it',
+      'fr',
+      'agreement',
+      'rateDe',
+      'rateUe',
+      'rateExport',
+      'rateImport',
+      'wasteAllowed',
+      'wasteCountries',
+      'cabotageDe',
+      'cabotageFr',
+      'adr',
+      'adrClasses',
+      'gpsMobilePhone',
+      'sideNumber',
+    ];
+    for (const k of passthrough) {
+      if (dto[k] !== undefined) patch[k] = dto[k];
+    }
+    // Fuel-card fields: cleared to null whenever the EFFECTIVE fuelCard is
+    // false (rule 4); otherwise apply the provided values (expiry → Date).
+    const effectiveFuelCard =
+      dto.fuelCard !== undefined ? dto.fuelCard : existing.fuelCard;
+    if (!effectiveFuelCard) {
+      patch.fuelCardNumber = null;
+      patch.fuelCardExpiry = null;
+      patch.fuelCardPin = null;
+    } else {
+      if (dto.fuelCardNumber !== undefined) {
+        patch.fuelCardNumber = dto.fuelCardNumber;
+      }
+      if (dto.fuelCardPin !== undefined) patch.fuelCardPin = dto.fuelCardPin;
+      if (dto.fuelCardExpiry !== undefined) {
+        patch.fuelCardExpiry = dto.fuelCardExpiry
+          ? new Date(dto.fuelCardExpiry)
+          : null;
+      }
+    }
+    if (dto.active !== undefined && !dto.active) {
+      patch.deactivatedAt = new Date();
+    } else if (dto.active === true) {
+      patch.deactivatedAt = null;
+    }
+    return patch;
+  }
+
+  /**
+   * Uploads each file to MinIO then inserts its `VehicleAttachment` row. If
+   * anything fails, every object/row touched in this call is removed; when
+   * `opts.rollbackVehicle` is set (the CREATE path) the vehicle row is
+   * removed too — so a failed create never leaves a half-built vehicle.
+   */
+  private async _attachUploadsWithRollback(
+    vehicle: VehicleRow,
+    uploads: CategorizedUpload[],
+    createdById: string | null,
+    opts: { rollbackVehicle?: boolean } = {},
+  ): Promise<VehicleRow> {
+    if (uploads.length === 0) return vehicle;
+
+    const uploadedKeys: string[] = [];
+    const insertedAttachmentIds: string[] = [];
+    try {
+      for (const up of uploads) {
+        const key = this._buildStorageKey(vehicle.id, up);
+        await this.storage.put(key, up.file.buffer, up.file.mimetype);
+        uploadedKeys.push(key);
+        const row = await this.attachments.create({
+          vehicleId: vehicle.id,
+          category: up.category,
+          storageKey: key,
+          fileName: up.file.originalname,
+          mimeType: up.file.mimetype,
+          size: up.file.size,
+          uploadedById: createdById,
+        });
+        insertedAttachmentIds.push(row.id);
+      }
+    } catch (err) {
+      await this._rollbackUploads(uploadedKeys, insertedAttachmentIds);
+      if (opts.rollbackVehicle) {
+        try {
+          await this.vehicles.hardDelete(vehicle.id);
+        } catch (e) {
+          this.logger.error(
+            { err: e, vehicleId: vehicle.id },
+            'Rollback: failed to remove vehicle row',
+          );
+        }
+      }
+      throw err;
+    }
+
+    const fresh = await this.vehicles.findById(vehicle.id);
+    return fresh ?? vehicle;
+  }
+
+  /** Best-effort cleanup of partial uploads — never throws. */
+  private async _rollbackUploads(
+    uploadedKeys: string[],
+    insertedAttachmentIds: string[],
+  ): Promise<void> {
+    for (const id of insertedAttachmentIds) {
+      try {
+        await this.attachments.hardDelete(id);
+      } catch (e) {
+        this.logger.error(
+          { err: e, attachmentId: id },
+          'Rollback: failed to remove attachment row',
+        );
+      }
+    }
+    for (const key of uploadedKeys) {
+      try {
+        await this.storage.delete(key);
+      } catch (e) {
+        this.logger.error(
+          { err: e, key },
+          'Rollback: failed to remove storage object',
+        );
+      }
+    }
+  }
+
+  private _buildStorageKey(
+    vehicleId: string,
+    up: CategorizedUpload,
+  ): string {
+    const ext = isAllowedMimeType(up.file.mimetype)
+      ? extensionForMime(up.file.mimetype)
+      : 'bin';
+    return `vehicles/${vehicleId}/${up.category}/${randomUUID()}.${ext}`;
+  }
+
+  /**
+   * Resolves the `removeAttachmentIds` list to live attachment rows. Each id
+   * must point at a non-deleted attachment of THIS vehicle — otherwise 404.
+   */
+  private async _resolveRemovals(
+    vehicleId: string,
+    ids: string[],
+  ): Promise<VehicleAttachmentRow[]> {
+    const rows: VehicleAttachmentRow[] = [];
+    for (const id of ids) {
+      const row = await this.attachments.findById(id);
+      if (!row || row.vehicleId !== vehicleId) {
+        throw new NotFoundException(
+          `Załącznik ${id} nie należy do tego pojazdu`,
+        );
+      }
+      rows.push(row);
+    }
+    return rows;
+  }
+
+  private async _loadAttachmentOf(
+    vehicleId: string,
+    attachmentId: string,
+  ): Promise<VehicleAttachmentRow> {
+    const vehicle = await this.vehicles.findById(vehicleId);
+    if (!vehicle) throw new NotFoundException('Pojazd nie znaleziony');
+    const att = await this.attachments.findById(attachmentId);
+    if (!att || att.vehicleId !== vehicleId) {
+      throw new NotFoundException('Załącznik nie znaleziony');
+    }
+    return att;
+  }
+
+  // ── Internals: required-attachment + cross-field rules ───
+
+  /**
+   * Create-time rules. Throws a SINGLE 422 collecting every violation:
+   *   - attachments: `gps` (when gpsMobilePhone set) + `cabotage_de_insurance`
+   *     (when cabotageDe=true).
+   *   - cross-field (rules 4-7): fuel-card completeness, waste countries, adr
+   *     classes, min-2-of-{gb,it,fr}.
+   */
+  private _assertVehicleRulesOnCreate(
+    dto: CreateVehicleDto,
+    uploads: CategorizedUpload[],
+  ): void {
+    const present = this._categoriesPresent(uploads);
+    const gpsPresent = this._nonEmpty(dto.gpsMobilePhone);
+    const required = this._requiredCategories(dto.cabotageDe ?? false, gpsPresent);
+    const violations = [
+      ...this._attachmentViolations(required, present),
+      ...this._crossFieldViolations({
+        fuelCard: dto.fuelCard ?? false,
+        fuelCardNumber: dto.fuelCardNumber ?? null,
+        fuelCardExpiry: dto.fuelCardExpiry ?? null,
+        fuelCardPin: dto.fuelCardPin ?? null,
+        wasteAllowed: dto.wasteAllowed ?? false,
+        wasteCountries: dto.wasteCountries ?? [],
+        adr: dto.adr ?? false,
+        adrClasses: dto.adrClasses ?? [],
+        agreement: dto.agreement ?? false,
+        gb: dto.gb ?? null,
+        it: dto.it ?? null,
+        fr: dto.fr ?? null,
+      }),
+    ];
+    if (violations.length > 0) {
+      throw new UnprocessableEntityException({ violations });
+    }
+  }
+
+  /**
+   * Update-time rules over the post-update effective state. The attachment set
+   * is (existing live − removed + newly uploaded). `gps` and the cabotage pair
+   * are re-checked against the effective flags.
+   */
+  private _assertVehicleRulesOnUpdate(
+    existing: VehicleRow,
+    dto: UpdateVehicleDto,
+    uploads: CategorizedUpload[],
+    removedIds: Set<string>,
+  ): void {
+    const eff = this._effectiveState(existing, dto);
+    const required = this._requiredCategories(eff.cabotageDe, eff.gpsPresent);
+
+    const survivingExisting = existing.attachments.filter(
+      (a) => !removedIds.has(a.id),
+    );
+    const present = new Set<VehicleAttachmentCategory>([
+      ...survivingExisting.map((a) => a.category),
+      ...this._categoriesPresent(uploads),
+    ]);
+    const violations = [
+      ...this._attachmentViolations(required, present),
+      ...this._crossFieldViolations(eff),
+    ];
+    if (violations.length > 0) {
+      throw new UnprocessableEntityException({ violations });
+    }
+  }
+
+  /** Merges existing + patch into the effective post-write state (rules 4-7). */
+  private _effectiveState(
+    existing: VehicleRow,
+    dto: UpdateVehicleDto,
+  ): {
+    cabotageDe: boolean;
+    gpsPresent: boolean;
+    fuelCard: boolean;
+    fuelCardNumber: string | null;
+    fuelCardExpiry: string | Date | null;
+    fuelCardPin: string | null;
+    wasteAllowed: boolean;
+    wasteCountries: string[];
+    adr: boolean;
+    adrClasses: string[];
+    agreement: boolean | null;
+    gb: boolean | null;
+    it: boolean | null;
+    fr: boolean | null;
+  } {
+    const pick = <T>(next: T | undefined, prev: T): T =>
+      next !== undefined ? next : prev;
+    const gps = pick(dto.gpsMobilePhone, existing.gpsMobilePhone);
+    return {
+      cabotageDe: pick(dto.cabotageDe, existing.cabotageDe),
+      gpsPresent: this._nonEmpty(gps),
+      fuelCard: pick(dto.fuelCard, existing.fuelCard),
+      fuelCardNumber: pick(dto.fuelCardNumber, existing.fuelCardNumber),
+      fuelCardExpiry:
+        dto.fuelCardExpiry !== undefined
+          ? dto.fuelCardExpiry
+          : existing.fuelCardExpiry,
+      fuelCardPin: pick(dto.fuelCardPin, existing.fuelCardPin),
+      wasteAllowed: pick(dto.wasteAllowed, existing.wasteAllowed),
+      wasteCountries: pick(dto.wasteCountries, existing.wasteCountries),
+      adr: pick(dto.adr, existing.adr),
+      adrClasses: pick(dto.adrClasses, existing.adrClasses),
+      // `agreement` is `Boolean?` — resolve the post-patch value (NULL/false
+      // both count as "not true" for the hard fuel-card gate below).
+      agreement: pick(dto.agreement, existing.agreement),
+      gb: pick(dto.gb, existing.gb),
+      it: pick(dto.it, existing.it),
+      fr: pick(dto.fr, existing.fr),
+    };
+  }
+
+  /** Set of attachment categories present among the uploaded files. */
+  private _categoriesPresent(
+    uploads: CategorizedUpload[],
+  ): Set<VehicleAttachmentCategory> {
+    return new Set(uploads.map((u) => u.category));
+  }
+
+  /**
+   * Maps the CONDITIONAL flags to required attachment categories (rules 2, 3):
+   *   - gpsPresent ⇒ `gps`
+   *   - cabotageDe ⇒ `cabotage_de_insurance`
+   * `agreement` is deliberately NOT required — the porozumienie scan is SOFT
+   * (its absence only surfaces the derived `agreementScanMissing`/
+   * `fuelCardBlocked` flags, never blocks a save).
+   */
+  private _requiredCategories(
+    cabotageDe: boolean,
+    gpsPresent: boolean,
+  ): Set<VehicleAttachmentCategory> {
+    const required = new Set<VehicleAttachmentCategory>();
+    if (gpsPresent) required.add('gps');
+    if (cabotageDe) {
+      required.add('cabotage_de_insurance');
+    }
+    return required;
+  }
+
+  private _attachmentViolations(
+    required: Set<VehicleAttachmentCategory>,
+    present: Set<VehicleAttachmentCategory>,
+  ): string[] {
+    const violations: string[] = [];
+    for (const cat of required) {
+      if (!present.has(cat)) violations.push(REQUIRED_ATTACHMENT_MESSAGES[cat]);
+    }
+    return violations;
+  }
+
+  /** Cross-field rules 4-7 over the effective vehicle state. */
+  private _crossFieldViolations(eff: {
+    fuelCard: boolean;
+    fuelCardNumber: string | null;
+    fuelCardExpiry: string | Date | null;
+    fuelCardPin: string | null;
+    wasteAllowed: boolean;
+    wasteCountries: string[];
+    adr: boolean;
+    adrClasses: string[];
+    agreement: boolean | null;
+    gb: boolean | null;
+    it: boolean | null;
+    fr: boolean | null;
+  }): string[] {
+    const v: string[] = [];
+    // Rule 4 — fuel-card completeness.
+    if (eff.fuelCard) {
+      if (!/^\d{16}$/.test(eff.fuelCardNumber ?? '')) {
+        v.push(CROSS_FIELD_MESSAGES.fuelCardNumber);
+      }
+      if (!eff.fuelCardExpiry) v.push(CROSS_FIELD_MESSAGES.fuelCardExpiry);
+      if (!/^\d{4,6}$/.test(eff.fuelCardPin ?? '')) {
+        v.push(CROSS_FIELD_MESSAGES.fuelCardPin);
+      }
+    }
+    // Rule 5 — waste countries.
+    if (eff.wasteAllowed && eff.wasteCountries.length < 1) {
+      v.push(CROSS_FIELD_MESSAGES.wasteCountries);
+    }
+    // Rule 6 — adr classes.
+    if (eff.adr && eff.adrClasses.length < 1) {
+      v.push(CROSS_FIELD_MESSAGES.adrClasses);
+    }
+    // Rule 6b — HARD: a fuel card requires the porozumienie FLAG (`agreement`,
+    // `Boolean?` — NULL/false both count as not-true). Effective-state check
+    // (post-patch), so it fires symmetrically: setting fuelCard=true on an
+    // agreement≠true vehicle AND setting agreement=false on a fuelCard=true
+    // vehicle both 422 here even when the OTHER field is absent from the PATCH
+    // payload. This is the HARD gate on the FLAG only — UNRELATED to the soft,
+    // derived `fuelCardBlocked` badge (missing porozumienie SCAN), which never
+    // blocks a save.
+    if (eff.fuelCard && eff.agreement !== true) {
+      v.push(CROSS_FIELD_MESSAGES.fuelCardAgreement);
+    }
+    // Rule 7 — min 2 of {gb, it, fr}.
+    const trues = [eff.gb, eff.it, eff.fr].filter((x) => x === true).length;
+    if (trues < 2) v.push(CROSS_FIELD_MESSAGES.ukItFr);
+    return v;
+  }
+
+  /** True when the string is present and non-blank. */
+  private _nonEmpty(v: string | null | undefined): boolean {
+    return typeof v === 'string' && v.trim().length > 0;
+  }
+
+  // ── Internals: scoping / role checks ─────────────────────
+
+  private async _scopeFilters(
+    user: AuthUser,
+    filters: VehicleFilters,
+  ): Promise<VehicleFilters & { carrierIds?: string[] }> {
+    if (user.role === 'admin') {
+      return filters;
+    }
+    if (user.role === 'opiekun') {
+      // Restrict to vehicles of carriers this opiekun owns. Phase 5.1:
+      // opiekun no longer needs to pass `carrierId` — without one we narrow
+      // to the union of their owned carriers; with one, we verify it's in
+      // the union (else 403) and keep the more specific filter. Single
+      // carriers query + the main vehicles query — performance budget OK.
+      const opiekunCarriers = await this.carriers.list({
+        opiekunId: user.sub,
+        limit: 200,
+      });
+      const ownedIds = opiekunCarriers.map((c) => c.id);
+      if (filters.carrierId) {
+        if (!ownedIds.includes(filters.carrierId)) {
+          throw new ForbiddenException(
+            'Nie masz uprawnień do tego przewoźnika',
+          );
+        }
+        // `carrierId` already narrows the query — no need to forward the
+        // union set. Repo `where.carrierId = ?` uses the FK index directly.
+        return filters;
+      }
+      // Narrow by `carrierIds: [...]` so the SQL is `WHERE carrierId IN (...)`
+      // — single query, FK-indexed. Empty union → repo short-circuits to ∅.
+      return { ...filters, carrierIds: ownedIds };
+    }
+    if (user.role === 'planista') {
+      return { ...filters, plannerId: user.sub };
+    }
+    if (user.role === 'dyspozytor') {
+      // Phase 11 — dyspozytor sees vehicles of THEIR dispatch team. A
+      // dyspozytor with NO team sees an EMPTY set (sentinel → 0 rows), never
+      // "all" — explicit per the locked decision.
+      return {
+        ...filters,
+        dispatchTeamId: user.teamId ?? NO_TEAM_SENTINEL,
+      };
+    }
+    if (user.role === 'przewoznik') {
+      const own = await this.carriers.list({
+        // We want THIS user's carrier — there's no opiekunId match here, so
+        // we list with a tight limit and filter by the matching userId.
+        limit: 200,
+      });
+      const mine = own.find((c) => c.userId === user.sub);
+      if (!mine) {
+        throw new ForbiddenException('Brak profilu przewoźnika');
+      }
+      if (filters.carrierId && filters.carrierId !== mine.id) {
+        throw new ForbiddenException('Nie masz uprawnień do tego przewoźnika');
+      }
+      return { ...filters, carrierId: mine.id };
+    }
+    throw new ForbiddenException('Brak uprawnień');
+  }
+
+  /**
+   * Read-ownership gate for a SINGLE vehicle (getById). The route's ownership
+   * guards already scope opiekun (OpiekunOwnershipGuard) and przewoznik
+   * (CarrierOwnershipGuard); this closes the gap for planista/dyspozytor, which
+   * NO guard covers — without it any planista/dyspozytor could read any vehicle
+   * by UUID (IDOR). Kept exhaustive (all reader roles) as defence-in-depth so
+   * the check still holds if a guard is ever dropped from the route.
+   */
+  private _assertVehicleReadable(user: AuthUser, row: VehicleRow): void {
+    switch (user.role) {
+      case 'admin':
+        return;
+      // opiekun / przewoznik ownership is enforced by the route guards
+      // (OpiekunOwnershipGuard / CarrierOwnershipGuard) BEFORE the service runs.
+      case 'opiekun':
+      case 'przewoznik':
+        return;
+      case 'planista':
+        if (row.plannerId !== user.sub) {
+          throw new ForbiddenException('Brak uprawnień do tego pojazdu');
+        }
+        return;
+      case 'dyspozytor':
+        // Phase 11 — only vehicles on the dyspozytor's OWN team. No team → 403.
+        if (!user.teamId || row.dispatchTeamId !== user.teamId) {
+          throw new ForbiddenException('Brak uprawnień do tego pojazdu');
+        }
+        return;
+      default:
+        throw new ForbiddenException('Brak uprawnień do tego pojazdu');
+    }
+  }
+
+  /**
+   * Role-aware scrub of sensitive vehicle fields on the read wire:
+   *  - fuel-card NUMBER + PIN → only admin / opiekun / przewoznik (the operator
+   *    who actually fuels the truck). Everyone else gets `null`.
+   *  - the four km rates → hidden for `dyspozytor` (mirrors the delegation-modal
+   *    server scrub, docs/14 §6.4.2); admin/opiekun/przewoznik/planista keep them.
+   * The DTO fields are all nullable, so nulling them is type-safe.
+   */
+  private _scrubForViewer(dto: VehicleDto, user: AuthUser): VehicleDto {
+    const canSeeFuelCard =
+      user.role === 'admin' ||
+      user.role === 'opiekun' ||
+      user.role === 'przewoznik';
+    const canSeeRates = canSeeFuelCard || user.role === 'planista';
+    if (canSeeFuelCard && canSeeRates) return dto;
+    return {
+      ...dto,
+      ...(canSeeFuelCard
+        ? {}
+        : { fuelCardNumber: null, fuelCardPin: null }),
+      ...(canSeeRates
+        ? {}
+        : { rateDe: null, rateUe: null, rateExport: null, rateImport: null }),
+    };
+  }
+
+  private async _assertCarrierAccessibleForWrite(
+    user: AuthUser,
+    carrierId: string,
+  ): Promise<void> {
+    if (user.role === 'admin') return;
+    const carrier = await this.carriers.findById(carrierId);
+    if (!carrier) throw new NotFoundException('Przewoźnik nie znaleziony');
+    if (user.role === 'opiekun') {
+      if (carrier.opiekunId !== user.sub) {
+        throw new ForbiddenException(
+          'Nie masz uprawnień do tego przewoźnika',
+        );
+      }
+      return;
+    }
+    if (user.role === 'przewoznik') {
+      if (carrier.userId !== user.sub) {
+        throw new ForbiddenException(
+          'Nie masz uprawnień do tego przewoźnika',
+        );
+      }
+      return;
+    }
+    throw new ForbiddenException('Brak uprawnień');
+  }
+
+  private async _assertRole(
+    userId: string,
+    requiredRole: 'planista',
+  ): Promise<void> {
+    const target = await this.users.findById(userId);
+    if (!target) {
+      throw new UnprocessableEntityException(
+        `Wskazany użytkownik (${requiredRole}) nie istnieje`,
+      );
+    }
+    if (target.role !== requiredRole) {
+      throw new UnprocessableEntityException(
+        `Wskazany użytkownik nie ma roli ${requiredRole}`,
+      );
+    }
+    if (!target.active) {
+      throw new UnprocessableEntityException(
+        `Wskazany użytkownik (${requiredRole}) jest nieaktywny`,
+      );
+    }
+  }
+
+  /**
+   * Phase 11 — a vehicle may only be assigned to an EXISTING, ACTIVE dispatch
+   * Team. A missing or inactive team is a 422 (matches the role-assert posture
+   * for `plannerId`). The team's dispatcher membership is NOT validated here —
+   * a team with zero dispatchers is a legal (if temporarily empty) assignment.
+   */
+  private async _assertTeamActive(teamId: string): Promise<void> {
+    const team = await this.teams.findById(teamId);
+    if (!team) {
+      throw new UnprocessableEntityException(
+        `Wskazany zespół (${teamId}) nie istnieje`,
+      );
+    }
+    if (!team.active) {
+      throw new UnprocessableEntityException(
+        `Wskazany zespół (${teamId}) jest nieaktywny`,
+      );
+    }
+  }
+
+  // ── Lifecycle status resolution ──────────────────────────
+
+  /**
+   * Batched delegation-status → per-vehicle lifecycle info for a page of rows.
+   * ONE query for the whole page (no N+1). When the delegation repo isn't wired
+   * (unit-test fakes) every row degrades to the no-delegation classification.
+   */
+  private async _lifecycleBatch(
+    rows: VehicleRow[],
+  ): Promise<Map<string, VehicleLifecycleInfo>> {
+    const today = startOfBusinessTodayUtc();
+    const out = new Map<string, VehicleLifecycleInfo>();
+    if (rows.length === 0) return out;
+    const statuses = this.delegationStatus
+      ? await this.delegationStatus.getByVehicleIds(rows.map((r) => r.id))
+      : new Map<string, VehicleDelegationStatus>();
+    for (const r of rows) {
+      const ds = statuses.get(r.id) ?? EMPTY_DELEGATION_STATUS;
+      out.set(r.id, computeVehicleLifecycle(r, ds, today));
+    }
+    return out;
+  }
+
+  /** Resolves the delegation state for a single vehicle (fallback: empty). */
+  private async _delegationStatusOf(
+    vehicleId: string,
+  ): Promise<VehicleDelegationStatus> {
+    if (!this.delegationStatus) return EMPTY_DELEGATION_STATUS;
+    const map = await this.delegationStatus.getByVehicleIds([vehicleId]);
+    return map.get(vehicleId) ?? EMPTY_DELEGATION_STATUS;
+  }
+
+  /** Computes lifecycle info for one row against a resolved delegation state. */
+  private _lifecycleFor(
+    row: VehicleRow,
+    ds: VehicleDelegationStatus,
+  ): VehicleLifecycleInfo {
+    return computeVehicleLifecycle(row, ds, startOfBusinessTodayUtc());
+  }
+
+  // ── DTO mapping ──────────────────────────────────────────
+
+  /**
+   * Maps a vehicle row to its DTO. `lifecycle` carries the DERIVED
+   * `lifecycleStatus`/`daysSinceReturn`; callers that have resolved the
+   * delegation state pass it in. When omitted (before-image snapshots, tests
+   * without the delegation repo) it falls back to the no-delegation
+   * classification — the status still resolves from `active` + `createdAt`.
+   */
+  toDto(row: VehicleRow, lifecycle?: VehicleLifecycleInfo): VehicleDto {
+    const lc =
+      lifecycle ?? this._lifecycleFor(row, EMPTY_DELEGATION_STATUS);
+    return {
+      id: row.id,
+      carrierId: row.carrierId,
+      plateNumber: row.plateNumber,
+      active: row.active,
+      notes: row.notes,
+      certificateL: row.certificateL,
+      euro: row.euro,
+      fuelCard: row.fuelCard,
+      fuelCardNumber: row.fuelCardNumber,
+      fuelCardExpiry: row.fuelCardExpiry
+        ? row.fuelCardExpiry.toISOString().slice(0, 10)
+        : null,
+      fuelCardPin: row.fuelCardPin,
+      type: row.type,
+      gb: row.gb,
+      it: row.it,
+      fr: row.fr,
+      agreement: row.agreement,
+      rateDe: row.rateDe,
+      rateUe: row.rateUe,
+      rateExport: row.rateExport,
+      rateImport: row.rateImport,
+      wasteAllowed: row.wasteAllowed,
+      wasteCountries: row.wasteCountries as VehicleDto['wasteCountries'],
+      cabotageDe: row.cabotageDe,
+      cabotageFr: row.cabotageFr,
+      adr: row.adr,
+      adrClasses: row.adrClasses as VehicleDto['adrClasses'],
+      gpsMobilePhone: row.gpsMobilePhone,
+      sideNumber: row.sideNumber,
+      lastDroveAt: row.lastDroveAt ? row.lastDroveAt.toISOString() : null,
+      lifecycleStatus: lc.status,
+      daysSinceReturn: lc.daysSinceReturn,
+      plannerId: row.plannerId,
+      planner: row.planner,
+      dispatchTeamId: row.dispatchTeamId,
+      dispatchTeam: row.dispatchTeam,
+      carrier: row.carrier,
+      opiekun: row.opiekun,
+      attachments: row.attachments.map((a) => vehicleRowAttachmentToDto(a)),
+      ...computeVehicleDerivedFlags(row),
+      createdAt: row.createdAt.toISOString(),
+      updatedAt: row.updatedAt.toISOString(),
+    };
+  }
+}
+
+/**
+ * Polish 422 messages for each missing required-attachment category.
+ *
+ * `gps` is required when a tracker device id is present; the
+ * `cabotage_de_insurance` scan is required when cabotageDe=true. `agreement`
+ * never appears as a required violation (SOFT), but the Record must be total
+ * over the enum.
+ */
+const REQUIRED_ATTACHMENT_MESSAGES: Record<VehicleAttachmentCategory, string> =
+  {
+    gps: 'Wymagany skan umowy GPS (gps) gdy podano identyfikator GPS',
+    agreement: 'Wymagany skan porozumienia (agreement)',
+    cabotage_de_insurance:
+      'Wymagany skan ubezpieczenia kabotażowego DE gdy cabotageDe=true',
+  };
+
+/** Polish 422 messages for the cross-field rules (4-7). */
+const CROSS_FIELD_MESSAGES = {
+  fuelCardNumber:
+    'fuelCardNumber (16 cyfr) wymagany gdy fuelCard=true',
+  fuelCardExpiry: 'fuelCardExpiry wymagany gdy fuelCard=true',
+  fuelCardPin: 'fuelCardPin (4–6 cyfr) wymagany gdy fuelCard=true',
+  // HARD rule — kept in lockstep with `vehicleFuelCardAgreementRefine`'s Zod
+  // message. Gate is on the porozumienie FLAG only, not the (soft) scan.
+  fuelCardAgreement: 'Karta paliwowa wymaga zaznaczenia porozumienia',
+  wasteCountries:
+    'wasteCountries wymaga min. 1 kraju gdy wasteAllowed=true',
+  adrClasses: 'adrClasses wymaga min. 1 klasy gdy adr=true',
+  ukItFr: 'Wymagane min. 2 z 3 dostępów: gb / it / fr',
+} as const;
+
+/** Maps a standalone attachment repo row to the public DTO (no storageKey). */
+function attachmentRowToDto(row: VehicleAttachmentRow): VehicleAttachmentDto {
+  return {
+    id: row.id,
+    vehicleId: row.vehicleId,
+    category: row.category,
+    fileName: row.fileName,
+    mimeType: row.mimeType,
+    size: row.size,
+    uploadedById: row.uploadedById,
+    createdAt: row.createdAt.toISOString(),
+  };
+}
+
+/** Maps an included vehicle-row attachment to the public DTO (no storageKey). */
+function vehicleRowAttachmentToDto(
+  row: VehicleRowAttachment,
+): VehicleAttachmentDto {
+  return {
+    id: row.id,
+    vehicleId: row.vehicleId,
+    category: row.category,
+    fileName: row.fileName,
+    mimeType: row.mimeType,
+    size: row.size,
+    uploadedById: row.uploadedById,
+    createdAt: row.createdAt.toISOString(),
+  };
+}

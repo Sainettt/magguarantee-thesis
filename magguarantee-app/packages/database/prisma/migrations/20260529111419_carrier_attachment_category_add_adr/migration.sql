@@ -1,0 +1,1 @@
+-- no-op: 'adr' folded into CREATE TYPE in 20260529120000 (migration ordering fix); kept for history

@@ -1,0 +1,36 @@
+{
+  "name": "@magguarantee/database",
+  "version": "0.0.0",
+  "private": true,
+  "main": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "files": [
+    "dist"
+  ],
+  "scripts": {
+    "build": "tsc -p tsconfig.build.json && node scripts/copy-generated.cjs",
+    "postinstall": "prisma generate",
+    "generate": "prisma generate",
+    "migrate:dev": "prisma migrate dev",
+    "migrate:deploy": "prisma migrate deploy",
+    "seed": "tsx prisma/seed.ts",
+    "seed:prod": "tsx prisma/seed.prod.ts",
+    "prisma:format": "prisma format",
+    "lint": "echo 'lint: no source yet' && exit 0",
+    "typecheck": "tsc --noEmit",
+    "test": "echo 'test: no tests yet' && exit 0"
+  },
+  "dependencies": {
+    "@prisma/client": "^5.20.0",
+    "bcryptjs": "^2.4.3",
+    "prisma": "^5.20.0",
+    "tsx": "^4.19.0"
+  },
+  "devDependencies": {
+    "@types/bcryptjs": "^2.4.6",
+    "typescript": "^5.5.0"
+  },
+  "prisma": {
+    "seed": "npx tsx prisma/seed.ts"
+  }
+}

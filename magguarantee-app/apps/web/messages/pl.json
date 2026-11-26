@@ -1,0 +1,2389 @@
+{
+  "app": {
+    "name": "MAGGuarantee"
+  },
+  "common": {
+    "loading": "Ładowanie...",
+    "networkError": "Brak połączenia. Spróbuj ponownie.",
+    "logout": "Wyloguj",
+    "save": "Zapisz",
+    "cancel": "Anuluj",
+    "delete": "Usuń",
+    "edit": "Edytuj",
+    "new": "Nowy",
+    "search": "Szukaj",
+    "all": "Wszyscy",
+    "active": "Aktywny",
+    "inactive": "Nieaktywny",
+    "yes": "Tak",
+    "no": "Nie",
+    "actions": "Akcje",
+    "saving": "Zapisywanie...",
+    "saved": "Zapisano",
+    "errorGeneric": "Coś poszło nie tak. Spróbuj ponownie.",
+    "deleteConfirmTitle": "Czy na pewno?",
+    "deleteConfirmBody": "Tej operacji nie można cofnąć.",
+    "deactivate": "Dezaktywuj",
+    "reactivate": "Aktywuj",
+    "clear": "Wyczyść",
+    "validationFailedToast": "Uzupełnij podświetlone pola",
+    "inactiveSuffix": "(nieaktywny)",
+    "pcsShort": "szt.",
+    "adrClassOption": "Klasa {n}",
+    "copy": "Kopiuj",
+    "copied": "Skopiowano",
+    "close": "Zamknij",
+    "pagination": "Paginacja",
+    "prevPage": "Poprzednia strona",
+    "nextPage": "Następna strona",
+    "clearFilters": "Wyczyść filtry",
+    "showPassword": "Pokaż hasło",
+    "hidePassword": "Ukryj hasło",
+    "refreshHint": "Kliknij, aby odświeżyć dane"
+  },
+  "formActive": {
+    "vehicleConsequence": "Nieaktywny ciągnik znika z list wyboru i nie może być użyty w nowych wyjazdach ani wnioskach.",
+    "trailerConsequence": "Nieaktywna naczepa znika z list wyboru i nie może być użyta w nowych wyjazdach.",
+    "driverConsequence": "Nieaktywny kierowca znika z list wyboru i nie może być przypisany do nowych wyjazdów.",
+    "carrierConsequence": "Nieaktywny przewoźnik traci dostęp do panelu, a jego ciągniki i kierowcy znikają z list wyboru."
+  },
+  "confirmDelete": {
+    "title": "Trwałe usunięcie — {entityLabel}",
+    "body": "Tej operacji nie da się cofnąć. {entityName} zostanie trwale usunięty. Podaj powód.",
+    "reasonLabel": "Powód usunięcia",
+    "reasonPlaceholder": "Podaj powód — minimum 3 znaki",
+    "cancel": "Anuluj",
+    "confirm": "Usuń trwale",
+    "deleting": "Usuwanie…",
+    "deletedToast": "Trwale usunięto",
+    "errorToast": "Nie udało się usunąć",
+    "softTitle": "Usuń — {entityLabel}",
+    "softBody": "{entityName} zostanie usunięty. Można go później przywrócić.",
+    "vehicleSoftBody": "{entityName} zostanie usunięty. Tego samego numeru rejestracyjnego nie będzie już można dodać ponownie do systemu.",
+    "softConfirm": "Usuń",
+    "entityLabel": {
+      "carrier": "przewoźnik",
+      "vehicle": "ciągnik",
+      "driver": "kierowca",
+      "trailer": "naczepa",
+      "trailerType": "typ naczepy",
+      "team": "zespół prowadzący"
+    }
+  },
+  "users": {
+    "title": "Użytkownicy",
+    "newUser": "Nowy użytkownik",
+    "editUser": "Edytuj użytkownika",
+    "emptyTitle": "Brak użytkowników",
+    "emptyMessage": "Nie dodano jeszcze żadnego użytkownika.",
+    "emptyFiltered": {
+      "title": "Brak wyników",
+      "message": "Brak użytkowników spełniających wybrane filtry."
+    },
+    "filters": {
+      "searchPlaceholder": "Szukaj loginu / nazwy",
+      "role": "Rola",
+      "allRoles": "Wszystkie role",
+      "activeLabel": "Filtruj po statusie aktywności",
+      "allActive": "Wszyscy",
+      "onlyActive": "Tylko aktywni",
+      "onlyInactive": "Tylko nieaktywni"
+    },
+    "fields": {
+      "login": "Login",
+      "name": "Imię i nazwisko",
+      "email": "E-mail",
+      "role": "Rola",
+      "password": "Hasło tymczasowe",
+      "passwordHint": "≥10 znaków, ≥1 litera, ≥1 cyfra. Zostaw puste, aby wygenerować automatycznie.",
+      "liderEmail": "E-mail lidera",
+      "liderEmailHint": "Tylko dla roli planista — adres przełożonego.",
+      "active": "Aktywny",
+      "createdAt": "Utworzono"
+    },
+    "actions": {
+      "resetPassword": "Zresetuj hasło…",
+      "deactivate": "Dezaktywuj",
+      "reactivate": "Aktywuj",
+      "delete": "Usuń trwale"
+    },
+    "resetDialog": {
+      "title": "Zresetuj hasło użytkownika",
+      "description": "Ustawiasz nowe hasło dla <strong>{login}</strong>.",
+      "optionAuto": "Wygeneruj automatycznie",
+      "optionCustom": "Ustaw własne hasło",
+      "forceNote": "Użytkownik będzie musiał zmienić to hasło przy następnym logowaniu.",
+      "confirm": "Zresetuj hasło"
+    },
+    "resetPassword": {
+      "title": "Nowe hasło tymczasowe",
+      "description": "Przekaż to hasło użytkownikowi. Po zalogowaniu powinien je zmienić.",
+      "loginLabel": "Login:",
+      "passwordLabel": "Hasło:",
+      "copyAria": "Skopiuj hasło tymczasowe do schowka"
+    },
+    "confirmActivate": {
+      "deactivateTitle": "Dezaktywować użytkownika?",
+      "deactivateBody": "{login} nie będzie mógł się zalogować, ale dane pozostaną w systemie.",
+      "reactivateTitle": "Aktywować użytkownika?",
+      "reactivateBody": "{login} odzyska dostęp do systemu."
+    },
+    "tempPasswordToast": "Hasło tymczasowe: {password}",
+    "deactivatedToast": "Użytkownik dezaktywowany",
+    "reactivatedToast": "Użytkownik aktywowany"
+  },
+  "forms": {
+    "country": {
+      "placeholder": "Wybierz kraj",
+      "driverLabel": "Kraj / Country",
+      "driverDescription": "Steruje podpowiedzią formatu telefonu i numeru dokumentu (opcjonalne, niezapisywane)."
+    },
+    "postal": {
+      "placeholderNoCountry": "Najpierw wybierz kraj",
+      "expectedFormat": "Format: {example}",
+      "invalidFormat": "Nieprawidłowy format. Oczekiwano np. {example}"
+    },
+    "phone": {
+      "placeholderNoCountry": "Numer telefonu",
+      "expectedFormat": "Oczekiwano: {callingCode} · ~{digits} cyfr",
+      "invalidFormat": "Nietypowy format. Oczekiwano np. {example}"
+    },
+    "document": {
+      "placeholderNoCountry": "Numer dokumentu",
+      "expectedFormat": "Format: np. {example}",
+      "invalidFormat": "Nietypowy format. Oczekiwano np. {example}"
+    }
+  },
+  "theme": {
+    "toggle": "Przełącz motyw",
+    "light": "Tryb jasny",
+    "dark": "Tryb ciemny"
+  },
+  "hoursReadout": {
+    "label": "Czas",
+    "raw": "surowych",
+    "counted": "zaliczonych",
+    "unit": "h",
+    "missing": "—",
+    "hint": {
+      "identical": "Bez wyłączeń",
+      "adjusted": "Po wyłączeniach i korektach",
+      "override": "Po ręcznej korekcie weryfikatora"
+    }
+  },
+  "lang": {
+    "toggle": "Zmień język",
+    "pl": "Polski",
+    "en": "Angielski"
+  },
+  "login": {
+    "title": "MAGGuarantee",
+    "subtitle": "Zaloguj się, aby kontynuować",
+    "loginLabel": "Login",
+    "loginPlaceholder": "Wpisz login",
+    "passwordLabel": "Hasło",
+    "passwordPlaceholder": "Wpisz hasło",
+    "passwordShow": "Pokaż hasło",
+    "passwordHide": "Ukryj hasło",
+    "submit": "Dalej →",
+    "submitting": "Logowanie...",
+    "forgotPassword": "Nie pamiętam hasła",
+    "errorWrong": "Nieprawidłowy login lub hasło",
+    "errorNetwork": "Brak połączenia. Spróbuj ponownie."
+  },
+  "verify": {
+    "title": "MAGGuarantee",
+    "subtitle": "Weryfikacja dwuetapowa",
+    "sentTo": "Wysłaliśmy 6-cyfrowy kod na adres",
+    "codeLifetime": "Kod ważny 10 minut",
+    "codeLabel": "Kod weryfikacyjny",
+    "submit": "Weryfikuj",
+    "submitting": "Sprawdzanie...",
+    "resend": "Wyślij kod ponownie",
+    "resendIn": "Wyślij ponownie ({seconds}s)",
+    "resending": "Wysyłanie...",
+    "back": "← Wróć",
+    "errorWrong": "Nieprawidłowy kod ({attemptsLeft, plural, one {pozostała # próba} few {pozostały # próby} other {pozostało # prób}})",
+    "errorExpired": "Kod wygasł. Wróć do logowania, aby otrzymać nowy.",
+    "errorLocked": "Konto tymczasowo zablokowane. Spróbuj ponownie za {time}.",
+    "errorNetwork": "Brak połączenia. Spróbuj ponownie.",
+    "resendSuccess": "Wysłano nowy kod.",
+    "resendCooldown": "Odczekaj {seconds}s przed kolejnym wysłaniem."
+  },
+  "forgotPassword": {
+    "subtitle": "Zresetuj hasło",
+    "submit": "Wyślij kod",
+    "backToLogin": "Wróć do logowania",
+    "sentTitle": "Jeśli konto istnieje, wysłaliśmy kod",
+    "sentBody": "Kod weryfikacyjny trafił na adres <strong>{email}</strong>.",
+    "enterCode": "Wpisz kod",
+    "resetSubtitle": "Ustaw nowe hasło",
+    "codeTtl": "Kod ważny 10 minut",
+    "newPasswordLabel": "Nowe hasło",
+    "confirmPasswordLabel": "Powtórz hasło",
+    "setPassword": "Ustaw hasło",
+    "successToast": "Hasło zostało zmienione. Zaloguj się.",
+    "errorExpired": "Kod wygasł. Wyślij nowy.",
+    "errorWrongCode": "Nieprawidłowy kod"
+  },
+  "changePassword": {
+    "subtitle": "Ustaw własne hasło",
+    "explainer": "Hasło tymczasowe — ustaw własne, aby kontynuować.",
+    "newPasswordLabel": "Nowe hasło",
+    "confirmPasswordLabel": "Powtórz hasło",
+    "submit": "Zapisz i kontynuuj",
+    "logout": "Wyloguj się",
+    "successToast": "Hasło zostało ustawione.",
+    "menuItem": "Zmień hasło",
+    "dialogTitle": "Zmiana hasła",
+    "dialogDescription": "Ustaw nowe hasło do swojego konta. Pozostaniesz zalogowany.",
+    "dialogSubmit": "Zmień hasło",
+    "dialogSuccessToast": "Hasło zostało zmienione.",
+    "dialogErrorToast": "Nie udało się zmienić hasła. Spróbuj ponownie."
+  },
+  "passwordPolicy": {
+    "label": "Wymagania dla hasła",
+    "minLen": "min. 10 znaków",
+    "letter": "co najmniej 1 litera",
+    "digit": "co najmniej 1 cyfra",
+    "mismatch": "Hasła nie są zgodne"
+  },
+  "roles": {
+    "admin": "Administrator",
+    "pracownik": "Pracownik",
+    "opiekun": "Opiekun",
+    "planista": "Planista",
+    "dyspozytor": "Dyspozytor",
+    "przewoznik": "Przewoźnik",
+    "eksport": "Eksport",
+    "weryfikator": "Weryfikator"
+  },
+  "landing": {
+    "welcome": "Witaj, {name}",
+    "yourRole": "Rola: {role}",
+    "phasePlaceholder": "Phase 1 — placeholder. Pełny panel pojawi się w kolejnych fazach.",
+    "logout": "Wyloguj"
+  },
+  "nav": {
+    "dashboard": "Dashboard",
+    "claims": "Wnioski",
+    "opieka": "Moja opieka",
+    "carriers": "Przewoźnicy",
+    "vehicles": "Ciągniki",
+    "drivers": "Kierowcy",
+    "trailers": "Naczepy",
+    "trailerTypes": "Typy naczep",
+    "teams": "Zespoły prowadzące",
+    "delegations": "Wyjazdy",
+    "limits": "Limity",
+    "users": "Użytkownicy",
+    "audit": "Audyt",
+    "diagnostics": "Diagnostyka",
+    "openMenu": "Otwórz menu",
+    "closeMenu": "Zamknij menu",
+    "sectionLabel": "Sekcje panelu",
+    "opiekaAttentionBadge": "{count, plural, one {# przewoźnik wymaga uwagi} few {# przewoźników wymaga uwagi} many {# przewoźników wymaga uwagi} other {# przewoźników wymaga uwagi}}",
+    "alerts": "Alerty",
+    "alertsBadge": "{count, plural, one {# dokument wymaga uwagi} few {# dokumenty wymagają uwagi} many {# dokumentów wymaga uwagi} other {# dokumentów wymaga uwagi}}"
+  },
+  "forbidden": {
+    "title": "Brak dostępu",
+    "message": "Nie masz uprawnień do tej sekcji. Skontaktuj się z administratorem, jeśli uważasz, że to błąd.",
+    "backToDashboard": "Wróć do dashboardu"
+  },
+  "wizard": {
+    "ariaLabel": "Postęp dodawania przewoźnika",
+    "header": {
+      "title": "Dodaj przewoźnika — krok {n} z 4"
+    },
+    "step": {
+      "carrier": "Przewoźnik",
+      "vehicle": "Ciągnik",
+      "trailer": "Przyczepa",
+      "driver": "Kierowca"
+    },
+    "state": {
+      "completed": "ukończone",
+      "active": "w trakcie",
+      "skipped": "pominięte",
+      "future": "do wykonania"
+    },
+    "aria": {
+      "stepPrefix": "Krok {n}:"
+    },
+    "action": {
+      "saveAndContinue": "Zapisz i kontynuuj",
+      "skip": "Pomiń",
+      "exit": "Wyjdź"
+    },
+    "entityAlreadyExists": {
+      "vehicle": "Ten przewoźnik ma już ciągnik — możesz dodać kolejny lub pominąć krok.",
+      "trailer": "Ten przewoźnik ma już naczepę — możesz dodać kolejną lub pominąć krok.",
+      "driver": "Ten przewoźnik ma już kierowcę — możesz dodać kolejnego lub pominąć krok."
+    }
+  },
+  "tempPwd": {
+    "regionLabel": "Hasło tymczasowe do przekazania przewoźnikowi",
+    "title": "Hasło tymczasowe",
+    "reveal": "Pokaż",
+    "hide": "Ukryj",
+    "copy": "Kopiuj",
+    "copied": "Skopiowano",
+    "revealAria": "Pokaż hasło tymczasowe",
+    "hideAria": "Ukryj hasło tymczasowe",
+    "copyAria": "Skopiuj hasło tymczasowe do schowka",
+    "maskedAria": "Hasło tymczasowe, ukryte. Kliknij Pokaż, aby wyświetlić."
+  },
+  "onboardingStatus": {
+    "resumeAction": "Dokończ onboarding"
+  },
+  "onboardingMissing": {
+    "groupLabel": "Brakujące elementy konfiguracji",
+    "vehicle": "Brak: Ciągnik",
+    "trailer": "Brak: Naczepa",
+    "driver": "Brak: Kierowca"
+  },
+  "carriers": {
+    "title": "Przewoźnicy",
+    "newCarrier": "Nowy przewoźnik",
+    "editCarrier": "Edytuj przewoźnika",
+    "emptyTitle": "Brak przewoźników",
+    "emptyMessage": "Nie dodano jeszcze żadnego przewoźnika.",
+    "emptyFiltered": {
+      "title": "Brak wyników",
+      "message": "Brak przewoźników spełniających wybrane filtry."
+    },
+    "filters": {
+      "searchPlaceholder": "Szukaj loginu / nazwy / NIP",
+      "opiekun": "Opiekun",
+      "allOpiekun": "Wszyscy opiekuni",
+      "allActive": "Wszyscy",
+      "onlyActive": "Tylko aktywni",
+      "onlyInactive": "Tylko nieaktywni",
+      "onboardingLabel": "Filtruj po statusie onboardingu",
+      "allOnboarding": "Onboarding: wszyscy",
+      "onlyIncomplete": "Tylko niedokończeni",
+      "onlyCompleteOnboarding": "Tylko ukończeni"
+    },
+    "fields": {
+      "login": "Login",
+      "name": "Nazwa",
+      "company": "Firma",
+      "email": "E-mail",
+      "password": "Hasło tymczasowe",
+      "phone": "Telefon",
+      "contactPerson": "Osoba kontaktowa",
+      "ordersEmail": "E-mail zleceń",
+      "nip": "NIP / Tax ID",
+      "nipHint": "10 cyfr (PL NIP) lub zagraniczny numer identyfikacji podatkowej (5–20 znaków)",
+      "vatId": "VAT-ID",
+      "vatHint": "Wybierz kraj i wpisz numer",
+      "vatCountry": "Kraj VAT",
+      "vatNumber": "Numer VAT",
+      "accountEur": "Konto EUR (IBAN)",
+      "accountPln": "Konto PLN",
+      "paymentTerms": "Termin płatności (dni)",
+      "insuranceValue": "Suma ubezpieczenia OCP",
+      "insuranceMinHint": "Min. 250 000 EUR",
+      "insuranceExpiry": "Ważność OCP",
+      "licenseExpiry": "Ważność licencji",
+      "numberOfVehicle": "Liczba ciągników",
+      "companyAddress": "Adres firmy",
+      "opiekun": "Opiekun",
+      "active": "Aktywny"
+    },
+    "sections": {
+      "account": "Konto i kontakt",
+      "company": "Dane firmy",
+      "finance": "Finanse",
+      "permits": "Zezwolenia",
+      "assignment": "Przypisanie"
+    },
+    "accountSelector": {
+      "label": "Znaleziono kilka kont w rejestrze MF. Wybierz konto EUR:",
+      "placeholder": "Wybierz konto EUR"
+    },
+    "paymentTermsValue": "{n} dni",
+    "tempPasswordToast": "Hasło tymczasowe: {password}",
+    "resetPassword": {
+      "action": "Resetuj hasło",
+      "confirmTitle": "Zresetować hasło przewoźnika?",
+      "confirmDescription": "Przewoźnik: {carrier}",
+      "confirmNote": "Dotychczasowe hasło przestanie działać. Nowe hasło tymczasowe zostanie wysłane e-mailem na adres logowania przewoźnika i pokazane tutaj jeden raz.",
+      "confirmAction": "Resetuj hasło",
+      "resultTitle": "Hasło zresetowane",
+      "resultDescription": "Zapisz lub przekaż hasło teraz — nie zobaczysz go ponownie. Przy pierwszym logowaniu przewoźnik ustawi własne.",
+      "loginLabel": "Login",
+      "passwordLabel": "Hasło tymczasowe",
+      "copyAria": "Kopiuj hasło tymczasowe",
+      "errorToast": "Nie udało się zresetować hasła."
+    }
+  },
+  "entityDetail": {
+    "edit": "Edytuj",
+    "close": "Zamknij",
+    "createdAt": "Utworzono",
+    "updatedAt": "Zaktualizowano",
+    "gpsDeviceId": "ID urządzenia GPS"
+  },
+  "fileUpload": {
+    "prompt": "Przeciągnij pliki tutaj lub kliknij, aby wybrać",
+    "promptCompact": "Dodaj plik lub upuść",
+    "constraints": "JPG, PNG, PDF · maks. 10 MB",
+    "constraintsPdf": "tylko PDF · maks. 10 MB",
+    "change": "Zmień",
+    "errTooLarge": "Plik przekracza 10 MB",
+    "errWrongType": "Nieobsługiwany typ pliku",
+    "errUploadFailed": "Nie udało się przesłać pliku",
+    "retry": "Spróbuj ponownie",
+    "dropzoneAria": "Wybierz pliki do przesłania",
+    "removeAria": "Usuń plik {name}",
+    "fields": {
+      "gps": "Umowa GPS",
+      "agreement": "Skan porozumienia",
+      "cabotageDeInsurance": "Ubezpieczenie kabotażowe",
+      "certXl": "Certyfikat XL (PDF)",
+      "adr": "Świadectwo ADR",
+      "adrHint": "Załącz skan lub zdjęcie świadectwa ADR kierowcy."
+    },
+    "required": {
+      "gps": "Wymagany skan umowy GPS, gdy podano numer GPS.",
+      "cabotage_de_insurance": "Wymagane ubezpieczenie kabotażowe DE.",
+      "cert_xl": "Wymagany skan certyfikatu XL (PDF).",
+      "adr": "Wymagany skan świadectwa ADR gdy zaznaczono ADR."
+    }
+  },
+  "multiSelect": {
+    "placeholder": "Wybierz kraje…",
+    "searchPlaceholder": "Szukaj…",
+    "noResults": "Brak wyników",
+    "removeAria": "Usuń {name}",
+    "selectionSummary": "Kraje docelowe, wybrano {count}",
+    "wastePlaceholder": "Wybierz kraje odpadowe…",
+    "adrPlaceholder": "Wybierz klasy ADR…",
+    "langPlaceholder": "Wybierz języki…"
+  },
+  "countries": {
+    "AT": "Austria",
+    "BE": "Belgia",
+    "BG": "Bułgaria",
+    "CH": "Szwajcaria",
+    "CY": "Cypr",
+    "CZ": "Czechy",
+    "DE": "Niemcy",
+    "DK": "Dania",
+    "EE": "Estonia",
+    "ES": "Hiszpania",
+    "FI": "Finlandia",
+    "FR": "Francja",
+    "GB": "Wielka Brytania",
+    "GR": "Grecja",
+    "HR": "Chorwacja",
+    "HU": "Węgry",
+    "IE": "Irlandia",
+    "IT": "Włochy",
+    "LT": "Litwa",
+    "LU": "Luksemburg",
+    "LV": "Łotwa",
+    "MT": "Malta",
+    "NL": "Holandia",
+    "NO": "Norwegia",
+    "PL": "Polska",
+    "PT": "Portugalia",
+    "RO": "Rumunia",
+    "SE": "Szwecja",
+    "SI": "Słowenia",
+    "SK": "Słowacja"
+  },
+  "vehicles": {
+    "title": "Ciągniki",
+    "newVehicle": "Nowy ciągnik",
+    "editVehicle": "Edytuj ciągnik",
+    "emptyTitle": "Brak ciągników",
+    "emptyMessage": "Nie dodano jeszcze żadnego ciągnika.",
+    "emptyFiltered": {
+      "title": "Brak wyników",
+      "message": "Brak ciągników spełniających wybrane filtry."
+    },
+    "filters": {
+      "searchPlaceholder": "Szukaj numeru rejestracyjnego",
+      "carrier": "Przewoźnik",
+      "carrierLabel": "Filtruj po przewoźniku",
+      "allCarriers": "Wszyscy przewoźnicy",
+      "statusLabel": "Filtruj po statusie",
+      "allStatuses": "Wszystkie statusy"
+    },
+    "fields": {
+      "carrier": "Przewoźnik",
+      "plateNumber": "Numer rejestracyjny",
+      "sideNumber": "Numer boczny",
+      "type": "Typ",
+      "euro": "Norma EURO",
+      "certificateL": "Certyfikat L",
+      "opiekun": "Opiekun",
+      "planner": "Planista",
+      "dispatchTeam": "Zespół prowadzący",
+      "gpsMobilePhone": "Numer GPS",
+      "fuelCard": "Karta paliwowa",
+      "fuelCardNumber": "Numer karty",
+      "fuelCardExpiry": "Data ważności",
+      "fuelCardPin": "PIN",
+      "agreement": "Porozumienie",
+      "rateDe": "Stawka DE",
+      "rateUe": "Stawka UE",
+      "rateExport": "Stawka eksport",
+      "rateImport": "Stawka import",
+      "wasteAllowed": "Odpady",
+      "wasteCountries": "Kraje odpadowe",
+      "cabotageDe": "Kabotaż DE",
+      "cabotageFr": "Kabotaż FR",
+      "adr": "ADR",
+      "adrClasses": "Klasy ADR",
+      "gb": "GB",
+      "it": "IT",
+      "fr": "FR",
+      "lastDroveAt": "Ostatni przejazd",
+      "notes": "Notatki",
+      "active": "Aktywny"
+    },
+    "euroBadge": "EURO VI",
+    "fuelCardAgreementRequired": "Karta paliwowa wymaga zaznaczenia porozumienia",
+    "fuelCardStatus": {
+      "label": "Status karty",
+      "active": "Karta aktywna",
+      "blocked": "Karta zablokowana",
+      "blockedReason": "Wymaga aktywnego porozumienia i wgranego skanu"
+    },
+    "agreementScanMissing": "Brak skanu porozumienia",
+    "wasteCountryOptions": {
+      "DE": "Niemcy",
+      "NL": "Holandia",
+      "AT": "Austria",
+      "BE": "Belgia",
+      "LUX": "Luksemburg",
+      "FR": "Francja",
+      "GB": "Wielka Brytania",
+      "IT": "Włochy",
+      "CZ": "Czechy",
+      "PL": "Polska"
+    },
+    "sections": {
+      "identification": "Identyfikacja",
+      "basic": "Dane podstawowe",
+      "people": "Przypisanie",
+      "equipment": "Wyposażenie",
+      "rates": "Stawki",
+      "gps": "GPS",
+      "fuelCard": "Karta paliwowa",
+      "agreement": "Porozumienie",
+      "waste": "Odpady",
+      "cabotage": "Kabotaż",
+      "adr": "ADR",
+      "permissions": "Pozwolenia",
+      "specialCountries": "Kraje specjalne",
+      "specialCountriesHint": "Kraje, do których ciągnik ma wszystkie pozwolenia na wjazd.",
+      "gbHint": "Wielka Brytania — pozwolenie ECMT (po Brexicie)",
+      "itHint": "Włochy — ograniczenia tranzytowe/weekendowe",
+      "frHint": "Francja — Loi Macron / SIPSI",
+      "other": "Pozostałe",
+      "attachments": "Załączniki"
+    },
+    "attachmentCategory": {
+      "gps": "Umowa GPS",
+      "agreement": "Porozumienie",
+      "cabotage_de_insurance": "Ubezpieczenie kabotażowe DE"
+    },
+    "attachmentOpen": "Otwórz",
+    "attachmentOpenError": "Nie udało się otworzyć pliku. Spróbuj ponownie.",
+    "attachmentPopupBlocked": "Nie można otworzyć nowej karty. Zezwól na wyskakujące okienka dla tej strony i spróbuj ponownie."
+  },
+  "drivers": {
+    "title": "Kierowcy",
+    "newDriver": "Nowy kierowca",
+    "editDriver": "Edytuj kierowcę",
+    "emptyTitle": "Brak kierowców",
+    "emptyMessage": "Nie dodano jeszcze żadnego kierowcy.",
+    "emptyFiltered": {
+      "title": "Brak wyników",
+      "message": "Brak kierowców spełniających wybrane filtry."
+    },
+    "filters": {
+      "searchPlaceholder": "Szukaj imienia / nazwiska",
+      "carrier": "Przewoźnik",
+      "carrierLabel": "Filtruj po przewoźniku",
+      "allCarriers": "Wszyscy przewoźnicy"
+    },
+    "fields": {
+      "carrier": "Przewoźnik",
+      "firstName": "Imię",
+      "lastName": "Nazwisko",
+      "phone": "Telefon",
+      "phone2": "Telefon (drugi)",
+      "email": "E-mail",
+      "idDocumentNumber": "Nr prawa jazdy",
+      "licenseExpiry": "Ważność prawa jazdy",
+      "nationality": "Narodowość",
+      "languages": "Języki komunikacji",
+      "adr": "ADR",
+      "adrClasses": "Klasy ADR",
+      "notes": "Notatki",
+      "active": "Aktywny"
+    },
+    "phonePrefixLabel": "Prefiks telefonu",
+    "nationalityOptions": {
+      "BY": "Białoruś",
+      "RUS": "Rosja",
+      "UA": "Ukraina",
+      "PL": "Polska",
+      "UZB": "Uzbekistan",
+      "KRG": "Kirgistan",
+      "KZ": "Kazachstan",
+      "OTHER": "Inne"
+    },
+    "languageOptions": {
+      "PL": "polski",
+      "RU": "rosyjski",
+      "EN": "angielski",
+      "UA": "ukraiński",
+      "DE": "niemiecki",
+      "OTHER": "inny"
+    },
+    "sections": {
+      "personal": "Dane osobowe i kontakt",
+      "personalData": "Dane osobowe",
+      "contact": "Kontakt",
+      "nationalityLangs": "Narodowość i języki",
+      "adr": "ADR",
+      "notesSection": "Notatki",
+      "license": "Prawo jazdy",
+      "assignment": "Przypisanie",
+      "attachments": "Załączniki"
+    },
+    "attachmentCategory": {
+      "adr": "Świadectwo ADR"
+    },
+    "attachmentOpen": "Otwórz"
+  },
+  "trailers": {
+    "title": "Naczepy",
+    "newTrailer": "Nowa naczepa",
+    "editTrailer": "Edytuj naczepę",
+    "emptyTitle": "Brak naczep",
+    "emptyMessage": "Nie dodano jeszcze żadnej naczepy.",
+    "emptyFiltered": {
+      "title": "Brak wyników",
+      "message": "Brak naczep spełniających wybrane filtry."
+    },
+    "filters": {
+      "searchPlaceholder": "Szukaj numeru rejestracyjnego",
+      "carrier": "Przewoźnik",
+      "carrierLabel": "Filtruj po przewoźniku",
+      "type": "Typ",
+      "typeLabel": "Filtruj po typie naczepy",
+      "allCarriers": "Wszyscy przewoźnicy",
+      "allTypes": "Wszystkie typy"
+    },
+    "fields": {
+      "carrier": "Przewoźnik",
+      "plateNumber": "Numer rejestracyjny",
+      "trailerType": "Typ naczepy",
+      "innerLength": "Długość wewn. (m)",
+      "innerWidth": "Szerokość wewn. (m)",
+      "innerHeight": "Wysokość wewn. (m)",
+      "capacity": "Ładowność (t)",
+      "sideClearanceCm": "Boczny prześwit ład. (cm)",
+      "belts": "Pasy",
+      "beltsCount": "Liczba pasów",
+      "mats": "Maty",
+      "matsCount": "Liczba mat",
+      "beams": "Belki zabezpieczające",
+      "beamsCount": "Liczba belek",
+      "liftingRoof": "Dach podnoszony",
+      "slidingRoof": "Dach przesuwany",
+      "edscha": "Edscha",
+      "palletBox": "Kosz paletowy",
+      "certXl": "Certyfikat XL",
+      "multilock": "Multilock",
+      "notes": "Notatki",
+      "active": "Aktywny"
+    },
+    "sections": {
+      "identification": "Identyfikacja",
+      "basic": "Dane podstawowe",
+      "dimensions": "Wymiary",
+      "roof": "Dach",
+      "equipment": "Wyposażenie",
+      "certXl": "Certyfikat XL",
+      "notesSection": "Notatki",
+      "attachments": "Załączniki"
+    },
+    "attachmentCategory": {
+      "cert_xl": "Certyfikat XL"
+    },
+    "attachmentOpen": "Otwórz"
+  },
+  "trailerTypes": {
+    "title": "Typy naczep",
+    "newType": "Nowy typ",
+    "editType": "Edytuj typ",
+    "emptyTitle": "Brak typów naczep",
+    "emptyMessage": "Nie zdefiniowano jeszcze żadnego typu naczepy.",
+    "emptyFiltered": {
+      "title": "Brak wyników",
+      "message": "Brak typów naczep spełniających wyszukiwanie."
+    },
+    "fields": {
+      "name": "Nazwa",
+      "shortCode": "Skrót",
+      "description": "Opis",
+      "active": "Aktywny"
+    }
+  },
+  "team": {
+    "emptyMembers": "Brak dyspozytorów w zespole",
+    "noTeam": "Brak zespołu prowadzącego",
+    "inactiveBadge": "Nieaktywny",
+    "leadingTeamHeader": "ZESPÓŁ PROWADZĄCY",
+    "planista": "Planista",
+    "eksport": "Eksport",
+    "codeAria": "Kod zespołu: {code}",
+    "membersAria": "Dyspozytorzy zespołu {code}"
+  },
+  "teams": {
+    "title": "Zespoły prowadzące",
+    "subtitle": "Numerowane zespoły dyspozytorów, do których przypisywane są ciągniki.",
+    "newTeam": "Nowy zespół",
+    "editTeam": "Edytuj zespół",
+    "emptyTitle": "Brak zespołów",
+    "emptyMessage": "Nie zdefiniowano jeszcze żadnego zespołu prowadzącego.",
+    "emptyFiltered": {
+      "title": "Brak wyników",
+      "message": "Brak zespołów spełniających wyszukiwanie."
+    },
+    "filters": {
+      "searchPlaceholder": "Szukaj kodu lub nazwy"
+    },
+    "fields": {
+      "code": "Kod",
+      "codeHint": "Format N.N.N, np. 1.1.13",
+      "name": "Nazwa",
+      "dispatchers": "Dyspozytorzy",
+      "dispatchersHint": "Dyspozytorzy widzą ciągniki przypisane do tego zespołu.",
+      "dispatchersPlaceholder": "Wybierz dyspozytorów…",
+      "dispatchersEmpty": "Nie znaleziono dyspozytora",
+      "dispatchersSelected": "Dyspozytorzy, wybrano {count}",
+      "vehicleCount": "Ciągniki",
+      "active": "Aktywny"
+    },
+    "actions": {
+      "deactivate": "Dezaktywuj",
+      "reactivate": "Aktywuj"
+    },
+    "confirmToggle": {
+      "deactivateTitle": "Dezaktywować zespół?",
+      "deactivateBody": "Zespół {code} nie będzie dostępny do przypisania, ale dane pozostaną w systemie.",
+      "reactivateTitle": "Aktywować zespół?",
+      "reactivateBody": "Zespół {code} ponownie będzie dostępny do przypisania."
+    }
+  },
+  "validation": {
+    "loading": "Sprawdzam…",
+    "valid": "Zweryfikowano",
+    "invalid": "Nie znaleziono",
+    "error": "Usługa niedostępna — spróbuj później",
+    "zod": {
+      "required": "Uzupełnij pole",
+      "selectFromList": "Wybierz wartość z listy",
+      "invalidType": "Niepoprawny typ wartości",
+      "stringMin": "Wpisz co najmniej {min} znaków",
+      "stringMax": "Maksymalnie {max} znaków",
+      "numberMin": "Wartość nie może być mniejsza niż {min}",
+      "numberMax": "Wartość nie może być większa niż {max}",
+      "arrayMin": "Wybierz co najmniej {min}",
+      "arrayMax": "Maksymalnie {max} pozycji",
+      "dateMin": "Data jest zbyt wczesna",
+      "dateMax": "Data jest zbyt późna",
+      "email": "Niepoprawny adres e-mail",
+      "url": "Niepoprawny adres URL",
+      "enum": "Niepoprawna wartość",
+      "date": "Niepoprawna data",
+      "format": "Niepoprawny format",
+      "generic": "Niepoprawna wartość"
+    }
+  },
+  "dashboard": {
+    "title": "Dashboard",
+    "subtitle": "Przegląd aktywności i status wniosków",
+    "kpi": {
+      "total": "Wszystkie wnioski",
+      "naWeryfikacji": "Na weryfikacji",
+      "zaakceptowano": "Zaakceptowane",
+      "odrzucono": "Odrzucone",
+      "oczekujeNaAutoryzacje": "Oczekuje na autoryzację"
+    },
+    "empty": {
+      "title": "Brak wniosków",
+      "message": "Gdy pojawią się pierwsze wnioski, w tym miejscu zobaczysz wykresy i wskaźniki."
+    },
+    "charts": {
+      "monthlyTitle": "Trend miesięczny (12 mies.)",
+      "count": "Liczba wniosków",
+      "sumEur": "Suma dopłat (EUR)",
+      "statusTitle": "Rozkład statusów",
+      "statusEmpty": "Brak danych do wyświetlenia",
+      "naWeryfikacji": "Weryfikacja",
+      "zaakceptowano": "Zaakceptowano",
+      "odrzucono": "Odrzucono",
+      "oczekujeNaAutoryzacje": "Czeka na autoryzację"
+    },
+    "sidebar": {
+      "recent": "Ostatnia aktywność",
+      "recentEmpty": "Brak aktywności",
+      "topCarriers": "Top przewoźnicy",
+      "topCarriersEmpty": "Brak danych",
+      "reklamacje": "Reklamacje",
+      "reklamacjeUnit": "otwartych"
+    },
+    "sla": {
+      "overdueTitle": "Po terminie",
+      "dueSoonTitle": "Zbliża się termin",
+      "allClear": "Brak wniosków wymagających uwagi",
+      "rowAria": "Wniosek {nrZgl} — {status}, otwórz weryfikację",
+      "countdown": {
+        "overdue": "{days, plural, one {# dzień po terminie} few {# dni po terminie} many {# dni po terminie} other {# dni po terminie}}",
+        "lastDay": "dziś ostatni dzień",
+        "dueSoon": "{days, plural, one {# dzień roboczy} few {# dni robocze} many {# dni roboczych} other {# dni roboczych}}"
+      }
+    }
+  },
+  "guarantee": {
+    "countdown": {
+      "overdue": "{days, plural, one {# dzień po terminie} few {# dni po terminie} many {# dni po terminie} other {# dni po terminie}}",
+      "today": "dziś ostatni dzień",
+      "dueSoon": "{days, plural, one {# dzień roboczy} few {# dni robocze} many {# dni roboczych} other {# dni roboczych}}",
+      "remaining": "{days, plural, one {# dzień roboczy} few {# dni robocze} many {# dni roboczych} other {# dni roboczych}}"
+    },
+    "banner": {
+      "title": "Zgłoś wyjazd — {count, plural, one {# ciągnik wymaga działania} few {# ciągniki wymagają działania} many {# ciągników wymaga działania} other {# ciągników wymaga działania}}",
+      "cta": "Zgłoś wyjazd",
+      "deadline": "Termin: {date}",
+      "more": "+ {count} więcej",
+      "ariaRow": "Ciągnik {plate}, termin {date}, {status}"
+    },
+    "strip": {
+      "title": "{count, plural, one {# ciągnik wymaga} few {# ciągniki wymagają} many {# ciągników wymaga} other {# ciągników wymaga}} pilnego zgłoszenia wyjazdu",
+      "cta": "Przejdź do Porozumień"
+    },
+    "tab": {
+      "badgeAria": "Porozumienie, {count} pilnych"
+    },
+    "porozumienie": {
+      "title": "Porozumienie o gwarancji",
+      "allClear": "Wszystkie ciągniki w porządku — nic nie wymaga zgłoszenia",
+      "reportCta": "Zgłoś wyjazd",
+      "deadline": "termin: {date}",
+      "onRoad": "w trasie",
+      "group": {
+        "violated": "Po terminie",
+        "dueSoon": "Zbliża się termin",
+        "watched": "Pod obserwacją",
+        "okActive": "W trasie / wyjazd zgłoszony"
+      },
+      "anchor": {
+        "zjechal": "ostatni zjazd: {date}",
+        "agreement": "od włączenia gwarancji: {date}"
+      },
+      "explainer": {
+        "title": "Jak działa porozumienie o gwarancji",
+        "obligation": "Po każdym zjeździe zgłoś kolejny wyjazd w ciągu 10 polskich dni roboczych.",
+        "reminders": "Przypomnienia wysyłamy na 3 dni i 1 dzień przed terminem.",
+        "silence": "Aktywny wyjazd zatrzymuje licznik — w trasie nic nie musisz robić.",
+        "restart": "Zjazd ciągnika restartuje licznik od nowa (10 dni roboczych)."
+      }
+    },
+    "episodes": {
+      "title": "Historia",
+      "loadMore": "Załaduj więcej",
+      "empty": "Brak historii — żaden termin nie został jeszcze przekroczony",
+      "resolvedAt": "rozwiązano {date} · {reason}",
+      "reminders": "przypomnienia: D-3 {d3} · D-1 {d1}",
+      "state": {
+        "warning": "Ostrzeżenie",
+        "violated": "Po terminie",
+        "resolved": "Rozwiązane"
+      },
+      "reason": {
+        "wyjazd": "Zgłoszono wyjazd",
+        "agreement_off": "Gwarancja wyłączona",
+        "vehicle_inactive": "Ciągnik nieaktywny"
+      }
+    },
+    "fleet": {
+      "column": "Gwarancja",
+      "inactive": "Brak odjazdu",
+      "active": "W trasie"
+    },
+    "vehicleModal": {
+      "statusLabel": "Gwarancja — status",
+      "deadlineLabel": "Termin zgłoszenia"
+    },
+    "board": {
+      "title": "Porozumienia — zgłaszanie wyjazdów",
+      "subtitle": "Ciągniki z gwarancją, które wymagają zgłoszenia wyjazdu",
+      "tabCarriers": "Przewoźnicy",
+      "tabAgreements": "Porozumienia",
+      "tabsAriaLabel": "Widok opieki",
+      "sectionViolated": "Po terminie",
+      "sectionDueSoon": "Zbliża się termin",
+      "sectionWatched": "Pod obserwacją",
+      "showAllWatched": "Pokaż wszystkie obserwowane",
+      "allClear": "Wszyscy przewoźnicy w terminie",
+      "searchPlaceholder": "Szukaj po numerze rej. lub przewoźniku",
+      "filterState": "Filtruj wg stanu",
+      "stateAll": "Wszystkie stany",
+      "deadline": "termin: {date}",
+      "anchor": {
+        "zjechal": "ostatni zjazd: {date}",
+        "agreement": "od włączenia gwarancji: {date}"
+      },
+      "kpi": {
+        "violated": "Po terminie",
+        "dueSoon": "Zbliża się termin",
+        "watched": "Pod obserwacją"
+      },
+      "emptyFilteredTitle": "Brak wyników",
+      "emptyFilteredMessage": "Zmień kryteria wyszukiwania lub wyczyść filtry."
+    },
+    "history": {
+      "tab": "Porozumienia",
+      "liveHeading": "Ciągniki z gwarancją — stan bieżący",
+      "episodesHeading": "Historia epizodów",
+      "emptyLive": "Brak ciągników z gwarancją",
+      "emptyEpisodes": "Ten przewoźnik nie miał opóźnień w zgłaszaniu wyjazdów",
+      "showAllVehicles": "Pokaż wszystkie ciągniki",
+      "columns": {
+        "vehicle": "Ciągnik",
+        "anchor": "Kotwica",
+        "deadline": "Termin",
+        "state": "Stan",
+        "outcome": "Rozliczenie",
+        "resolvedAt": "Zamknięto"
+      },
+      "source": {
+        "zjechal": "zjazd",
+        "agreement": "gwarancja"
+      },
+      "state": {
+        "warning": "Ostrzeżenie",
+        "violated": "Po terminie",
+        "resolved": "Zamknięty"
+      },
+      "reason": {
+        "wyjazd": "Zgłoszono wyjazd",
+        "agreement_off": "Zdjęto gwarancję",
+        "vehicle_inactive": "Ciągnik nieaktywny"
+      },
+      "outcome": {
+        "onTime": "w terminie",
+        "late": "{days, plural, one {po terminie o # dzień} few {po terminie o # dni} many {po terminie o # dni} other {po terminie o # dni}}"
+      }
+    }
+  },
+  "limits": {
+    "title": "Limity gwarancji km",
+    "subtitle": "Stawki km/dzień i €/km dla każdego miesiąca w roku",
+    "prevYear": "Poprzedni rok",
+    "nextYear": "Następny rok",
+    "saveError": "Nie udało się zapisać",
+    "columns": {
+      "month": "Miesiąc",
+      "kmPerDay": "Km / dzień",
+      "kmPerSaturday": "Km / sobota",
+      "ratePerKm": "Stawka € / km",
+      "updatedAt": "Zaktualizowano"
+    },
+    "months": {
+      "1": "Styczeń",
+      "2": "Luty",
+      "3": "Marzec",
+      "4": "Kwiecień",
+      "5": "Maj",
+      "6": "Czerwiec",
+      "7": "Lipiec",
+      "8": "Sierpień",
+      "9": "Wrzesień",
+      "10": "Październik",
+      "11": "Listopad",
+      "12": "Grudzień"
+    }
+  },
+  "audit": {
+    "title": "Audyt",
+    "subtitle": "Historia zmian wykonanych przez użytkowników systemu",
+    "emptyTitle": "Brak wpisów",
+    "emptyMessage": "Nie zarejestrowano jeszcze żadnych zdarzeń audytu.",
+    "emptyFiltered": {
+      "title": "Brak wyników",
+      "message": "Brak wpisów audytu spełniających wybrane filtry."
+    },
+    "filters": {
+      "targetType": "Typ obiektu",
+      "allTargetTypes": "Wszystkie typy",
+      "userPlaceholder": "Filtruj po użytkowniku",
+      "userSearchPlaceholder": "Szukaj loginu / nazwy",
+      "userNoResults": "Brak użytkowników",
+      "actionPlaceholder": "Filtruj po akcji…",
+      "dateFrom": "Data od",
+      "dateTo": "Data do"
+    },
+    "targetTypes": {
+      "Claim": "Wniosek",
+      "Delegation": "Wyjazd",
+      "Carrier": "Przewoźnik",
+      "CarrierAttachment": "Załącznik przewoźnika",
+      "User": "Użytkownik",
+      "Team": "Zespół prowadzący",
+      "Vehicle": "Ciągnik",
+      "VehicleAttachment": "Załącznik ciągnika",
+      "Trailer": "Naczepa",
+      "TrailerAttachment": "Załącznik naczepy",
+      "TrailerType": "Typ naczepy",
+      "Driver": "Kierowca",
+      "DriverAttachment": "Załącznik kierowcy",
+      "MonthlyLimit": "Limit miesięczny",
+      "MailJob": "Wiadomość e-mail"
+    },
+    "columns": {
+      "createdAt": "Czas",
+      "actor": "Użytkownik",
+      "action": "Akcja",
+      "target": "Obiekt",
+      "reason": "Powód"
+    },
+    "detail": {
+      "title": "Szczegóły zdarzenia",
+      "actor": "Użytkownik",
+      "target": "Obiekt",
+      "action": "Akcja",
+      "createdAt": "Czas",
+      "reason": "Powód",
+      "ip": "Adres IP",
+      "before": "Przed",
+      "after": "Po",
+      "metadata": "Metadane"
+    }
+  },
+  "diagnostics": {
+    "title": "Diagnostyka",
+    "subtitle": "Stan kolejki maili, jakość danych i zdrowie infrastruktury",
+    "tabs": {
+      "mails": "Maile",
+      "claims": "Wnioski",
+      "db": "Baza danych"
+    },
+    "mails": {
+      "emptyTitle": "Brak zadań mailowych",
+      "emptyMessage": "Kolejka maili jest pusta.",
+      "resend": "Wyślij ponownie",
+      "resentToast": "Mail dodany do kolejki",
+      "resendError": "Nie udało się wysłać",
+      "confirmTitle": "Wysłać mail ponownie?",
+      "confirmBody": "Mail „{subject}” zostanie ponownie zakolejkowany.",
+      "columns": {
+        "id": "ID",
+        "state": "Status",
+        "attempts": "Próby",
+        "subject": "Temat",
+        "to": "Do",
+        "createdAt": "Utworzono"
+      }
+    },
+    "claims": {
+      "emptyTitle": "Brak alertów",
+      "emptyMessage": "Wszystkie metryki wniosków są poprawne.",
+      "samples": "Przykładowe ID"
+    },
+    "db": {
+      "postgres": "PostgreSQL",
+      "redis": "Redis",
+      "tablesTitle": "Rozmiar tabel",
+      "tableName": "Nazwa",
+      "tableSize": "Rozmiar",
+      "tablesEmpty": "Brak danych o tabelach"
+    }
+  },
+  "employee": {
+    "claims": {
+      "title": "Wnioski",
+      "emptyTitle": "Brak wniosków",
+      "emptyMessage": "Nie złożono jeszcze żadnych wniosków o gwarancję kilometrową.",
+      "emptyFiltered": {
+        "title": "Brak wyników",
+        "message": "Nie znaleziono wniosków pasujących do wybranych filtrów."
+      },
+      "filters": {
+        "searchPlaceholder": "Szukaj nr zgłoszenia / NIP / rejestracji",
+        "status": "Status",
+        "allStatuses": "Wszystkie statusy",
+        "dateFrom": "Okres od",
+        "dateTo": "Okres do",
+        "carrierId": "ID przewoźnika",
+        "carrierIdPlaceholder": "UUID przewoźnika"
+      },
+      "columns": {
+        "nrZgl": "Nr zgłoszenia",
+        "carrier": "Przewoźnik",
+        "vehicle": "Ciągnik",
+        "period": "Okres",
+        "mileage": "Przebieg",
+        "amountRequested": "Wnioskowana",
+        "amountApproved": "Zatwierdzona",
+        "status": "Status",
+        "updatedAt": "Zmiana"
+      },
+      "relative": {
+        "now": "przed chwilą",
+        "minutes": "{n} min temu",
+        "hours": "{n} godz. temu",
+        "days": "{n} dni temu"
+      },
+      "modal": {
+        "title": "Wniosek {nrZgl}",
+        "carrierAndPlate": "{carrier} · {plate}",
+        "submittedAt": "Złożono {date}",
+        "unified": {
+          "edycja": "Edycja",
+          "declaredHeader": "Dane wniosku",
+          "verifiedHeader": "Dane po weryfikacji",
+          "verifiedHint": "(wypełnij po sprawdzeniu danych przewoźnika)",
+          "declaredCaption": "Wartość zadeklarowana przez przewoźnika",
+          "notVerified": "—",
+          "dateStart": "Data załadunku",
+          "dateEnd": "Data rozładunku",
+          "timeFrom": "Godz. zjazdu (załadunku)",
+          "timeTo": "Godz. przyjazdu (rozładunku)",
+          "mileage": "Przebieg / km zrealizowane",
+          "hoursAdjusted": "Korekta godzin — postój / przestój",
+          "doplataSection": "Dopłata gwarancyjna",
+          "decyzjaSection": "Decyzja",
+          "decyzjaSubtitle": "Ostatni krok — wybierz, co dzieje się z wnioskiem.",
+          "decyzjaSubtitleReklamacja": "Ostatni krok — zdecyduj, czy reklamacja zostanie uznana.",
+          "secondaryHistory": "Historia",
+          "decisionRequired": "Wybierz decyzję, aby zapisać wniosek.",
+          "terminalState": "Wniosek jest w stanie końcowym — brak dostępnych decyzji.",
+          "guaranteeMetHint": "Gwarancja wyjeżdżona — wniosek można tylko odrzucić.",
+          "progExceededHint": "Dopłata przekroczy próg autoryzacji ({prog} przy {days, plural, one {# dniu} few {# dniach} many {# dniach} other {# dnia}} w trasie) — po zapisaniu weryfikacji wniosek automatycznie przejdzie w stan „Czeka na autoryzację”.",
+          "verifiedBadge": "Zweryfikowano {date} przez {name}",
+          "weryfikatorHeader": "Dane weryfikatora",
+          "weryfikatorHint": "Z wyjazdu i tablicy km — do porównania.",
+          "weryfikatorCaption": "Dane zarejestrowane przez weryfikatora"
+        },
+        "approverGate": {
+          "bannerTitle": "Czeka na autoryzację",
+          "bannerBody": "Wniosek przekracza próg autoryzacji — wysłano prośbę o potwierdzenie do przełożonego. Wgraj zrzut ekranu potwierdzenia, aby odblokować decyzję.",
+          "notifiedAt": "Powiadomiono przełożonego: {date}",
+          "notifiedPending": "Powiadomienie do przełożonego jest wysyłane…",
+          "uploadHeading": "Zrzut ekranu potwierdzenia przełożonego",
+          "uploadHint": "JPG, PNG, WebP lub PDF · maks. 10 MB",
+          "uploading": "Przesyłanie…",
+          "uploadedToast": "Potwierdzenie autoryzacji wgrane — decyzja odblokowana",
+          "uploadErrorToast": "Nie udało się wgrać potwierdzenia",
+          "clearedTitle": "Autoryzacja potwierdzona",
+          "clearedAt": "Odblokowano {date}",
+          "confirmationFile": "Potwierdzenie przełożonego",
+          "openConfirmation": "Otwórz potwierdzenie",
+          "downloading": "Pobieranie…",
+          "downloadError": "Nie udało się pobrać potwierdzenia",
+          "decisionBlockedHint": "Najpierw wgraj potwierdzenie autoryzacji przełożonego.",
+          "decisionBlockedToast": "Wgraj potwierdzenie autoryzacji od przełożonego, aby podjąć decyzję."
+        },
+        "inTransitGate": {
+          "bannerTitle": "Wyjazd jeszcze w trasie",
+          "bannerBody": "Powiązany wyjazd nie został jeszcze zakończony — ciągnik wciąż jest w trasie. Wniosek można tylko przeglądać. Poczekaj, aż wyjazd zostanie oznaczony jako zjechał — dopiero wtedy wniosek można zweryfikować i podjąć decyzję.",
+          "actionsBlockedHint": "Akcje są zablokowane, dopóki wyjazd jest w trasie. Poczekaj na zjazd.",
+          "blockedToast": "Wyjazd jest jeszcze w trasie — poczekaj na zjazd, aby zweryfikować lub podjąć decyzję."
+        },
+        "linkedDelegation": {
+          "heading": "Powiązany wyjazd",
+          "vehicle": "Ciągnik",
+          "planned": "Planowany powrót",
+          "actual": "Faktyczny zjazd"
+        },
+        "tabs": {
+          "edit": "Edytuj",
+          "history": "Historia"
+        },
+        "recalc": {
+          "loading": "Przeliczam…",
+          "current": "Aktualne",
+          "error": "Nie udało się przeliczyć",
+          "diff": "Dopłata gwarancyjna: {before} → {after}",
+          "noChange": "Bez zmian"
+        },
+        "edit": {
+          "targetStatus": "Decyzja",
+          "targetStatusPlaceholder": "Wybierz decyzję",
+          "kmGuaranteed": "Km gwarantowane",
+          "mileage": "Przebieg",
+          "hoursAdjusted": "Korekta godzin",
+          "hoursAdjustedOrigHint": "Pierwotnie wpisane przez przewoźnika: {orig}h",
+          "dateStart": "Okres od",
+          "dateEnd": "Okres do",
+          "timeFrom": "Godzina od",
+          "timeTo": "Godzina do",
+          "orderNumber": "Numer zlecenia",
+          "orderDate": "Data zlecenia",
+          "amountApproved": "Kwota zatwierdzona (EUR)",
+          "amountApprovedAuto": "wyliczana automatycznie",
+          "amountApprovedLocked": "Pole zablokowane — wyliczane automatycznie z podglądu",
+          "doplata": "Dopłata gwarancyjna",
+          "comment": "Komentarz",
+          "commentRejected": "Powód odrzucenia",
+          "reklamacjaOrderNumber": "Nr zlecenia",
+          "reklamacjaOrderNumberHint": "Może to być poprawiony numer poprzedniego zlecenia albo całkiem nowe zlecenie — wpisz numer, na który zostanie wypłacona kwota reklamacji.",
+          "reklamacjaPayoutAmount": "Kwota do wypłaty (z reklamacji)",
+          "reklamacjaCommentPlaceholder": "Opcjonalna notatka do decyzji",
+          "reklamacjaResponse": "Powód odrzucenia reklamacji",
+          "reklamacjaResponsePlaceholder": "Wyjaśnij przewoźnikowi, dlaczego reklamacja nie została uznana",
+          "reklamacjaStatusReturnHint": "Po zapisaniu wniosek wróci do statusu „{status}” — wynik reklamacji będzie widoczny jako osobna informacja.",
+          "submit": "Zatwierdź",
+          "submitDecision": "Zapisz decyzję",
+          "submitting": "Zapisywanie…",
+          "savedToast": "Zapisano",
+          "errorToast": "Nie udało się zapisać",
+          "verifyButton": "Zapisz weryfikację",
+          "verifyButtonHint": "Zapisuje skorygowane dane weryfikacji. Nie podejmuje decyzji.",
+          "verifyAdminOnlyToast": "Wniosek oczekuje na autoryzację przełożonego — weryfikację może zapisać tylko administrator.",
+          "verifiedToast": "Zapisano weryfikację",
+          "verifyRequiredHint": "Zapisz weryfikację, aby podjąć decyzję",
+          "verifyDirtyHint": "Masz niezapisane korekty — zapisz weryfikację",
+          "boardSumHint": "Wg tablicy przebiegów: {km} km",
+          "boardSumApply": "Zastosuj"
+        },
+        "locked": {
+          "factsPendingAuthorization": "Dane weryfikacji są zablokowane — wniosek czeka na autoryzację przełożonego. Zmiany może wprowadzić tylko administrator.",
+          "factsPendingAuthorizationAdmin": "Wniosek czeka na autoryzację przełożonego. Jako administrator możesz nadal korygować dane weryfikacji."
+        },
+        "reklamacja": {
+          "title": "Reklamacja",
+          "amount": "Kwota reklamacji",
+          "maxAtSubmit": "Maksimum (wnioskowana − wypłacona)",
+          "maxAtSubmitValue": "{max} = {requested} − {paid}",
+          "maxAtSubmitRejectedClause": "(wniosek odrzucony)",
+          "submittedAt": "Zgłoszono",
+          "text": "Treść reklamacji",
+          "orderNumber": "Nr zlecenia",
+          "decidedAt": "Rozpatrzono",
+          "response": "Odpowiedź",
+          "alreadyResolved": "Reklamacja została już rozpatrzona."
+        },
+        "history": {
+          "empty": "Brak historii zmian.",
+          "origData": "Pierwotne dane (przed reklamacją)",
+          "origDateStart": "Okres od",
+          "origDateEnd": "Okres do",
+          "origMileage": "Przebieg",
+          "origHoursAdjusted": "Korekta godzin (pierwotne)",
+          "origPaymentEur": "Dopłata",
+          "current": "Aktualne",
+          "decidedBy": "Decyzja: {actor}",
+          "decidedAt": "Data decyzji: {date}",
+          "reklamacjaRecord": "Dane reklamacji",
+          "reklamacjaAmount": "Kwota reklamacji",
+          "reklamacjaOrderNumber": "Nr zlecenia (reklamacja)",
+          "reklamacjaSubmittedAt": "Zgłoszono reklamację",
+          "reklamacjaDecidedAt": "Rozpatrzono reklamację",
+          "reklamacjaText": "Treść reklamacji",
+          "reklamacjaResponse": "Odpowiedź na reklamację"
+        },
+        "targetStatus": {
+          "ZAAKCEPTOWANO": "Zaakceptuj",
+          "ODRZUCONO": "Odrzuć",
+          "REKLAMACJA_ZAAKCEPTOWANO": "Uznaj reklamację",
+          "REKLAMACJA_ODRZUCONO": "Odrzuć reklamację"
+        }
+      }
+    }
+  },
+  "opieka": {
+    "title": "Moja opieka",
+    "subtitle": "Przegląd przypisanych przewoźników i ich floty",
+    "emptyTitle": "Nie masz przypisanych przewoźników",
+    "emptyMessage": "Gdy administrator przypisze do Ciebie przewoźników, pojawią się tutaj.",
+    "totals": {
+      "carriers": "Przewoźnicy",
+      "vehicles": "Ciągniki",
+      "openCarriersAria": "Przewoźnicy: {count} — otwórz listę przewoźników",
+      "openVehiclesAria": "Ciągniki: {count} — otwórz listę ciągników",
+      "openStatusAria": "{label}: {count} — otwórz listę ciągników z tym statusem"
+    },
+    "table": {
+      "firma": "Firma",
+      "nip": "NIP",
+      "active": "Aktywny",
+      "jezdzace": "Jezdżące",
+      "stojace": "Stojące",
+      "nieaktywne": "Nieaktywne",
+      "potencjalne": "Potencjalne",
+      "actions": "Akcje",
+      "openDetail": "Otwórz",
+      "openDetailAria": "Otwórz szczegóły przewoźnika {firma}"
+    },
+    "card": {
+      "aktywne": "Aktyw.",
+      "stojace": "Stoj.",
+      "nieaktywne": "Dł. stoj.",
+      "doUsuniecia": "Do usun.",
+      "statAria": "{label}: {count} — otwórz ciągniki przewoźnika {firma} z tym statusem"
+    },
+    "attention": {
+      "title": "Wymaga uwagi",
+      "reason": {
+        "incompleteFleet": "Niekompletna flota (brak ciągnika / naczepy / kierowcy)"
+      }
+    },
+    "detail": {
+      "backToList": "← Wróć do listy",
+      "loadingTitle": "Ładowanie przewoźnika…",
+      "notFoundTitle": "Przewoźnik nie znaleziony",
+      "notFoundMessage": "Nie masz dostępu do tego przewoźnika lub został usunięty.",
+      "errorTitle": "Nie udało się wczytać przewoźnika",
+      "errorMessage": "Spróbuj ponownie lub wróć do listy.",
+      "retry": "Spróbuj ponownie",
+      "opiekunLabel": "Opiekun",
+      "nipLabel": "NIP",
+      "loginLabel": "Login"
+    },
+    "tabs": {
+      "ariaLabel": "Sekcje przewoźnika",
+      "vehicles": "Ciągniki",
+      "drivers": "Kierowcy",
+      "trailers": "Naczepy",
+      "delegations": "Wyjazdy",
+      "documents": "Dokumenty"
+    },
+    "vehicles": {
+      "emptyTitle": "Brak ciągników",
+      "emptyMessage": "Ten przewoźnik nie ma jeszcze dodanych ciągników.",
+      "columns": {
+        "plate": "Numer rejestracyjny",
+        "side": "Numer boczny",
+        "type": "Typ",
+        "euro": "EURO",
+        "adr": "ADR",
+        "gb": "GB",
+        "it": "IT",
+        "fr": "FR",
+        "lastDroveAt": "Ostatni przejazd",
+        "active": "Status"
+      }
+    },
+    "drivers": {
+      "emptyTitle": "Brak kierowców",
+      "emptyMessage": "Ten przewoźnik nie ma jeszcze dodanych kierowców.",
+      "columns": {
+        "name": "Imię i nazwisko",
+        "phone": "Telefon",
+        "idDocument": "Nr prawa jazdy",
+        "active": "Status"
+      }
+    },
+    "trailers": {
+      "emptyTitle": "Brak naczep",
+      "emptyMessage": "Ten przewoźnik nie ma jeszcze dodanych naczep.",
+      "columns": {
+        "plate": "Numer rejestracyjny",
+        "type": "Typ",
+        "active": "Status"
+      }
+    },
+    "delegations": {
+      "emptyTitle": "Brak wyjazdów",
+      "emptyMessage": "Ten przewoźnik nie zgłosił jeszcze żadnego wyjazdu.",
+      "emptyFiltered": {
+        "title": "Brak wyników",
+        "message": "Brak wyjazdów spełniających wybrane filtry."
+      },
+      "columns": {
+        "vehicle": "Auto",
+        "driver": "Kierowca",
+        "route": "Trasa",
+        "period": "Okres",
+        "status": "Status"
+      }
+    },
+    "documents": {
+      "uploadButton": "Prześlij",
+      "uploadedToast": "Dokument przesłany",
+      "downloadError": "Nie udało się pobrać pliku. Spróbuj ponownie.",
+      "download": "Pobierz",
+      "deleteTitle": "Usunąć dokument?",
+      "deleteBody": "Czy na pewno chcesz usunąć „{fileName}”? Tej operacji nie można cofnąć.",
+      "deletedToast": "Dokument usunięty",
+      "category": {
+        "insurance": "Ubezpieczenie/OCP",
+        "license": "Licencja",
+        "kreptd": "KREPTD",
+        "other": "Inne"
+      },
+      "group": {
+        "company": "Dokumenty firmowe",
+        "vehicles": "Dokumenty ciągników",
+        "adrVehicles": "ADR ciągników",
+        "trailers": "Dokumenty naczep",
+        "drivers": "Dokumenty kierowców"
+      },
+      "type": {
+        "gps": "Umowa GPS",
+        "agreement": "Porozumienie",
+        "cabotage_de_insurance": "Ubezpieczenie kabotażowe DE",
+        "cert_xl": "Certyfikat XL",
+        "driverAdr": "Świadectwo ADR kierowcy"
+      },
+      "count": {
+        "files": "{count, plural, one {# plik} few {# pliki} many {# plików} other {# pliku}}",
+        "vehicles": "{count, plural, one {# ciągnik} few {# ciągniki} many {# ciągników} other {# ciągnika}}",
+        "trailers": "{count, plural, one {# naczepa} few {# naczepy} many {# naczep} other {# naczepy}}",
+        "drivers": "{count, plural, one {# kierowca} few {# kierowców} many {# kierowców} other {# kierowcy}}",
+        "summary": "{files} · {entities}",
+        "noFiles": "Brak plików",
+        "adrVehiclesCount": "{count, plural, one {# ciągnik z ADR} few {# ciągniki z ADR} many {# ciągników z ADR} other {# ciągnika z ADR}}",
+        "noAdrVehicles": "Brak ciągników ADR"
+      },
+      "columns": {
+        "fileName": "Nazwa pliku",
+        "size": "Rozmiar",
+        "uploadedAt": "Data przesłania",
+        "actions": "Akcje",
+        "entityVehicle": "Ciągnik",
+        "entityTrailer": "Naczepa",
+        "entityDriver": "Kierowca"
+      },
+      "sheet": {
+        "manageInVehicle": "Zarządzaj w oknie ciągnika.",
+        "manageInTrailer": "Zarządzaj w oknie naczepy.",
+        "manageInDriver": "Zarządzaj w oknie kierowcy.",
+        "uploadHint": "Prześlij dokument dla tej kategorii.",
+        "openAria": "Otwórz listę: {type}"
+      },
+      "empty": {
+        "title": "Brak dokumentów",
+        "message": "Nie przesłano jeszcze dokumentów tego typu."
+      }
+    }
+  },
+  "planista": {
+    "title": "Panel planisty",
+    "subtitle": "Przegląd planowanej floty — ciągniki, kierowcy i naczepy",
+    "readOnlyBanner": "Dane są tylko do podglądu — edytuje administrator.",
+    "tabs": {
+      "ariaLabel": "Sekcje floty planisty",
+      "vehicles": "Ciągniki",
+      "drivers": "Kierowcy",
+      "trailers": "Naczepy",
+      "delegations": "Wyjazdy"
+    },
+    "vehicles": {
+      "emptyTitle": "Brak ciągników",
+      "emptyMessage": "Do tego planisty nie przypisano żadnych ciągników.",
+      "columns": {
+        "plate": "Nr rej.",
+        "side": "Nr boczny",
+        "type": "Typ",
+        "euro": "EURO",
+        "adr": "ADR",
+        "gb": "GB",
+        "it": "IT",
+        "fr": "FR",
+        "lastDroveAt": "Ostatni przejazd",
+        "active": "Status"
+      }
+    },
+    "drivers": {
+      "emptyTitle": "Brak kierowców",
+      "emptyMessage": "Do tego planisty nie przypisano żadnych kierowców.",
+      "columns": {
+        "name": "Kierowca",
+        "phone": "Telefon",
+        "active": "Status"
+      }
+    },
+    "trailers": {
+      "emptyTitle": "Brak naczep",
+      "emptyMessage": "Do tego planisty nie przypisano żadnych naczep.",
+      "columns": {
+        "plate": "Nr rej.",
+        "type": "Typ",
+        "active": "Status"
+      }
+    },
+    "kpi": {
+      "vehicles": "Ciągniki"
+    },
+    "resources": "{drivers, plural, one {# kierowca} few {# kierowcy} many {# kierowców} other {# kierowców}} · {trailers, plural, one {# naczepa} few {# naczepy} many {# naczep} other {# naczep}}",
+    "needsAttention": {
+      "removeTitle": "Ciągniki do usunięcia (stoją ≥ 29 dni):",
+      "longIdleTitle": "Długo stojące ciągniki (15–28 dni):",
+      "days": "{days, plural, one {# dzień} few {# dni} many {# dni} other {# dni}}"
+    },
+    "delegations": {
+      "emptyTitle": "Brak wyjazdów",
+      "emptyMessage": "Brak aktywnych wyjazdów do wyświetlenia.",
+      "columns": {
+        "vehicle": "Ciągnik",
+        "driver": "Kierowca",
+        "route": "Trasa",
+        "period": "Okres",
+        "status": "Status"
+      }
+    }
+  },
+  "dyspozytor": {
+    "title": "Panel dyspozytora",
+    "subtitle": "Przegląd obsługiwanej floty, wyjazdów i statusu ciągników",
+    "readOnlyBanner": "Dane są tylko do podglądu — edytuje administrator.",
+    "kpi": {
+      "vehicles": "Ciągniki"
+    },
+    "resources": "{drivers, plural, one {# kierowca} few {# kierowcy} many {# kierowców} other {# kierowców}} · {trailers, plural, one {# naczepa} few {# naczepy} many {# naczep} other {# naczep}}",
+    "needsAttention": {
+      "removeTitle": "Ciągniki do usunięcia (stoją ≥ 29 dni):",
+      "longIdleTitle": "Długo stojące ciągniki (15–28 dni):",
+      "days": "{days, plural, one {# dzień} few {# dni} many {# dni} other {# dni}}"
+    },
+    "tabs": {
+      "ariaLabel": "Sekcje floty dyspozytora",
+      "vehicles": "Ciągniki",
+      "delegations": "Wyjazdy",
+      "drivers": "Kierowcy",
+      "trailers": "Naczepy"
+    },
+    "vehicles": {
+      "emptyTitle": "Brak ciągników",
+      "emptyMessage": "Do tego dyspozytora nie przypisano żadnych ciągników.",
+      "columns": {
+        "plate": "Nr rej.",
+        "side": "Nr boczny",
+        "type": "Typ",
+        "euro": "EURO",
+        "adr": "ADR",
+        "gb": "GB",
+        "it": "IT",
+        "fr": "FR",
+        "lastDroveAt": "Ostatni przejazd",
+        "active": "Status"
+      }
+    },
+    "delegations": {
+      "emptyTitle": "Brak wyjazdów",
+      "emptyMessage": "Brak aktywnych wyjazdów do wyświetlenia.",
+      "columns": {
+        "vehicle": "Ciągnik",
+        "driver": "Kierowca",
+        "route": "Trasa",
+        "period": "Okres",
+        "status": "Status"
+      }
+    },
+    "drivers": {
+      "emptyTitle": "Brak kierowców",
+      "emptyMessage": "Do tego dyspozytora nie przypisano żadnych kierowców.",
+      "columns": {
+        "name": "Kierowca",
+        "phone": "Telefon",
+        "active": "Status"
+      }
+    },
+    "trailers": {
+      "emptyTitle": "Brak naczep",
+      "emptyMessage": "Do tego dyspozytora nie przypisano żadnych naczep.",
+      "columns": {
+        "plate": "Nr rej.",
+        "type": "Typ",
+        "active": "Status"
+      }
+    }
+  },
+  "carrier": {
+    "tabs": {
+      "ariaLabel": "Sekcje przewoźnika",
+      "claims": "Wnioski",
+      "newClaim": "Nowy",
+      "fleet": "Flota",
+      "delegations": "Wyjazdy",
+      "porozumienie": "Porozumienie"
+    },
+    "fleetTabs": {
+      "ariaLabel": "Sekcje floty",
+      "vehicles": "Ciągniki",
+      "drivers": "Kierowcy",
+      "trailers": "Naczepy"
+    },
+    "claims": {
+      "title": "Wnioski",
+      "newClaim": "Nowy wniosek",
+      "submit": "Złóż wniosek",
+      "submitting": "Wysyłanie…",
+      "backToList": "Wróć do listy",
+      "searchPlaceholder": "Szukaj numeru zgłoszenia",
+      "filterByStatus": "Filtruj po statusie",
+      "filterByVehicle": "Filtruj po pojeździe",
+      "allStatuses": "Wszystkie statusy",
+      "allVehicles": "Wszystkie ciągniki",
+      "emptyTitle": "Brak wniosków",
+      "emptyMessage": "Złóż pierwszy wniosek o gwarancję kilometrową.",
+      "emptyFiltered": {
+        "title": "Brak wyników",
+        "message": "Brak wniosków spełniających wybrane filtry."
+      },
+      "notFoundTitle": "Wniosek nie znaleziony",
+      "notFoundMessage": "Sprawdź numer zgłoszenia lub wróć do listy.",
+      "vehicleLabel": "Ciągnik",
+      "kmLabel": "Km",
+      "reklamacjaIndicator": "Reklamacja zgłoszona",
+      "wniosekAria": "Wniosek {nrZgl}",
+      "submittedToast": "Wniosek {nrZgl} został złożony",
+      "submitErrorToast": "Nie udało się wysłać wniosku",
+      "violationsToast": "Wniosek nie został zapisany — sprawdź listę powyżej.",
+      "violationsHeadingOne": "Wniosek nie może zostać zapisany:",
+      "violationsHeadingMany": "Wniosek nie może zostać zapisany — znaleziono {count} problemów:",
+      "detail": {
+        "mileage": "Przebieg",
+        "kmGuaranteed": "Km gwarantowane",
+        "payment": "Dopłata gwarancyjna",
+        "submitReklamacja": "Złóż reklamację",
+        "monthlyBreakdown": "Podział na miesiące",
+        "details": "Szczegóły",
+        "amountRequested": "Kwota wnioskowana",
+        "amountApproved": "Kwota zatwierdzona",
+        "totalPaid": "Wypłacono łącznie",
+        "orderNumber": "Numer zlecenia",
+        "orderDate": "Data zlecenia",
+        "comment": "Komentarz",
+        "moneyLabelApproved": "kwota zatwierdzona",
+        "moneyLabelCalc": "kalkulacja",
+        "moneyLabelTotalPaid": "wypłacono łącznie",
+        "totalBreakdown": "w tym decyzja: {approved} € · reklamacja: {reklamacja} €",
+        "moneyRequested": "Wnioskowano",
+        "moneyAfterVerification": "Po weryfikacji",
+        "vehiclePlate": "Ciągnik",
+        "submittedAt": "Data zgłoszenia",
+        "decidedAt": "Data decyzji",
+        "reklamacjaOutcome": {
+          "title": "Reklamacja",
+          "bannerPending": "Reklamacja została zgłoszona i czeka na rozpatrzenie.",
+          "bannerUznana": "Reklamacja uznana — kwota {amount} € zostanie wypłacona.",
+          "bannerOdrzucona": "Reklamacja odrzucona.",
+          "amount": "Kwota reklamacji",
+          "submittedAt": "Data zgłoszenia",
+          "text": "Treść reklamacji",
+          "orderNumber": "Nr zlecenia",
+          "decidedAt": "Data rozpatrzenia",
+          "response": "Odpowiedź MAGTRANS"
+        }
+      },
+      "form": {
+        "sectionVehicleAndDriver": "Ciągnik i kierowca",
+        "vehicle": "Ciągnik",
+        "driver": "Kierowca",
+        "trailer": "Naczepa",
+        "vehicleReadOnlyPlaceholder": "Najpierw wybierz wyjazd — ciągnik, naczepa i kierowca zostaną pobrane z wyjazdu.",
+        "sectionPeriod": "Okres",
+        "dateStart": "Data od",
+        "dateEnd": "Data do",
+        "timeFrom": "Godzina od",
+        "timeTo": "Godzina do",
+        "sectionValues": "Wartości",
+        "mileage": "Przebieg (km)",
+        "addComment": "Dodaj komentarz",
+        "comment": "Komentarz",
+        "violationDateEndInFuture": "Data rozładunku ({date}) jest w przyszłości. Wniosek można złożyć dopiero po zjechaniu ciągnika.",
+        "violationDateStartInFuture": "Data załadunku ({date}) jest w przyszłości.",
+        "violationDateOrder": "Data rozładunku musi być równa lub późniejsza od daty załadunku.",
+        "violationDeadline": "Termin na złożenie wniosku minął. Zgodnie z umową masz {maxDays} dni od daty rozładunku (upłynęło {elapsed} dni).",
+        "violationPeriodTooLong": "Okres wniosku nie może przekraczać {maxDays} dni (podano {periodDays} dni).",
+        "dateStartHint": "Nie wcześniej niż zgłoszona data wyjazdu ({date}).",
+        "mileageHint": "Przebieg zgodnie z SpedTrans.",
+        "violationDateStartBeforeDeparture": "Data załadunku nie może być wcześniejsza niż zgłoszona data wyjazdu ({date})."
+      },
+      "status": {
+        "NA_WERYFIKACJI": "Weryfikacja",
+        "ZAAKCEPTOWANO": "Zaakceptowano",
+        "ODRZUCONO": "Odrzucono",
+        "REKLAMACJA": "Reklamacja",
+        "OCZEKUJE_NA_AUTORYZACJE": "Czeka na autoryzację"
+      },
+      "wyjazdPicker": {
+        "section": "Wyjazd",
+        "label": "Wybierz wyjazd",
+        "help": "Wniosek można złożyć tylko do zakończonego wyjazdu (oznaczonego jako „zjechał”), który nie ma jeszcze wniosku.",
+        "placeholder": "— wybierz wyjazd —",
+        "loading": "Wczytywanie wyjazdów…",
+        "empty": "Brak wyjazdów, do których można złożyć wniosek. Wniosek można złożyć po oznaczeniu ciągnika jako „zjechał”.",
+        "selectedStatus": "Status wybranego wyjazdu:",
+        "noGuaranteeMarker": "(bez gwarancji)"
+      },
+      "noGuarantee": {
+        "title": "Ten samochód nie jest objęty gwarancją",
+        "message": "Nie możesz złożyć wniosku dla tego samochodu. W sprawie objęcia go gwarancją skontaktuj się ze swoim opiekunem.",
+        "toast": "Ten samochód nie jest objęty gwarancją — wniosek nie został złożony."
+      }
+    },
+    "preview": {
+      "empty": {
+        "incomplete": "Wypełnij wymagane pola, aby zobaczyć kalkulację",
+        "dateOrder": "Data rozpoczęcia jest późniejsza niż data zakończenia — popraw daty, aby zobaczyć kalkulację",
+        "mileageZero": "Wpisz przebieg większy niż 0, aby zobaczyć kalkulację"
+      },
+      "errorTitle": "Nie udało się obliczyć podglądu",
+      "errorMessage": "Sprawdź dane wejściowe i spróbuj ponownie.",
+      "updating": "Aktualizuję podgląd…",
+      "kmGuaranteed": "Km gwarantowane",
+      "kmDifference": "Różnica km",
+      "ratePerKm": "Stawka €/km",
+      "paymentEur": "Dopłata gwarancyjna (EUR)"
+    },
+    "breakdown": {
+      "month": "Miesiąc",
+      "workingDays": "Dni rob.",
+      "kmPerDay": "Km/dz.",
+      "ratePerKm": "€/km",
+      "kmInMonth": "Km/mc",
+      "saturdays": "Soboty",
+      "saturdaysDetail": "{count} × {perSaturday} = {total} km",
+      "empty": "Brak danych do podziału",
+      "totalKmGuaranteed": "Razem (km gwarant.)",
+      "excludedDays": "Dni wyłączone (święta / zakaz UE)",
+      "excludedDaysCount": "{count, plural, =0 {brak} one {# dzień} few {# dni} many {# dni} other {# dni}}",
+      "excludedDaysHint": "Niedziele są zawsze wyłączone; soboty — o ile nie są objęte gwarancją sobotnią. Powyżej tylko święta i zakazy ruchu, za które nie liczy się dopłata.",
+      "showDetails": "Pokaż szczegóły",
+      "hideDetails": "Ukryj szczegóły",
+      "noExclusions": "Brak wyłączonych dni",
+      "boundaryTitle": "Pierwszy / ostatni dzień okresu",
+      "boundaryFirst": "Pierwszy dzień",
+      "boundaryLast": "Ostatni dzień",
+      "boundarySingle": "Dzień okresu",
+      "boundaryCounted": "{value} dnia",
+      "boundaryExcluded": "{value} dnia · nie zaliczony",
+      "boundaryHint": "Dni graniczne liczone są proporcjonalnie do godzin wyjazdu i powrotu."
+    },
+    "reklamacja": {
+      "sheetTitle": "Złóż reklamację",
+      "sheetSubtitle": "Wniosek {nrZgl}",
+      "expiredTitle": "Termin reklamacji upłynął",
+      "expiredMessage": "Reklamacja może być zgłoszona w ciągu 48 godzin od decyzji.",
+      "alreadyTitle": "Reklamacja już złożona",
+      "alreadyMessage": "Reklamacja do tego wniosku została już złożona.",
+      "noDeltaTitleSheet": "Brak kwoty do reklamacji",
+      "notDecidedTitle": "Wniosek nie został jeszcze rozpatrzony",
+      "notDecidedMessage": "Reklamację można złożyć dopiero po decyzji w sprawie wniosku.",
+      "fieldText": "Treść reklamacji",
+      "fieldTextHint": "Opisz powód reklamacji — maksymalnie 4000 znaków.",
+      "fieldAmount": "Kwota reklamacji (EUR)",
+      "maxHint": "Maksymalnie: {max} € — kwota wnioskowana ({requested} €) minus wypłacona ({paid} €).",
+      "maxHintRejected": "Maksymalnie: {max} € — cała kwota wnioskowana (wniosek został odrzucony, nic nie wypłacono).",
+      "deadlinePassed": "Termin reklamacji upłynął (48 godzin od decyzji).",
+      "noDelta": "Reklamacja nie jest możliwa — wypłacona kwota pokrywa całą kwotę wnioskowaną.",
+      "noDeltaZero": "Reklamacja nie jest możliwa — wniosek nie zawierał kwoty do wypłaty.",
+      "noDeltaTitle": "Reklamacja dotyczy niewypłaconej różnicy; w tym wniosku różnicy nie ma (wnioskowano {requested} €, wypłacono {paid} €).",
+      "submit": "Wyślij reklamację",
+      "submitting": "Wysyłanie…",
+      "submittedToast": "Reklamacja wysłana",
+      "submitErrorToast": "Nie udało się wysłać reklamacji",
+      "errorAlreadySubmitted": "Reklamacja do tego wniosku została już złożona.",
+      "errorNotDecided": "Wniosek nie został jeszcze rozpatrzony — reklamację można złożyć po decyzji.",
+      "errorWindowExpired": "Termin reklamacji upłynął (48 godzin od decyzji).",
+      "errorNoDelta": "Reklamacja nie jest możliwa — wypłacona kwota pokrywa całą kwotę wnioskowaną.",
+      "errorExceedsCap": "Kwota reklamacji nie może przekroczyć {max} €.",
+      "countdownExpired": "Termin reklamacji upłynął",
+      "countdownRemainingLabel": "Pozostało:"
+    },
+    "delegations": {
+      "title": "Wyjazdy",
+      "newDelegation": "Nowy wyjazd",
+      "registerSubmit": "Zarejestruj wyjazd",
+      "saving": "Zapisywanie…",
+      "backToList": "Wróć do listy",
+      "filterByStatus": "Filtruj po statusie",
+      "allStatuses": "Wszystkie statusy",
+      "emptyTitle": "Brak wyjazdów",
+      "emptyMessage": "Zarejestruj pierwszy wyjazd.",
+      "emptyFiltered": {
+        "title": "Brak wyników",
+        "message": "Brak wyjazdów o wybranym statusie."
+      },
+      "columns": {
+        "vehicle": "Ciągnik",
+        "driver": "Kierowca",
+        "departure": "Wyjazd",
+        "plannedReturn": "Planowany powrót",
+        "status": "Status",
+        "actions": "Akcje"
+      },
+      "cancel": "Anuluj",
+      "cancelAriaLabel": "Anuluj wyjazd",
+      "cancelDialogTitle": "Anulować wyjazd?",
+      "cancelDialogBody": "Tej operacji nie można cofnąć. Wyjazd zostanie oznaczony jako anulowany.",
+      "cancelBack": "Wróć",
+      "cancelConfirm": "Anuluj wyjazd",
+      "cancelling": "Anulowanie…",
+      "cancelledToast": "Wyjazd anulowany",
+      "cancelErrorToast": "Nie udało się anulować wyjazdu",
+      "registeredToast": "Wyjazd zarejestrowany",
+      "registerErrorToast": "Nie udało się zapisać wyjazdu",
+      "form": {
+        "sectionVehicleAndDriver": "Ciągnik i kierowca",
+        "vehicle": "Ciągnik",
+        "driver": "Kierowca",
+        "driverPhone": "Telefon kierowcy",
+        "trailer": "Naczepa",
+        "sectionDeparture": "Wyjazd",
+        "departureAt": "Data i godzina wyjazdu",
+        "departureCountry": "Kraj wyjazdu",
+        "departurePostalCode": "Kod pocztowy wyjazdu",
+        "departureInPast": "Data wyjazdu nie może być w przeszłości.",
+        "sectionReturn": "Powrót",
+        "plannedReturnAt": "Planowany powrót",
+        "returnCountry": "Kraj powrotu",
+        "returnPostalCode": "Kod pocztowy powrotu",
+        "actualReturnAt": "Faktyczny powrót",
+        "reportedBy": "Zgłoszony przez",
+        "reportedAt": "Zgłoszony",
+        "verifiedBy": "Zweryfikowany przez",
+        "verifiedAt": "Zweryfikowany",
+        "notes": "Notatki",
+        "comment": "Komentarz"
+      },
+      "sections": {
+        "vehicleAndDriver": "Ciągnik i kierowca",
+        "departure": "Wyjazd",
+        "return": "Powrót",
+        "audit": "Historia statusu",
+        "notes": "Notatki",
+        "route": "Trasa"
+      },
+      "audit": {
+        "registeredBy": "Zgłoszony przez",
+        "readiedBy": "Zaakceptowany (eksport)",
+        "readiedCaption": "akceptacja ładunku",
+        "confirmedInTransit": "Potwierdzony w trasie",
+        "spedOrderNumber": "Nr zlecenia ze spedu",
+        "pending": "— oczekuje"
+      },
+      "status": {
+        "zgloszony": "Zgłoszony",
+        "gotowy": "Załadowany",
+        "w_trasie": "W trasie",
+        "zjechal": "Zjechał",
+        "anulowany": "Anulowany"
+      },
+      "blocked": {
+        "title": "Nie można zarejestrować wyjazdu",
+        "message": "Rejestracja wyjazdu nie jest możliwa, ponieważ nie wszystkie wymagane dane są uzupełnione w systemie. Skontaktuj się ze swoim opiekunem, aby uzupełnić brakujące informacje.",
+        "toast": "Nie można zarejestrować wyjazdu — skontaktuj się ze swoim opiekunem."
+      },
+      "routeCard": {
+        "aria": "Trasa wyjazdu z {from} do {to}",
+        "durationDays": "{days, plural, one {# dzień · plan.} few {# dni · plan.} many {# dni · plan.} other {# dni · plan.}}",
+        "durationUnknown": "— · plan.",
+        "departure": "Wyjazd",
+        "return": "Powrót",
+        "reportedPrefix": "zgł.",
+        "plannedPrefix": "plan.",
+        "actualPrefix": "fakt.",
+        "postalPrefix": "kod:"
+      },
+      "strip": {
+        "trailer": "Naczepa {plate}"
+      }
+    },
+    "fleet": {
+      "vehicles": {
+        "title": "Ciągniki",
+        "contactOpiekun": "Skontaktuj się z opiekunem",
+        "contactOpiekunSubject": "Zmiana danych ciągnika",
+        "emptyTitle": "Brak ciągników",
+        "emptyMessage": "Skontaktuj się z opiekunem, aby dodać ciągnik.",
+        "columns": {
+          "plate": "Numer rejestracyjny",
+          "side": "Numer boczny",
+          "type": "Typ",
+          "status": "Status",
+          "euro": "EURO",
+          "adr": "ADR",
+          "gb": "GB",
+          "it": "IT",
+          "fr": "FR",
+          "lastDroveAt": "Ostatni przejazd"
+        }
+      },
+      "drivers": {
+        "title": "Kierowcy",
+        "contactOpiekun": "Skontaktuj się z opiekunem",
+        "contactOpiekunSubject": "Zmiana danych kierowcy",
+        "searchPlaceholder": "Szukaj imienia / nazwiska",
+        "emptyTitle": "Brak kierowców",
+        "emptyMessage": "Skontaktuj się z opiekunem, aby dodać kierowcę.",
+        "emptyFiltered": {
+          "title": "Brak wyników",
+          "message": "Brak kierowców spełniających wyszukiwanie."
+        },
+        "columns": {
+          "name": "Imię i nazwisko",
+          "phone": "Telefon",
+          "idDocument": "Nr prawa jazdy",
+          "status": "Status"
+        }
+      },
+      "trailers": {
+        "title": "Naczepy",
+        "contactOpiekun": "Skontaktuj się z opiekunem",
+        "contactOpiekunSubject": "Zmiana danych naczepy",
+        "searchPlaceholder": "Szukaj numeru rejestracyjnego",
+        "filterByType": "Filtruj po typie",
+        "allTypes": "Wszystkie typy",
+        "emptyTitle": "Brak naczep",
+        "emptyMessage": "Skontaktuj się z opiekunem, aby dodać naczepę.",
+        "emptyFiltered": {
+          "title": "Brak wyników",
+          "message": "Brak naczep spełniających wybrane filtry."
+        },
+        "columns": {
+          "plate": "Numer rejestracyjny",
+          "type": "Typ",
+          "status": "Status"
+        }
+      },
+      "title": "Flota",
+      "subtitle": "Twoje ciągniki, kierowcy i naczepy. Dane są tylko do podglądu — zarządza nimi opiekun.",
+      "contactOpiekun": "Skontaktuj się z opiekunem",
+      "contactOpiekunSubject": "Zmiana danych floty",
+      "kpi": {
+        "vehicles": "Ciągniki"
+      },
+      "resources": "{drivers, plural, one {# kierowca} few {# kierowcy} many {# kierowców} other {# kierowców}} · {trailers, plural, one {# naczepa} few {# naczepy} many {# naczep} other {# naczep}}",
+      "needsAttention": {
+        "removeTitle": "Ciągniki do usunięcia (stoją ≥ 29 dni):",
+        "longIdleTitle": "Długo stojące ciągniki (15–28 dni):",
+        "days": "{days, plural, one {# dzień} few {# dni} many {# dni} other {# dni}}"
+      }
+    }
+  },
+  "vehicleStatus": {
+    "daysCount": "{days, plural, one {# dzień} few {# dni} many {# dni} other {# dni}}",
+    "aktywna": {
+      "badge": "Aktywna",
+      "tile": "Aktywne",
+      "tooltip": "Ma aktywną delegację"
+    },
+    "stojaca": {
+      "badge": "Stojąca",
+      "tile": "Stojące",
+      "tooltip": "Wróciła ≤ 14 dni temu"
+    },
+    "nieaktywna": {
+      "badge": "Długo stojąca",
+      "tile": "Długo stojące",
+      "tooltip": "Stoi 15–28 dni"
+    },
+    "do_usuniecia": {
+      "badge": "Do usunięcia",
+      "tile": "Do usunięcia",
+      "tooltip": "Stoi ≥ 29 dni — do wycofania"
+    },
+    "wylaczona": {
+      "badge": "Wyłączona",
+      "tile": "Wyłączone",
+      "tooltip": "Wyłączona ręcznie przez administratora"
+    }
+  },
+  "fleet": {
+    "a11y": {
+      "showDetails": "Pokaż szczegóły: {name}",
+      "showDelegationDetails": "Pokaż szczegóły wyjazdu: {name}"
+    },
+    "statusFilter": {
+      "label": "Filtr statusu:",
+      "count": "Pokazano: {count}",
+      "toggleAria": "{label}: {count} — pokaż tylko te ciągniki",
+      "showAllAria": "Wszystkie ciągniki: {count} — wyczyść filtr statusu",
+      "emptyTitle": "Brak ciągników w tym statusie",
+      "emptyMessage": "Żaden ciągnik nie ma wybranego statusu. Wyczyść filtr lub wybierz inny kafelek."
+    },
+    "vehicle": {
+      "sections": {
+        "identification": "Identyfikacja",
+        "equipment": "Wyposażenie",
+        "permissions": "Pozwolenia",
+        "usage": "Eksploatacja"
+      }
+    },
+    "driver": {
+      "sections": {
+        "personal": "Dane osobowe i kontakt",
+        "documents": "Dokumenty",
+        "notes": "Notatki"
+      }
+    },
+    "trailer": {
+      "sections": {
+        "identification": "Identyfikacja",
+        "dimensions": "Wymiary",
+        "roof": "Dach",
+        "equipment": "Wyposażenie"
+      }
+    }
+  },
+  "delegations": {
+    "admin": {
+      "title": "Wyjazdy",
+      "subtitle": "Wszystkie wyjazdy w systemie — podgląd tylko do odczytu",
+      "filters": {
+        "status": "Status",
+        "allStatuses": "Wszystkie statusy",
+        "search": "Szukaj",
+        "searchPlaceholder": "Szukaj przewoźnika / nr rej.…",
+        "dateFrom": "Data od",
+        "dateTo": "Data do"
+      },
+      "table": {
+        "emptyTitle": "Brak wyjazdów",
+        "emptyMessage": "W systemie nie zarejestrowano jeszcze żadnych wyjazdów.",
+        "emptyFiltered": {
+          "title": "Brak wyników",
+          "message": "Brak wyjazdów spełniających wybrane filtry."
+        },
+        "columns": {
+          "vehicle": "Ciągnik",
+          "driver": "Kierowca",
+          "route": "Trasa",
+          "period": "Okres",
+          "status": "Status"
+        }
+      }
+    },
+    "opiekun": {
+      "title": "Wyjazdy",
+      "subtitle": "Wszystkie wyjazdy przewoźników, którymi się opiekujesz — podgląd tylko do odczytu",
+      "filters": {
+        "status": "Status",
+        "allStatuses": "Wszystkie statusy",
+        "search": "Szukaj",
+        "searchPlaceholder": "Szukaj przewoźnika / nr rej.…",
+        "dateFrom": "Data od",
+        "dateTo": "Data do"
+      },
+      "table": {
+        "emptyTitle": "Brak wyjazdów",
+        "emptyMessage": "Twoi przewoźnicy nie zgłosili jeszcze żadnego wyjazdu.",
+        "emptyFiltered": {
+          "title": "Brak wyników",
+          "message": "Brak wyjazdów spełniających wybrane filtry."
+        },
+        "columns": {
+          "vehicle": "Auto",
+          "driver": "Kierowca",
+          "route": "Trasa",
+          "period": "Okres",
+          "status": "Status"
+        }
+      }
+    }
+  },
+  "eksport": {
+    "delegations": {
+      "title": "Wyjazdy",
+      "subtitle": "Oznacz wyjazdy jako załadowane po wystawieniu zlecenia",
+      "filters": {
+        "status": "Status",
+        "allStatuses": "Wszystkie statusy",
+        "includeHistory": "Pokaż historię (zjechał / anulowane)"
+      },
+      "table": {
+        "emptyTitle": "Brak wyjazdów",
+        "emptyMessage": "Nie znaleziono wyjazdów do wyświetlenia.",
+        "emptyFiltered": {
+          "title": "Brak wyników",
+          "message": "Brak wyjazdów spełniających wybrane filtry."
+        },
+        "columns": {
+          "vehicle": "Ciągnik",
+          "carrier": "Przewoźnik",
+          "route": "Trasa",
+          "period": "Okres",
+          "status": "Status",
+          "actions": "Akcje"
+        }
+      },
+      "actions": {
+        "markReady": "Oznacz jako załadowany",
+        "rollback": "Cofnij do: zgłoszony",
+        "advanceTitle": "Oznacz jako załadowany",
+        "advanceDescription": "Wyjazd {plate} zostanie oznaczony jako załadowany (ładunek znaleziony, zlecenie wystawione).",
+        "spedOrderNumberLabel": "Nr zlecenia ze spedu",
+        "spedOrderNumberPlaceholder": "np. ZL12345/01/26",
+        "spedOrderNumberRequired": "Nr zlecenia ze spedu jest wymagany.",
+        "rollbackTitle": "Cofnij do: zgłoszony",
+        "rollbackDescription": "Wyjazd {plate} wróci do statusu zgłoszony. Możliwe tylko zanim ruszy w trasę.",
+        "rollbackConfirm": "Cofnij status",
+        "cancel": "Anuluj",
+        "readyToast": "Oznaczono jako załadowany",
+        "rolledBackToast": "Cofnięto do: zgłoszony",
+        "errorToast": "Nie udało się zmienić statusu wyjazdu"
+      }
+    }
+  },
+  "weryfikator": {
+    "tabs": {
+      "ariaLabel": "Ekrany weryfikatora",
+      "km": "Ciągniki / km",
+      "delegations": "Wyjazdy"
+    },
+    "delegations": {
+      "title": "Wyjazdy",
+      "subtitle": "Oznacz wyjazdy w trasie oraz zjazd ciągnika",
+      "filters": {
+        "status": "Status",
+        "allStatuses": "Wszystkie statusy",
+        "includeHistory": "Pokaż historię (zjechał / anulowane)"
+      },
+      "table": {
+        "emptyTitle": "Brak wyjazdów",
+        "emptyMessage": "Nie znaleziono wyjazdów do wyświetlenia.",
+        "emptyFiltered": {
+          "title": "Brak wyników",
+          "message": "Brak wyjazdów spełniających wybrane filtry."
+        },
+        "columns": {
+          "vehicle": "Ciągnik",
+          "carrier": "Przewoźnik",
+          "route": "Trasa",
+          "period": "Okres",
+          "status": "Status",
+          "actions": "Akcje"
+        }
+      },
+      "actions": {
+        "markInTransit": "Oznacz w trasie",
+        "markReturned": "Oznacz zjechał",
+        "inTransitTitle": "Oznacz jako w trasie",
+        "inTransitDescription": "Podaj faktyczną datę i godzinę wyjazdu dla wyjazdu {plate}.",
+        "inTransitDateLabel": "Data i godzina faktycznego wyjazdu",
+        "inTransitRequired": "Podaj datę i godzinę wyjazdu",
+        "inTransitFuture": "Data i godzina wyjazdu nie mogą być w przyszłości",
+        "inTransitBeforeDeparture": "Data nie może być wcześniejsza niż zgłoszona data wyjazdu",
+        "returnedTitle": "Oznacz jako zjechał",
+        "returnedDescription": "Podaj faktyczną datę i godzinę zjazdu dla wyjazdu {plate}.",
+        "returnedDateLabel": "Data i godzina zjazdu",
+        "returnedRequired": "Podaj datę i godzinę zjazdu",
+        "returnedFuture": "Data i godzina zjazdu nie mogą być w przyszłości",
+        "returnedBeforeDeparture": "Data zjazdu nie może być wcześniejsza niż faktyczny wyjazd.",
+        "returnedIncompleteKm": "Uwaga: dla {count} {count, plural, one {dnia} few {dni} many {dni} other {dni}} tego wyjazdu nie wpisano przebiegu na tablicy km. Sprawdź, czy uzupełniłeś wszystkie dni przed oznaczeniem zjazdu.",
+        "cancel": "Anuluj",
+        "inTransitToast": "Oznaczono jako w trasie",
+        "returnedToast": "Oznaczono jako zjechał",
+        "errorToast": "Nie udało się zmienić statusu wyjazdu"
+      }
+    },
+    "km": {
+      "title": {
+        "board": "Tablica km",
+        "report": "Raport km — moje ciągniki"
+      },
+      "subtitle": "Dzienny przebieg ciągników — tydzień {week}",
+      "tiles": {
+        "week": "Tydzień",
+        "tractors": "Ciągniki",
+        "inMotion": "W ruchu",
+        "idle": "Nie jeżdżą",
+        "sumKm": "Σ km",
+        "notes": "Notatek"
+      },
+      "col": {
+        "vehicle": "Ciągnik",
+        "sideShort": "bok {side}",
+        "carrier": "Przewoźnik",
+        "opiekun": "Opiekun",
+        "dispatcher": "Dyspozytor",
+        "sumKm": "Σ km",
+        "note": "Notatka",
+        "history": "Historia"
+      },
+      "weekday": {
+        "mon": "Pn",
+        "tue": "Wt",
+        "wed": "Śr",
+        "thu": "Cz",
+        "fri": "Pt",
+        "sat": "Sb",
+        "sun": "Nd"
+      },
+      "cell": {
+        "drove": "Jechał",
+        "idle": "Nie jeździ",
+        "empty": "Nie sprawdzono",
+        "kmPlaceholder": "km",
+        "locked": "zablokowane",
+        "lockedHint": "Można uzupełnić dopiero następnego dnia."
+      },
+      "modal": {
+        "title": "{plate} · bok {side}",
+        "desc": "{carrier} · {weekday}, {date}",
+        "stateLabel": "Status dnia",
+        "stateDrove": "Jechał",
+        "stateIdle": "Nie jeździ",
+        "kmLabel": "Przebieg (km)",
+        "kmRequired": "Podaj km",
+        "kmZeroHint": "0 km? oznacz „nie jeździ”",
+        "notesLabel": "Notatka",
+        "notesPlaceholder": "Notatka do dnia…",
+        "save": "Zapisz",
+        "cancel": "Anuluj",
+        "saveError": "Nie udało się zapisać km"
+      },
+      "clear": {
+        "action": "Wyczyść ten dzień",
+        "confirmTitle": "Wyczyść ten dzień?",
+        "confirmBody": "Czy na pewno chcesz wyczyścić zapis km dla {plate}, {weekday} {date}? Dzień wróci do stanu „Nie sprawdzono”.",
+        "confirm": "Wyczyść",
+        "cancel": "Anuluj",
+        "error": "Nie udało się wyczyścić dnia"
+      },
+      "nav": {
+        "prev": "Poprzedni tydzień",
+        "next": "Następny tydzień",
+        "current": "Bieżący tydzień",
+        "weekLabel": "Tydzień {week} · {from}–{to}",
+        "pickWeek": "Wybierz tydzień"
+      },
+      "progress": "{checked} z {total} ciągników uzupełnionych w tym tygodniu",
+      "filter": {
+        "inMotionOnly": "Tylko jeżdżące"
+      },
+      "search": {
+        "placeholder": "Szukaj ciągnika (nr rej. / nr boczny / przewoźnik)",
+        "label": "Szukaj ciągnika",
+        "noResults": "Brak ciągników pasujących do wyszukiwania"
+      },
+      "readOnlyBanner": "Dane są tylko do podglądu — edytuje weryfikator.",
+      "lagNote": "Dane aktualne na poprzedni dzień. Dzień bieżący i przyszłe są zablokowane.",
+      "lagNoteShort": "Dane aktualne na poprzedni dzień.",
+      "empty": {
+        "noVehicles": "Brak aktywnych ciągników",
+        "noAssigned": "Brak przypisanych ciągników",
+        "noMotion": "Żaden ciągnik nie jeździł w tym tygodniu"
+      },
+      "month": {
+        "title": "Przebieg km — {plate} · bok {side}",
+        "desc": "{carrier}",
+        "prev": "Poprzedni miesiąc",
+        "next": "Następny miesiąc",
+        "gridLabel": "Kalendarz przebiegu km — {month}",
+        "sumLabel": "Σ km w miesiącu",
+        "range": "Zakres: {from}–{to}",
+        "emptyMonth": "Brak zapisów km w tym miesiącu"
+      },
+      "notesPopover": {
+        "title": "Notatki w tym tygodniu",
+        "empty": "Brak notatek"
+      },
+      "aria": {
+        "cell": "{plate}, {weekday} {date}: {state}",
+        "cellLocked": "{plate}, {weekday} {date}: {state} — zablokowane (dzień bieżący lub przyszły)",
+        "grid": "Tygodniowa tablica km"
+      }
+    }
+  },
+  "myKm": {
+    "title": "Moje ciągniki — przebieg",
+    "tab": "Przebieg",
+    "subtitle": {
+      "carrier": "Tygodniowy przebieg Twoich ciągników — tydzień {week}",
+      "opiekun": "Przebieg ciągników Twoich przewoźników — tydzień {week}",
+      "planista": "Przebieg planowanych ciągników — tydzień {week}",
+      "dyspozytor": "Przebieg ciągników Twojego zespołu — tydzień {week}"
+    },
+    "readOnlyBanner": "Dane są tylko do podglądu — przebieg uzupełnia weryfikator.",
+    "group": {
+      "summary": "{count, plural, one {# ciągnik} few {# ciągniki} many {# ciągników} other {# ciągników}} · Σ {sum} km"
+    },
+    "tiles": {
+      "carriers": "Przewoźnicy"
+    },
+    "filter": {
+      "inMotionOnly": "Tylko jeżdżące"
+    },
+    "empty": {
+      "noVehicles": {
+        "carrier": "Nie masz jeszcze ciągników",
+        "scoped": "Brak przypisanych ciągników"
+      }
+    },
+    "aria": {
+      "carrierGroup": "Przewoźnik {carrier}: {count} ciągników"
+    }
+  },
+  "delegation": {
+    "kmCalendar": {
+      "title": "Przebieg w trakcie wyjazdu",
+      "summary": "NR REJ. {plate} · {from}–{to} · {days}",
+      "days": "{n, plural, one {# dzień} few {# dni} many {# dni} other {# dni}}",
+      "sumKm": "Σ {sum} km",
+      "drove": "{km} km",
+      "idle": "nie jeździ",
+      "empty": "—",
+      "noData": "Brak danych km dla tego okresu",
+      "aria": "Przebieg ciągnika {plate} w okresie {from}–{to}"
+    }
+  },
+  "claim": {
+    "reklamacja": {
+      "resolution": {
+        "pending": "Reklamacja w toku",
+        "uznana": "Reklamacja uznana",
+        "odrzucona": "Reklamacja odrzucona"
+      }
+    },
+    "autoRecalc": {
+      "applied": "Przeliczono wg faktycznej daty zjazdu",
+      "skipped": "Wymaga uwagi: faktyczna data zjazdu różni się od okresu wniosku",
+      "appliedTooltip": "Okres zaktualizowany z {origDateEnd} na {actualReturnAt}.",
+      "skippedTooltip": "Wyjazd zjechał {actualReturnAt}, okres wniosku: {dateEnd}. Pominięto auto-przeliczenie."
+    }
+  },
+  "alerts": {
+    "title": "Alerty",
+    "subtitle": "Dokumenty wygasające w ciągu {days} dni lub już przeterminowane.",
+    "kpi": {
+      "expired": "Przeterminowane",
+      "today": "Wygasają dziś",
+      "warning": "Za ≤3 dni",
+      "upcoming": "Za ≤7 dni"
+    },
+    "category": {
+      "carrier": "Przewoźnicy",
+      "vehicle": "Pojazdy",
+      "driver": "Kierowcy"
+    },
+    "docType": {
+      "carrier_insurance": "Ubezpieczenie OCP",
+      "carrier_license": "Licencja transportowa",
+      "vehicle_fuel_card": "Karta paliwowa",
+      "driver_license": "Prawo jazdy"
+    },
+    "countdown": {
+      "expired": "{days, plural, one {przeterminowany o # dzień} few {przeterminowany o # dni} many {przeterminowany o # dni} other {przeterminowany o # dni}}",
+      "today": "Wygasa dziś",
+      "upcoming": "{days, plural, one {za # dzień} few {za # dni} many {za # dni} other {za # dni}}"
+    },
+    "expiresOn": "wygasa {date}",
+    "empty": {
+      "title": "Wszystkie dokumenty aktualne",
+      "message": "Żaden dokument nie wygasa w najbliższym czasie."
+    },
+    "error": {
+      "title": "Nie udało się wczytać alertów",
+      "message": "Spróbuj odświeżyć stronę."
+    }
+  }
+}
