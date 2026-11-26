@@ -27,12 +27,12 @@ BUILD = Path(sys.argv[1]) if len(sys.argv) > 1 else HERE / "_build"
 TEXT_WIDTH = 9070  # A4 11906 - 2 * 1418 (template margins), in twips
 
 TITLE_REPLACEMENTS = {
-    "Jan Kowalski": "<IMIĘ I NAZWISKO>",
-    "studia niestacjonarne": "studia <stacjonarne/niestacjonarne>",
-    "nr albumu 123456": "nr albumu <NR ALBUMU>",
+    "Jan Kowalski": "Danyil Fiut",
+    "studia niestacjonarne": "studia niestacjonarne",
+    "nr albumu 123456": "nr albumu 48991",
     "Aplikacja internetowa: platforma e-commerce":
         "MAGGuarantee: system zarządzania wnioskami o gwarancję kilometrową dla firmy transportowej",
-    "dra inż. X Y Z": "<TYTUŁ> Marcina Kacprowicza",
+    "dra inż. X Y Z": "dr. inż. Marcina Kacprowicza",
     "Warszawa, 2022": "Warszawa 2026",
 }
 
